@@ -1,0 +1,39 @@
+{
+  "display": {
+    "title": "Adshares banner",
+    "description": "Adshares banner test scene",
+    "navmapThumbnail": "images/scene-thumbnail.png",
+    "favicon": "favicon_asset"
+  },
+  "contact": {
+    "name": "Adshares",
+    "email": "contact@adshares.net"
+  },
+  "owner": "",
+  "scene": {
+    "parcels": [
+      "0,0"
+    ],
+    "base": "0,0"
+  },
+  "requiredPermissions": [],
+  "main": "bin/game.js",
+  "tags": [],
+  "spawnPoints": [
+    {
+      "name": "spawn1",
+      "default": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "cameraTarget": {
+        "x": 8,
+        "y": 1,
+        "z": 8
+      }
+    }
+  ],
+  "featureToggles": {}
+}

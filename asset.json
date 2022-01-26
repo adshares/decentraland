@@ -1,0 +1,55 @@
+{
+
+  "name": "Adshares banner",
+  "tags": ["income", "earnings", "ads", "banner", "advertisement", "advertising"],
+  "category": "decorations",
+  "model": "models/image_preview.glb",
+  "parameters": [
+    {
+      "id": "payout_network",
+      "label": "Payout network",
+      "type": "options",
+      "options": [
+        {
+          "value": "bsc",
+          "label": "Binance Smart Chain (0x...)"
+        },
+        {
+          "value": "ads",
+          "label": "Adshares Chain (https://adshares.net/wallet)"
+        }
+      ],
+      "default": "ads"
+    },
+    {
+      "id": "payout_address",
+      "label": "Payout address",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "id": "keywords",
+      "label": "Keywords (comma separated)",
+      "type": "text",
+      "default": "decentraland,metaverse"
+    },
+    {
+      "id": "zone_name",
+      "label": "Placement name",
+      "type": "text",
+      "default": "default"
+    },
+    {
+      "id": "adserver",
+      "label": "(expert) Adserver url",
+      "type": "text",
+      "default": "https://app.web3ads.net"
+    },
+    {
+      "id": "exclude",
+      "label": "(expert) Exclude rules",
+      "type": "text",
+      "default": "{\"quality\": [\"low\"], \"category\": [\"adult\"]}"
+    }
+  ]
+}
