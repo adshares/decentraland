@@ -74,7 +74,7 @@ export default class AdsharesBanner implements IScript<Props> {
     }
 
     getSceneId(land: ILand): string {
-        return "scene-" + land.sceneJsonData.scene.base.replace('-', 'N').replace(',', '-');
+        return "scene-" + land.sceneJsonData.scene.base.replace(new RegExp('-', 'g'), 'N').replace(',', '-');
     }
 
     getSceneTags(land: ILand, extraTags: string[]): string {
@@ -141,35 +141,6 @@ export default class AdsharesBanner implements IScript<Props> {
         } catch (e) {
             log("failed to reach URL", e)
         }
-
-        // response = {
-        //     "banners": [
-        //         {
-        //             "id": "2f2fdaa4a4b04032adacb0fb340e0236",
-        //             "publisher_id": "65fba894af014a109775f709c898331c",
-        //             "zone_id": "44d423ff22484955ab8b27e531b32c7d",
-        //             "pay_from": "0001-00000028-3E05",
-        //             "pay_to": "0001-000000F1-6451",
-        //             "type": "image",
-        //             "size": "728x90",
-        //             "serve_url": "https://skynetcdn.com/EADjtcXAXmAKryx2dlTdw-7sfyua-xZLO0Ic3sQMSl1XCw/",
-        //             "creative_sha1": "a062454d9e6a3e8e781a2cab67615b4d78290dfb",
-        //             "click_url": "https://daxaleli.xyz/l/n/click/2f2fdaa4a4b04032adacb0fb340e0236?r=aHR0cHM6Ly9vcWFtaWNhYi54eXovY2xpY2svMzIwZDFjZTE4MTVmNDhmZjk1NjRiNjlmNmI4ZWNkZDk",
-        //             "view_url": "https://daxaleli.xyz/l/n/view/2f2fdaa4a4b04032adacb0fb340e0236?r=aHR0cHM6Ly9vcWFtaWNhYi54eXovdmlldy8zMjBkMWNlMTgxNWY0OGZmOTU2NGI2OWY2YjhlY2RkOQ",
-        //             "rpm": 0.768
-        //         }
-        //     ],
-        //     "success": true,
-        //     "errors": {
-        //         "pay_to": [
-        //             "The pay to must be valid PayoutAddress.",
-        //             "asd"
-        //         ],
-        //         "view_id": [
-        //             "View id invalid.",
-        //         ],
-        //     }
-        // }
 
         if (response.banners) {
             let banner = response.banners[0];
@@ -256,8 +227,8 @@ export default class AdsharesBanner implements IScript<Props> {
         QRPlane.addComponent(new PlaneShape())
         QRPlane.addComponent(
             new Transform({
-                position: new Vector3(0.5 - scale.x / 2, 1 - scale.y / 2, -0.01),
-                rotation: Quaternion.Euler(180, 180, 0),
+                position: new Vector3(-0.5 + scale.x / 2, 1 - scale.y / 2, 0.01),
+                rotation: Quaternion.Euler(180, 0, 0),
                 scale: new Vector3(scale.x, scale.y, 1),
             })
         )
@@ -292,7 +263,7 @@ export default class AdsharesBanner implements IScript<Props> {
         QRPlane2.addComponent(
             new Transform({
                 position: new Vector3(0, 0.5, 0),
-                rotation: Quaternion.Euler(180, 180, 0),
+                rotation: Quaternion.Euler(180, 0, 0),
                 scale: new Vector3(1, 1, 1),
             })
         )
@@ -320,7 +291,7 @@ export default class AdsharesBanner implements IScript<Props> {
 
         QRPlane.addComponent(
             new Transform({
-                position: new Vector3(0, 0.5, -0.01),
+                position: new Vector3(0, 0.5, 0.01),
                 rotation: Quaternion.Euler(180, 180, 0),
                 scale: new Vector3(scale.x, scale.y, 1),
             })
@@ -372,7 +343,7 @@ export default class AdsharesBanner implements IScript<Props> {
         QRPlane.addComponent(
             new Transform({
                 position: new Vector3(0, 0.5, 0),
-                rotation: Quaternion.Euler(180, 180, 0),
+                rotation: Quaternion.Euler(180, 0, 0),
                 scale: new Vector3(1, 1, 1),
             })
         )
