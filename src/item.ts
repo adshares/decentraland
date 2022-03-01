@@ -74,7 +74,7 @@ export default class AdsharesBanner implements IScript<Props> {
     }
 
     getSceneId(land: ILand): string {
-        return "scene-" + land.sceneJsonData.scene.base.replace(new RegExp('-', 'g'), 'N').replace(',', '-');
+        return "scene-" + land.sceneJsonData.scene.base.replace(new RegExp('-', 'g'), 'n').replace(',', '-');
     }
 
     getSceneTags(land: ILand, extraTags: string[]): string {
@@ -103,16 +103,14 @@ export default class AdsharesBanner implements IScript<Props> {
 
         let request = {
             "pay_to": props.payout_network + ':' + props.payout_address,
-
             "view_id": this.getImpressionId(),
-
             "zone_name": props.zone_name,
             "width": transform.scale.x,
             "height": transform.scale.y,
             "min_dpi": 10,
             "exclude": JSON.parse(props.exclude),
-            "type": "image",
-
+            "type": ["image", "video"] ,
+            "mime_type": ["image/jpeg",  "image/png", "video/mp4"],
             "context": {
                 "site": {
                     "url": "https://" + this.getSceneId(parcel.land) + ".decentraland.org/",
@@ -167,7 +165,7 @@ export default class AdsharesBanner implements IScript<Props> {
                         'iid': request.view_id,
                         'json': 1
                     });
-                this.renderBanner(host, banner)
+                await this.renderBanner(host, banner)
                 this.showWaterMark(host, props, request, banner)
 
                 try {
@@ -336,14 +334,14 @@ export default class AdsharesBanner implements IScript<Props> {
         this.renderText(host, "textures/error.png", "Banner ERROR\n\n" + errors.join("\n"))
     }
 
-    renderBanner(host: Entity, banner: any) {
+    async renderBanner(host: Entity, banner: any) {
         let QRPlane = new Entity()
         QRPlane.setParent(host)
         QRPlane.addComponent(new PlaneShape())
         QRPlane.addComponent(
             new Transform({
                 position: new Vector3(0, 0.5, 0),
-                rotation: Quaternion.Euler(180, 0, 0),
+                rotation: Quaternion.Euler(banner.type == 'image' ? 180 : 0, 0, 0),
                 scale: new Vector3(1, 1, 1),
             })
         )
@@ -353,9 +351,20 @@ export default class AdsharesBanner implements IScript<Props> {
         QRMaterial.metallic = 0
         QRMaterial.roughness = 1
         QRMaterial.specularIntensity = 0
-
+        let QRTexture;
         if(banner) {
-            let QRTexture = new Texture(banner.serve_url)
+            if(banner.type == 'image') {
+                QRTexture = new Texture(banner.serve_url)
+            } else if(banner.type == "video") {
+                let video_url = banner.serve_url
+                video_url += video_url.indexOf('?') == -1 ? '?' : '&'
+                const video = new VideoClip(video_url + "/y.mp4")
+                QRTexture = new VideoTexture(video)
+                QRTexture.loop = true
+                QRTexture.play()
+            } else {
+                this.renderError(host, ["Invalid banner format: " + banner.type])
+            }
             QRMaterial.albedoTexture = QRTexture
         } else {
             QRMaterial.albedoColor = Color3.White()
