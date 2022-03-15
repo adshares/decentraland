@@ -58,10 +58,9 @@ interface IHash {
 export default class AdsharesBanner implements IScript<Props> {
     impressionId: string = ''
     bannerCounter: number = 0
-    loadedAdusers: IHash
+    loadedAdusers: IHash = {}
 
     init() {
-        this.loadedAdusers = {}
     }
 
     getRandId(bytes: Number): string {
