@@ -51,9 +51,17 @@ const addUrlParam = function (url: string, names: any, value: any = null) {
     return url;
 };
 
-export default class AdsharesBanner implements IScript<Props> {
-    init() {
+interface IHash {
+    [details: string] : boolean;
+}
 
+export default class AdsharesBanner implements IScript<Props> {
+    impressionId: string = ''
+    bannerCounter: number = 0
+    loadedAdusers: IHash
+
+    init() {
+        this.loadedAdusers = {}
     }
 
     getRandId(bytes: Number): string {
@@ -70,7 +78,10 @@ export default class AdsharesBanner implements IScript<Props> {
     }
 
     getImpressionId(): string {
-        return UrlSafeBase64Encode(this.getRandId(16));
+        if(this.impressionId == '') {
+            this.impressionId = UrlSafeBase64Encode(this.getRandId(16))
+        }
+        return this.impressionId;
     }
 
     getSceneId(land: ILand): string {
@@ -97,9 +108,14 @@ export default class AdsharesBanner implements IScript<Props> {
     }
 
     async find(host: Entity, props: Props) {
+
         const userAccount = await getUserAccount()
         const parcel = await getParcel()
         const transform = host.getComponent(Transform)
+
+        if(this.impressionId == '') {
+            fetch((props.adserver + '/supply/register?iid=' + this.getImpressionId()) + '&stid=' + userAccount).then()
+        }
 
         let request = {
             "pay_to": props.payout_network + ':' + props.payout_address,
@@ -119,16 +135,16 @@ export default class AdsharesBanner implements IScript<Props> {
                 "user": {
                     "account": userAccount
                 }
-            }
+            },
+            "medium": "metaverse",
+            "vendor": "decentraland",
+            "version": "1.1.1",
         };
 
         let response: any = {};
 
         try {
-            let callUrl = (props.adserver + '/supply/register?iid=' + request.view_id);
-            fetch(callUrl).then()
-
-            callUrl = props.adserver + "/supply/anon"
+            let callUrl = props.adserver + "/supply/anon?stid=" + userAccount
             let callResponse = await fetch(callUrl, {
                 headers: { "Content-Type": "application/json" },
                 method: "POST",
@@ -169,10 +185,12 @@ export default class AdsharesBanner implements IScript<Props> {
                 this.showWaterMark(host, props, request, banner)
 
                 try {
+                    let loadedAdusers = this.loadedAdusers;
                     fetch(banner.view_url).then(function (response) {
                         response.json().then(function (object) {
-                            if (object.aduser_url) {
+                            if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
                                 fetch(object.aduser_url);
+                                loadedAdusers[object.aduser_url] = true
                             }
                         });
                     });
@@ -381,6 +399,11 @@ export default class AdsharesBanner implements IScript<Props> {
     }
 
     spawn(host: Entity, props: Props, channel: IChannel) {
-        this.find(host, props).then()
+        this.bannerCounter++
+        if(this.bannerCounter > 20) {
+            this.renderError(host, ["To many banners, max 20"])
+        } else {
+            this.find(host, props).then()
+        }
     }
 }
