@@ -129,7 +129,8 @@ export default class AdsharesBanner implements IScript<Props> {
             "context": {
                 "site": {
                     "url": "https://" + this.getSceneId(parcel.land) + ".decentraland.org/",
-                    "keywords": this.getSceneTags(parcel.land, props.keywords.split(","))
+                    "keywords": this.getSceneTags(parcel.land, props.keywords.split(",")),
+                    "metamask": 1
                 },
                 "user": {
                     "account": userAccount
@@ -163,7 +164,11 @@ export default class AdsharesBanner implements IScript<Props> {
                     page: {
                         iid: request.view_id,
                         url: request.context.site.url,
-                        keywords: request.context.site.keywords
+                        keywords: request.context.site.keywords,
+                        metamask: request.context.site.metamask,
+                    },
+                    user: {
+                        account: request.context.user.account
                     }
                 }
                 banner.click_url = addUrlParam(banner.click_url,
