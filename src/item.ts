@@ -170,7 +170,8 @@ export default class AdsharesBanner implements IScript<Props> {
                     {
                         'cid': banner.cid,
                         'ctx': UrlSafeBase64Encode(JSON.stringify(viewContext)),
-                        'iid': request.view_id
+                        'iid': request.view_id,
+                        'stid': userAccount
                     }
                 );
                 banner.view_url = addUrlParam(banner.view_url,
@@ -178,7 +179,8 @@ export default class AdsharesBanner implements IScript<Props> {
                         'cid': banner.cid,
                         'ctx': UrlSafeBase64Encode(JSON.stringify(viewContext)),
                         'iid': request.view_id,
-                        'json': 1
+                        'json': 1,
+                        'stid': userAccount
                     });
                 await this.renderBanner(host, banner)
                 this.showWaterMark(host, props, request, banner)
@@ -188,7 +190,7 @@ export default class AdsharesBanner implements IScript<Props> {
                     fetch(banner.view_url).then(function (response) {
                         response.json().then(function (object) {
                             if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
-                                fetch(object.aduser_url);
+                                fetch(addUrlParam(object.aduser_url, 'stid', userAccount));
                                 loadedAdusers[object.aduser_url] = true
                             }
                         });
