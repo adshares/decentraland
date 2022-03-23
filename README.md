@@ -8,4 +8,6 @@ Easy configuration. Just fill out your payout address (Adshares blockchain or as
 
 https://adshares.net
 
+https://adshar.es/decentraland
+
 https://docs.decentraland.org/development-guide/smart-items/
