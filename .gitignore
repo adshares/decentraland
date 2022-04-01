@@ -1,4 +1,9 @@
+# build
 node_modules
-.idea
 *.zip
 bin
+npm-debug.log
+# IDE
+.idea/
+# QA
+.scannerwork/
