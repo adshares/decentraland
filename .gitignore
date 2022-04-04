@@ -1,7 +1,8 @@
 # build
 node_modules
 *.zip
-bin
+bin/
+lib/
 npm-debug.log
 # IDE
 .idea/

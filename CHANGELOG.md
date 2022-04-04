@@ -7,36 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.4] - 2021-11-22
-### Added
-- Contract ABI
-
-## [1.0.3] - 2021-11-19
+## [1.1.3] - 2022-04-04
 ### Changed
-- Export as methods
+- Npm package setup
 
-## [1.0.2] - 2021-11-19
+## [1.1.2] - 2022-03-22
+### Changed
+- Add account and metamask to context
+
+## [1.1.1] - 2022-03-15
 ### Fixed
-- Export static methods
+- Optimize ads loading
 
-## [1.0.1] - 2021-11-18
-### Fixed
-- Import as a module
-
-## [1.0.0] - 2021-11-17
+## [1.1.0] - 2022-03-01
 ### Added
-- Utils
-- Crypto
-- Tx
-- Readme
-- License
-- Changelog
-- Contributing
+- Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v1.0.4...HEAD
-
-[1.0.4]: https://github.com/adshares/decentraland/compare/v1.0.3...v1.0.4
-[1.0.3]: https://github.com/adshares/decentraland/compare/v1.0.2...v1.0.3
-[1.0.2]: https://github.com/adshares/decentraland/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/adshares/decentraland/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/adshares/decentraland/releases/tag/v1.0.0
+[Unreleased]: https://github.com/adshares/decentraland/compare/v1.0.3...HEAD
+[1.1.3]: https://github.com/adshares/decentraland/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/adshares/decentraland/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/adshares/decentraland/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/adshares/decentraland/releases/tag/v1.1.0
