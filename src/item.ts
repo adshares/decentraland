@@ -142,7 +142,7 @@ export default class AdsharesBanner implements IScript<Props> {
       },
       medium: 'metaverse',
       vendor: 'decentraland',
-      version: '1.1.1',
+      version: '1.1.3',
     }
 
     let response: any = {}
@@ -209,7 +209,7 @@ export default class AdsharesBanner implements IScript<Props> {
           log('view log failed', e)
         }
       } else {
-        this.renderText(host, 'textures/notfound.png',
+        this.renderText(host, 'https://assets.adshares.net/metaverse/notfound.png',
           'Banner not found\n\nImpression ID: ' + request.view_id +
           '\n\nconfig: ' + JSON.stringify(props, null, '\t'))
       }
@@ -239,7 +239,7 @@ export default class AdsharesBanner implements IScript<Props> {
 
   showWaterMark (host: Entity, props: Props, request: any, banner: any) {
     const transform = host.getComponent(Transform)
-    let url = 'textures/watermark.png'
+    let url = 'https://assets.adshares.net/metaverse/watermark.png'
 
     let QRTexture = new Texture(url)
 
@@ -358,7 +358,7 @@ export default class AdsharesBanner implements IScript<Props> {
   }
 
   renderError (host: Entity, errors: string[]) {
-    this.renderText(host, 'textures/error.png',
+    this.renderText(host, 'https://assets.adshares.net/metaverse/error.png',
       'Banner ERROR\n\n' + errors.join('\n'))
   }
 
