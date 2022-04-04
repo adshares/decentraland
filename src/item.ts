@@ -1,3 +1,4 @@
+import * as DCL from '../node_modules/decentraland-builder-scripts/spawner'
 import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 

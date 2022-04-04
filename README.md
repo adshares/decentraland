@@ -30,8 +30,8 @@ yarn add @adshares/decentraland
 ## Usage
 
 ```js
-import { Spawner } from 'decentraland-builder-scripts'
-import AdsharesBanner, { Props } from '@adshares/decentraland'
+import { Spawner } from '../node_modules/decentraland-builder-scripts/spawner'
+import AdsharesBanner, { Props } from '../node_modules/@adshares/decentraland/src/item'
 
 const banner = new AdsharesBanner()
 const spawner = new Spawner<Props>(banner)

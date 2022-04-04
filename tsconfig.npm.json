@@ -3,7 +3,7 @@
     "outDir": "./lib",
     "allowJs": true,
     "strict": true,
-    "declaration": true
+    "declaration": true,
   },
   "include": ["src/**/*.ts"],
   "extends": "./node_modules/decentraland-ecs/types/tsconfig.json"
