@@ -19,8 +19,6 @@
     "url": "https://github.com/adshares/decentraland/issues"
   },
   "homepage": "https://github.com/adshares/decentraland#readme",
-  "main": "lib/src/item.js",
-  "types": "lib/src/item.d.ts",
   "scripts": {
     "start": "dcl start",
     "build": "build-ecs",
