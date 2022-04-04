@@ -1,0 +1,9 @@
+.github
+bin
+build
+docs
+.dclignore
+.gitignore
+Dockerfile
+scene.json
+sonar-project.properties
