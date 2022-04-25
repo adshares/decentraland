@@ -1,6 +1,22 @@
 import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 
+let SignedFetch: Function
+async function importFetch():Promise<any>{
+  if(SignedFetch) {
+    return SignedFetch
+  }
+  await import("@decentraland/SignedFetch").then((x: any) => {
+    if(typeof x === 'object') {
+      x = x[0]
+    }
+    SignedFetch = x.signedFetch
+  }, x => {
+    SignedFetch = fetch
+  })
+  return SignedFetch
+}
+
 export type Props = {
   payout_network: string
   payout_address: string
@@ -114,8 +130,10 @@ export default class AdsharesBanner implements IScript<Props> {
     const parcel = await getParcel()
     const transform = host.getComponent(Transform)
 
+    let signedFetch = await importFetch()
+
     if (this.impressionId == '') {
-      fetch(
+      signedFetch(
         (props.adserver + '/supply/register?iid=' + this.getImpressionId()) +
         '&stid=' + userAccount).then()
     }
@@ -142,7 +160,7 @@ export default class AdsharesBanner implements IScript<Props> {
       },
       medium: 'metaverse',
       vendor: 'decentraland',
-      version: '1.1.3',
+      version: '1.1.4',
     }
 
     let response: any = {}
@@ -196,13 +214,17 @@ export default class AdsharesBanner implements IScript<Props> {
 
         try {
           let loadedAdusers = this.loadedAdusers
-          fetch(banner.view_url).then(function (response) {
-            response.json().then(function (object) {
-              if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
-                fetch(addUrlParam(object.aduser_url, 'stid', userAccount))
-                loadedAdusers[object.aduser_url] = true
-              }
-            })
+          signedFetch(banner.view_url).then(function (response: any) {
+            let object;
+            if (response.text ) {
+              object = JSON.parse(response.text);
+            } else {
+              object = response.json;
+            }
+            if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
+              signedFetch(addUrlParam(object.aduser_url, 'stid', userAccount))
+              loadedAdusers[object.aduser_url] = true
+            }
           })
 
         } catch (e) {
