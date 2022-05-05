@@ -44,10 +44,10 @@ spawner.spawn(
   }),
   {
     payout_network: 'ads',
-    payout_address: '0001-000000F1-6451',
+    payout_address: '0001-000000F1-6451', // put your native adshares address
     keywords: 'decentraland,metaverse',
     zone_name: 'default',
-    adserver: 'https://adserver.priv',
+    adserver: 'https://app.web3ads.net',
     exclude: '{"quality": ["low"], "category": ["adult"]}',
   },
 )
@@ -59,11 +59,11 @@ spawner.spawn(
     scale: new Vector3(2, 2, 0.1),
   }),
   {
-    payout_network: 'ads',
-    payout_address: '0001-000000F1-6451',
+    payout_network: 'bsc',
+    payout_address: '0xcfcecfe2bd2fed07a9145222e8a7ad9cf1ccd22a', // put your metamask address here (binance chain)
     keywords: 'decentraland,metaverse',
     zone_name: 'default',
-    adserver: 'https://adserver.priv',
+    adserver: 'https://app.web3ads.net',
     exclude: '{"quality": ["low"], "category": ["adult"]}',
   },
 )
