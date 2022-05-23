@@ -1,9 +1,12 @@
 .github
+.dclignore
+.gitignore
+.idea
 bin
 build
 docs
-.dclignore
-.gitignore
+images
+models
 Dockerfile
 scene.json
 sonar-project.properties
