@@ -29,8 +29,5 @@
   },
   "devDependencies": {
     "decentraland-ecs": "^6.8.0"
-  },
-  "dependencies": {
-    "decentraland-builder-scripts": "^0.24.0"
   }
 }

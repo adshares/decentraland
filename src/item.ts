@@ -72,7 +72,7 @@ interface IHash {
   [details: string]: boolean;
 }
 
-export default class AdsharesBanner implements IScript<Props> {
+export default class AdsharesBanner {
   impressionId: string = ''
   bannerCounter: number = 0
   loadedAdusers: IHash = {}
@@ -430,7 +430,7 @@ export default class AdsharesBanner implements IScript<Props> {
     }
   }
 
-  spawn (host: Entity, props: Props, channel: IChannel) {
+  spawn (host: Entity, props: Props, channel: any = null) {
     this.bannerCounter++
     if (this.bannerCounter > 20) {
       this.renderError(host, ['To many banners, max 20'])
