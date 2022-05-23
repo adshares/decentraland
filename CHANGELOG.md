@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.1.5] - 2022-05-23
-### Changed
+### Removed
 - Dependency on DCL builder scripts
 
 ## [1.1.4] - 2022-04-25
