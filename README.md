@@ -69,7 +69,6 @@ adsharesBanner.spawn(
         exclude: '{"quality": ["low"], "category": ["adult"]}',
     }
 )
-
 ```
 
 ### Contributing
