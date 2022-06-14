@@ -424,21 +424,24 @@ export default class AdsharesBanner {
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
-    let QRTexture
+    let QRTexture: Texture|VideoTexture
     if (banner) {
       if (banner.type == 'image') {
         QRTexture = new Texture(banner.serve_url)
+        QRMaterial.albedoTexture = QRTexture
       } else if (banner.type == 'video') {
         let video_url = banner.serve_url
         video_url += video_url.indexOf('?') == -1 ? '?' : '&'
         const video = new VideoClip(video_url + '/y.mp4')
         QRTexture = new VideoTexture(video)
         QRTexture.loop = true
+        QRTexture.volume = 0
+        QRMaterial.albedoTexture = QRTexture
         QRTexture.play()
       } else {
         this.renderError(host, ['Invalid banner format: ' + banner.type])
       }
-      QRMaterial.albedoTexture = QRTexture
+
     } else {
       QRMaterial.albedoColor = Color3.White()
     }
@@ -452,6 +455,14 @@ export default class AdsharesBanner {
     if (banner) {
       QRPlane.addComponent(
         new OnClick(() => {
+          if(QRTexture instanceof VideoTexture) {
+            if(QRTexture.volume == 0) {
+              QRTexture.volume = 1;
+              return
+            } else {
+              QRTexture.volume = 0;
+            }
+          }
           openExternalURL(banner.click_url)
         }),
       )
