@@ -124,11 +124,28 @@ export default class AdsharesBanner {
     return o
   }
 
+  getCombinedScale(host: Entity): Vector3 {
+    let scale = host.getComponent(Transform).scale
+    let entity = host.getParent();
+
+    while(entity) {
+      if(entity.hasComponent(Transform)) {
+        let pScale = entity.getComponent(Transform).scale
+
+        scale = scale.multiply(pScale);
+
+      }
+      entity = entity.getParent();
+    }
+
+    return scale
+  }
+
   async find (host: Entity, props: Props) {
 
     const userAccount = await getUserAccount()
     const parcel = await getParcel()
-    const transform = host.getComponent(Transform)
+    const scale = this.getCombinedScale(host)
 
     let signedFetch = await importFetch()
 
@@ -142,8 +159,8 @@ export default class AdsharesBanner {
       pay_to: props.payout_network + ':' + props.payout_address,
       view_id: this.getImpressionId(),
       zone_name: props.zone_name,
-      width: transform.scale.x,
-      height: transform.scale.y,
+      width: scale.x,
+      height: scale.y,
       min_dpi: 10,
       exclude: JSON.parse(props.exclude),
       type: ['image', 'video'],
@@ -260,15 +277,15 @@ export default class AdsharesBanner {
   }
 
   showWaterMark (host: Entity, props: Props, request: any, banner: any) {
-    const transform = host.getComponent(Transform)
+    const hostScale = this.getCombinedScale(host)
     let url = 'https://assets.adshares.net/metaverse/watermark.png'
 
     let QRTexture = new Texture(url)
 
-    let size = Math.sqrt(transform.scale.x * transform.scale.y) / 10
+    let size = Math.sqrt(hostScale.x * hostScale.y) / 10
     let scale = {
-      x: size / transform.scale.x,
-      y: size / transform.scale.y,
+      x: size / hostScale.x,
+      y: size / hostScale.y,
     }
 
     let QRPlane = new Entity()
@@ -329,11 +346,11 @@ export default class AdsharesBanner {
     QRPlane.setParent(host)
     QRPlane.addComponent(new PlaneShape())
 
-    const transform = host.getComponent(Transform)
-    let size = Math.sqrt(transform.scale.x * transform.scale.y) / 2
+    const hostScale = this.getCombinedScale(host)
+    let size = Math.sqrt(hostScale.x * hostScale.y) / 2
     let scale = {
-      x: size / transform.scale.x,
-      y: size / transform.scale.y,
+      x: size / hostScale.x,
+      y: size / hostScale.y,
     }
 
     QRPlane.addComponent(
