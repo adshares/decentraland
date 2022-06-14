@@ -24,6 +24,7 @@ export type Props = {
   zone_name: string
   adserver: string
   exclude: string
+  onMaterial: (material: Material) => void
 }
 
 const b64ch =
@@ -226,7 +227,7 @@ export default class AdsharesBanner {
             json: 1,
             stid: userAccount,
           })
-        await this.renderBanner(host, banner)
+        await this.renderBanner(host, props, banner)
         this.showWaterMark(host, props, request, banner)
 
         try {
@@ -305,6 +306,11 @@ export default class AdsharesBanner {
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
     QRMaterial.albedoTexture = QRTexture
+
+    if(props.onMaterial) {
+      props.onMaterial(QRMaterial)
+    }
+
     QRPlane.addComponent(QRMaterial)
 
     QRPlane.addComponent(
@@ -401,7 +407,7 @@ export default class AdsharesBanner {
       'Banner ERROR\n\n' + errors.join('\n'))
   }
 
-  async renderBanner (host: Entity, banner: any) {
+  async renderBanner (host: Entity, props: Props, banner: any) {
     let QRPlane = new Entity()
     QRPlane.setParent(host)
     QRPlane.addComponent(new PlaneShape())
@@ -436,6 +442,11 @@ export default class AdsharesBanner {
     } else {
       QRMaterial.albedoColor = Color3.White()
     }
+
+    if(props.onMaterial) {
+      props.onMaterial(QRMaterial)
+    }
+
     QRPlane.addComponent(QRMaterial)
 
     if (banner) {
