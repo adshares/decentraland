@@ -24,7 +24,7 @@ export type Props = {
   zone_name: string
   adserver: string
   exclude: string
-  onMaterial: (material: Material) => void
+  onMaterial?: (material: Material) => void
 }
 
 const b64ch =
@@ -228,7 +228,10 @@ export default class AdsharesBanner {
             stid: userAccount,
           })
         await this.renderBanner(host, props, banner)
-        this.showWaterMark(host, props, request, banner)
+
+        if(false !== banner.info_box) {
+          this.showWaterMark(host, props, request, banner)
+        }
 
         try {
           let loadedAdusers = this.loadedAdusers
