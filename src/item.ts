@@ -180,7 +180,7 @@ export default class AdsharesBanner {
             },
             medium: 'metaverse',
             vendor: 'decentraland',
-            version: '1.1.5',
+            version: '1.1.6',
         }
 
         let response: any = {}
