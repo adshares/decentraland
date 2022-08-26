@@ -16,3 +16,12 @@ README.md
 *.fbx
 *.zip
 *.rar
+lib
+build
+docs
+images
+yarn.lock
+CHANGELOG.md
+LICENSE
+sonar-project.properties
+*.lib
