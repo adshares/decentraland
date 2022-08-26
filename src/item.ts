@@ -3,11 +3,13 @@ import {getParcel, ILand} from '@decentraland/ParcelIdentity'
 import {setTimeout} from './timer'
 
 let SignedFetch: Function
+let isBuilder = false
 
 async function importFetch(): Promise<any> {
     if (SignedFetch) {
         return SignedFetch
     }
+    isBuilder = true
     await import("@decentraland/SignedFetch").then((x: any) => {
         if (typeof x === 'object') {
             x = x[0]
@@ -145,7 +147,7 @@ export default class AdsharesBanner {
         return scale
     }
 
-    async find(host: Entity, props: Props) {
+    async find(host: Entity, props: Props, cleanup: boolean = false) {
         const userAccount = await getUserAccount()
         const parcel = await getParcel()
         const scale = this.getCombinedScale(host)
@@ -196,6 +198,9 @@ export default class AdsharesBanner {
             log(request, response)
         } catch (e) {
             log('failed to reach URL', e)
+        }
+        if(cleanup) {
+            this.clearChildren(host)
         }
         let banner
         if (response.banners) {
@@ -283,8 +288,7 @@ export default class AdsharesBanner {
 
 
         setTimeout(() => {
-            this.clearChildren(host)
-            this.find(host, props)
+            this.find(host, props, !isBuilder)
         }, banner && banner.refresh ? banner.refresh : 30000)
     }
 
