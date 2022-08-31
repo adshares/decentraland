@@ -2,7 +2,7 @@
   "name": "Adshares banner",
   "tags": ["income", "earnings", "ads", "banner", "advertisement", "advertising"],
   "category": "decorations",
-  "model": "models/image_preview.glb",
+  "model": "models/1x1.glb",
   "parameters": [
     {
       "id": "payout_network",

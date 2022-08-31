@@ -83,6 +83,14 @@ export default class AdsharesBanner {
     impressionId: string = ''
     bannerCounter: number = 0
     loadedAdusers: IHash = {}
+    model: GLTFShape
+
+    constructor() {
+        this.model = new GLTFShape("models/1x1.glb");
+        this.model.withCollisions = true
+        this.model.isPointerBlocker = true
+        this.model.visible = true
+    }
 
     init(args?: any) {
     }
@@ -505,11 +513,40 @@ export default class AdsharesBanner {
 
     spawn(host: Entity, props: Props, channel: any = null) {
         this.normalizeProps(props)
+        host.addComponentOrReplace(this.model)
+
+        let sub = new Entity()
+        sub.setParent(host)
+        sub.addComponent(
+            new Transform({
+                position: new Vector3(0.59, 7.34, 0.26),
+                rotation: Quaternion.Euler(0, 0, 0),
+                scale: new Vector3(5.70, 5.55, 1),
+            }),
+        )
+
         this.bannerCounter++
         if (this.bannerCounter > 20) {
-            this.renderError(host, props, ['To many banners, max 20'])
+            this.renderError(sub, props, ['To many banners, max 20'])
         } else {
-            this.find(host, props).then()
+            this.find(sub, props).then()
+        }
+
+        let sub2 = new Entity()
+        sub2.setParent(host)
+        sub2.addComponent(
+            new Transform({
+                position: new Vector3(0.59, 7.34, -0.52),
+                rotation: Quaternion.Euler(0, 180, 0),
+                scale: new Vector3(5.70, 5.55, 1),
+            }),
+        )
+
+        this.bannerCounter++
+        if (this.bannerCounter > 20) {
+            this.renderError(sub2, props, ['To many banners, max 20'])
+        } else {
+            this.find(sub2, props).then()
         }
     }
 }
