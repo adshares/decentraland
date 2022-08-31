@@ -2,12 +2,6 @@
   "compilerOptions": {
     "outFile": "./bin/game.js",
     "allowJs": true,
-    "strict": true,
-    "paths": {
-      "@dcl/ecs-scene-utils": [
-        "node_modules/@dcl/ecs-scene-utils/dist/index.d.ts"
-      ]
-    },
     "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
