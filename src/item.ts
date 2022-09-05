@@ -155,9 +155,9 @@ export default class AdsharesBanner {
         let signedFetch = await importFetch()
 
         if (this.impressionId == '') {
-            signedFetch(
-                (props.adserver + '/supply/register?iid=' + this.getImpressionId()) +
-                '&stid=' + userAccount).then()
+            const register_url = props.adserver + '/supply/register?iid=' + this.getImpressionId()
+            signedFetch(register_url + '&stid=' + userAccount).then()
+            loadedAdusers[register_url] = true
         }
 
         let request = {
@@ -250,7 +250,7 @@ export default class AdsharesBanner {
                             object = response.json;
                         }
                         if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
-                            signedFetch(addUrlParam(object.aduser_url, 'stid', userAccount))
+                            signedFetch(object.aduser_url)
                             loadedAdusers[object.aduser_url] = true
                         }
                     })
