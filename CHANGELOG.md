@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.7] - 2022-06-20
+### Changed
+- new sdk version
+- builder compatibility
+- normalize adserver url
+
 ## [1.1.6] - 2022-06-20
 ### Changed
 - fix scaling for nested ads
@@ -39,7 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v1.1.6...HEAD
+[Unreleased]: https://github.com/adshares/decentraland/compare/v1.1.7...HEAD
+[1.1.7]: https://github.com/adshares/decentraland/compare/v1.1.6...1.1.7
 [1.1.6]: https://github.com/adshares/decentraland/compare/v1.1.5...1.1.6
 [1.1.5]: https://github.com/adshares/decentraland/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/adshares/decentraland/compare/v1.1.3...v1.1.4
