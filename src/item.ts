@@ -84,7 +84,7 @@ export default class AdsharesBanner {
     bannerCounter: number = 0
     loadedAdusers: IHash = {}
 
-    init() {
+    init(args?: any) {
     }
 
     getRandId(bytes: Number): string {
@@ -158,7 +158,7 @@ export default class AdsharesBanner {
         if (this.impressionId == '') {
             const register_url = props.adserver + '/supply/register?iid=' + this.getImpressionId()
             signedFetch(register_url + '&stid=' + userAccount).then()
-            loadedAdusers[register_url] = true
+            this.loadedAdusers[register_url] = true
         }
 
         let request = {
