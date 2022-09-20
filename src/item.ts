@@ -9,7 +9,7 @@ async function importFetch(): Promise<any> {
     if (SignedFetch) {
         return SignedFetch
     }
-    isBuilder = true
+
     await import("@decentraland/SignedFetch").then((x: any) => {
         if (typeof x === 'object') {
             x = x[0]
@@ -17,6 +17,7 @@ async function importFetch(): Promise<any> {
         SignedFetch = x.signedFetch
     }, x => {
         SignedFetch = fetch
+        isBuilder = true
     })
     return SignedFetch
 }
@@ -496,7 +497,14 @@ export default class AdsharesBanner {
         }
     }
 
+    normalizeProps(props: Props) {
+        while(props.adserver.slice(-1) == '/') {
+            props.adserver = props.adserver.slice(0, -1)
+        }
+    }
+
     spawn(host: Entity, props: Props, channel: any = null) {
+        this.normalizeProps(props)
         this.bannerCounter++
         if (this.bannerCounter > 20) {
             this.renderError(host, props, ['To many banners, max 20'])
