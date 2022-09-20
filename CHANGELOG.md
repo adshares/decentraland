@@ -9,21 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.7] - 2022-06-20
 ### Changed
-- new sdk version
-- builder compatibility
-- normalize adserver url
+- New SDK version
+- Builder compatibility
+- Normalize ad server URL
 
 ## [1.1.6] - 2022-06-20
 ### Changed
-- fix scaling for nested ads
-- allow to customize screen material
-- video ad sound plays only after click
-- refresh ads periodically
-- support for info_box flag
+- Fix scaling for nested ads
+- Allow to customize screen material
+- Video ad sound plays only after click
+- Refresh ads periodically
+- Support for `info_box` flag
 
 ## [1.1.5] - 2022-05-23
 ### Changed
-- remove dependency on dcl builder scripts
+- Remove dependency on dcl builder scripts
 
 ## [1.1.4] - 2022-04-25
 ### Changed
