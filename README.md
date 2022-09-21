@@ -23,8 +23,12 @@ Easy configuration. Just fill out your payout address (Adshares blockchain or as
 
 ```bash
 npm install @adshares/decentraland
+```
 
-yarn add @adshares/decentraland
+### Update
+
+```bash
+npm update @adshares/decentraland
 ```
 
 ## Usage
