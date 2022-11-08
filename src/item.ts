@@ -405,27 +405,25 @@ export default class AdsharesBanner {
         QRMaterial.albedoTexture = QRTexture
         QRPlane.addComponent(QRMaterial)
 
-        const canvas = new UICanvas()
-        canvas.visible = false
-
-        const textInput = new UIInputText(canvas)
-        textInput.width = '30%'
-        textInput.height = '70%'
-        textInput.vAlign = 'center'
-        textInput.hAlign = 'right'
-        textInput.fontSize = 10
-        textInput.paddingLeft = textInput.paddingRight = textInput.paddingTop = textInput.paddingBottom = 10
-        textInput.placeholder = message
-        textInput.color = Color4.White()
-        textInput.positionX = '-5%'
-        textInput.isPointerBlocker = false
-        textInput.hTextAlign = 'left'
-        textInput.vTextAlign = 'top'
-
         QRPlane.addComponent(
             new OnPointerDown(() => {
-                canvas.visible = !canvas.visible
-                canvas.isPointerBlocker = canvas.visible
+                const canvas = new UICanvas()
+                canvas.visible = false
+
+                const textInput = new UIInputText(canvas)
+                textInput.width = '30%'
+                textInput.height = '70%'
+                textInput.vAlign = 'center'
+                textInput.hAlign = 'right'
+                textInput.fontSize = 10
+                textInput.paddingLeft = textInput.paddingRight = textInput.paddingTop = textInput.paddingBottom = 10
+                textInput.placeholder = message
+                textInput.color = Color4.White()
+                textInput.positionX = '-5%'
+                textInput.isPointerBlocker = false
+                textInput.hTextAlign = 'left'
+                textInput.vTextAlign = 'top'
+                canvas.visible = true
             }),
         )
     }
