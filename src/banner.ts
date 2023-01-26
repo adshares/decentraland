@@ -1,6 +1,18 @@
 import {getUserAccount} from '@decentraland/EthereumController'
 import {getParcel, ILand} from '@decentraland/ParcelIdentity'
-import {setTimeout} from './timer'
+// import {setTimeout} from './timer'
+import {
+    Color3, Color4,
+    Entity,
+    Material,
+    OnClick, OnPointerDown,
+    openExternalURL,
+    PlaneShape,
+    Quaternion,
+    Texture,
+    Transform, UICanvas, UIInputText,
+    Vector3, VideoClip, VideoTexture
+} from "decentraland-ecs";
 
 let SignedFetch: Function
 let isBuilder = false
@@ -196,9 +208,9 @@ export default class AdsharesBanner {
                 body: JSON.stringify(request),
             })
             response = await callResponse.json()
-            log(request, response)
+            // log(request, response)
         } catch (e) {
-            log('failed to reach URL', e)
+            // log('failed to reach URL', e)
         }
         if(cleanup) {
             this.clearChildren(host)
@@ -257,7 +269,7 @@ export default class AdsharesBanner {
                     })
 
                 } catch (e) {
-                    log('view log failed', e)
+                    // log('view log failed', e)
                 }
             } else {
                 this.renderText(host, props, 'https://assets.adshares.net/metaverse/notfound.png',
@@ -300,7 +312,7 @@ export default class AdsharesBanner {
             entity.removeComponent(PlaneShape)
             entity.removeComponent(Material)
             entity.removeComponent(OnClick)
-            engine.removeEntity(host.children[k])
+            // engine.removeEntity(host.children[k])
             delete host.children[k]
         }
     }
