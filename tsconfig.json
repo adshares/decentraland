@@ -1,11 +1,14 @@
 {
+  "extends": "./node_modules/decentraland-ecs/types/tsconfig.strict.json",
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "./lib",
-    "strict": true
+    "outDir": "dist",
+    "declaration": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "**/__tests__/*"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.js"
+  ]
 }

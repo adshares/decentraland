@@ -2,7 +2,7 @@
 node_modules
 *.zip
 bin/
-lib/
+dist/
 npm-debug.log
 # IDE
 .idea/
