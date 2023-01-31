@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/adshares/decentraland/issues"
   },
-  "main": "./dist/banner.js",
+  "main": "./dist/index.js",
   "homepage": "https://github.com/adshares/decentraland#readme",
   "scripts": {
     "build": "tsc -p tsconfig.json"

@@ -1,4 +1,3 @@
-
 type ITimerComponent = {
   elapsedTime: number
   targetTime: number
@@ -37,7 +36,7 @@ class TimerSystem implements ISystem {
   }
 }
 
-export function setTimeout (fn: () => void, msecs: number) {
+export default function setTimeout (fn: () => void, msecs: number) {
   let instance = TimerSystem.createAndAddToEngine()
 
   let timer: ITimerComponent = {
