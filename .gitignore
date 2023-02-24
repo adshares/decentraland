@@ -6,5 +6,6 @@ dist/
 npm-debug.log
 # IDE
 .idea/
+.vscode/
 # QA
 .scannerwork/

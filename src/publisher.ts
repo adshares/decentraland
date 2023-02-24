@@ -1,4 +1,6 @@
+import Creative from './creative'
 import { Chain } from './enums'
+import { addUrlParam } from './utils'
 
 export default class Publisher {
   public adserver: string

@@ -24,7 +24,8 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "decentraland-ecs": "^6.11.11"
+    "decentraland-ecs": "^6.11.11",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "typescript": "^4.9.4"

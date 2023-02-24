@@ -1,36 +1,17 @@
-const b64ch = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_='
-const b64chs = Array.prototype.slice.call(b64ch)
-
-export const urlSafeBase64Encode = (bin: string): string => {
-  bin = unescape(encodeURIComponent(bin))
-  let u32, c0, c1, c2, asc = ''
-  const pad = bin.length % 3
-  for (let i = 0; i < bin.length;) {
-    if ((c0 = bin.charCodeAt(i++)) > 255 ||
-      (c1 = bin.charCodeAt(i++)) > 255 ||
-      (c2 = bin.charCodeAt(i++)) > 255) {
-      throw new TypeError('invalid character found')
+export const uuidv4 = (): string => {
+  var d = new Date().getTime(); //Timestamp
+  var d2 = 0; //Time in microseconds since page-load or 0 if unsupported
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = Math.random() * 16; //random number between 0 and 16
+    if (d > 0) { //Use timestamp until depleted
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else { //Use microseconds since page-load if supported
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
     }
-    u32 = (c0 << 16) | (c1 << 8) | c2
-    asc += b64chs[u32 >> 18 & 63]
-      + b64chs[u32 >> 12 & 63]
-      + b64chs[u32 >> 6 & 63]
-      + b64chs[u32 & 63]
-  }
-  return pad ? asc.slice(0, pad - 3) : asc
-}
-
-export const getRandId = (bytes: Number): string => {
-  let d = new Date().getTime()
-
-  let chars = []
-  for (let i = 0; i < bytes; i++) {
-    const r = (d + Math.random() * 256) % 256 | 0
-    d = Math.floor(d / 256)
-    chars.push(String.fromCharCode(r))
-  }
-
-  return chars.join('')
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
 }
 
 export const addUrlParam = (url: string, names: any, value: any = null) => {
@@ -41,6 +22,9 @@ export const addUrlParam = (url: string, names: any, value: any = null) => {
   }
   for (let name in names) {
     value = names[name]
+    if (value === null || value === undefined) {
+      continue;
+    }
     let param = name + '=' + encodeURIComponent(value)
     const qPos = url.indexOf('?')
     if (qPos > -1) {
