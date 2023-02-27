@@ -1,9 +1,10 @@
 import { IPlacement } from './placement'
-import Publisher from './publisher'
 import Creative from './creative'
 import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { uuidv4, parseErrors, addUrlParam } from './utils'
+import { Chain } from './enums'
+import setTimeout from './timer'
 
 interface IHash {
   [details: string]: boolean;
@@ -29,17 +30,29 @@ async function importFetch (): Promise<any> {
   return SignedFetch
 }
 
-export default class Site {
-  public placements: IPlacement[] = []
-  private bannerCounter: number = 0
-  private impressionId: string
-  private loadedUcps: IHash = {}
+export default class SupplyAgent {
+  private readonly adserver: string
 
-  public constructor (public publisher: Publisher) {
+  private readonly publisherId: string
+  private placements: IPlacement[] = []
+  private bannerCounter: number = 0
+  private readonly impressionId: string
+  private loadedContexts: IHash = {}
+
+  public constructor (adserver: string, publisherId: string) {
+    while (adserver.slice(-1) === '/') {
+      adserver = adserver.slice(0, -1)
+    }
+    this.adserver = adserver
+    this.publisherId = publisherId
     this.impressionId = uuidv4()
   }
 
-  public addPlacement (...placements: IPlacement[]): Site {
+  public static fromWallet (adserver: string, chain: Chain, address: string): SupplyAgent {
+    return new SupplyAgent(adserver, `${chain}:${address.toLowerCase()}`)
+  }
+
+  public addPlacement (...placements: IPlacement[]): SupplyAgent {
     this.placements.push(...placements)
     return this
   }
@@ -61,7 +74,7 @@ export default class Site {
   }
 
   private renderMessage (message: string, icon: string, placement: IPlacement | null = null): void {
-    message = message + '\n\nAdserver: ' + this.publisher.adserver + '\nPublisher: ' + this.publisher.id
+    message = message + '\n\nAdserver: ' + this.adserver + '\nPublisher: ' + this.publisherId
     if (placement !== null) {
       placement.renderMessage(message, icon)
     } else {
@@ -79,23 +92,8 @@ export default class Site {
         .replace(',', '-') + '.decentraland.org/'
   }
 
-  private async registerUcp (url: string, stid: string | null): Promise<boolean> {
-    if (!this.loadedUcps[url]) {
-      const signedFetch = await importFetch()
-      signedFetch(stid !== null ? `${url}&stid=${stid}` : url)
-      this.loadedUcps[url] = true
-      return true
-    }
-    return false
-  }
-
-  private async registerUser (userAccount: string | null): Promise<boolean> {
-    const registerUrl = this.publisher.adserver + '/supply/register?iid=' + this.impressionId
-    return this.registerUcp(registerUrl, userAccount)
-  }
-
   private getInfoUrl (impressionId: string, creative: Creative): string {
-    return addUrlParam(this.publisher.adserver + '/supply/why', {
+    return addUrlParam(this.adserver + '/supply/why', {
       iid: impressionId,
       bid: creative.creativeId,
       cid: creative.caseId,
@@ -104,28 +102,39 @@ export default class Site {
     })
   }
 
-  private async fetch (url: string, data: any) {
-    try {
-      let callResponse = await fetch(url, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-        body: JSON.stringify(data),
-      })
-      const response = await callResponse.json()
+  private async fetch (url: string, data?: any, isJson: boolean = true, fetchFunction?: Function): Promise<any> {
+    if (fetchFunction === undefined) {
+      fetchFunction = fetch
+    }
+    let init: RequestInit = {}
+    if (isJson) {
+      init.headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+    }
+    if (data) {
+      init.method = 'POST'
+      init.body = JSON.stringify(data)
+    }
+    let callResponse = await fetchFunction(url, init)
+    let response = null
+    if (isJson) {
+      response = await callResponse.json()
       if (!callResponse.ok) {
         throw new Error(parseErrors(response).join('\n'))
       }
-      return response
-    } catch (exception) {
-      throw new Error(`Failed to reach URL ${url}`)
+    } else {
+      response = await callResponse.text
     }
+    return response
   }
 
-  private async fetchCreatives (userAccount: string | null): Promise<Creative[]> {
+  private async signedFetch (url: string, data?: any, isJson: boolean = true): Promise<any> {
+    return this.fetch(url, data, isJson, await importFetch())
+  }
 
+  private async fetchCreatives (userAccount?: string): Promise<Creative[]> {
     const parcel = await getParcel()
     const placements: any[] = []
     this.placements.forEach((placement, index) => {
@@ -136,7 +145,7 @@ export default class Site {
       context: {
         iid: this.impressionId,
         url: this.getSceneUrl(parcel.land),
-        publisher: this.publisher.id,
+        publisher: this.publisherId,
         medium: 'metaverse',
         vendor: 'decentraland',
         uid: userAccount || '',
@@ -147,13 +156,27 @@ export default class Site {
     }
 
     const creatives: Creative[] = []
-    const response = await this.fetch(`${this.publisher.adserver}/supply/find`, request)
+    const response = await this.fetch(`${this.adserver}/supply/find`, request)
     response.data.forEach((item: any) => { creatives.push(new Creative(item)) })
     return creatives
   }
 
+  private registerContext (url: string, seedTrackingId?: string): boolean {
+    if (!this.loadedContexts[url]) {
+      this.signedFetch(seedTrackingId ? addUrlParam(url, { stid: seedTrackingId }) : url, null, false).then()
+      this.loadedContexts[url] = true
+      return true
+    }
+    return false
+  }
+
+  private registerUser (userAccount?: string): boolean {
+    const registerUrl = this.adserver + '/supply/register?iid=' + this.impressionId
+    return this.registerContext(registerUrl, userAccount)
+  }
+
   private async find (cleanup: boolean = false): Promise<Creative[]> {
-    const userAccount = await getUserAccount() || null
+    const userAccount = await getUserAccount()
 
     this.registerUser(userAccount)
 
@@ -165,51 +188,34 @@ export default class Site {
       throw exception
     }
 
+    let refreshTime: number = 0
     this.placements.forEach((placement, index) => {
-      if (cleanup) {
-        placement.reset()
-      }
+
+      placement.reset()
+
       const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound')
         return
       }
+      // refreshTime = Math.max(refreshTime, creative.refreshTime)
       placement.renderCreative(creative)
       if (creative.infoBox) {
         placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
       }
+
+      // this.signedFetch(creative.viewUrl).then((response: any) => {
+      //   log(response)
+      //   if (response.registerUrl) {
+      //     this.registerContext(response.registerUrl, userAccount)
+      //   }
+      // })
     })
 
+    setTimeout(() => {
+      this.find(!isBuilder)
+    }, Math.max(refreshTime, 5000))
+
     return creatives
-
-    // let banner
-    // if (response.banners) {
-    //   banner = response.banners[0]
-    //   if (banner) {
-    //     try {
-    //       let loadedAdusers = this.loadedAdusers
-    //       signedFetch(banner.view_url).then(function (response: any) {
-    //         let object 
-    //         if (response.text) {
-    //           object = JSON.parse(response.text)
-    //         } else {
-    //           object = response.json
-    //         }
-    //         if (object.aduser_url && !loadedAdusers[object.aduser_url]) {
-    //           signedFetch(object.aduser_url)
-    //           loadedAdusers[object.aduser_url] = true
-    //         }
-    //       })
-    //
-    //     } catch (e) {
-    //       // log('view log failed', e)
-    //     }
-    //   } 
-    // }
-
-    //     setTimeout (() => {
-    //       this.find (host, props,!isBuilder)
-    //     }, banner && banner.refresh ? banner.refresh : 30000)
-    //   
   }
 }

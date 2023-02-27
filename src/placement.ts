@@ -1,5 +1,4 @@
 import Creative from './creative'
-import { addUrlParam } from './utils'
 
 declare type PlacementProps = {
   name: string | null,
@@ -224,8 +223,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
 
-    let QRTexture = new Texture(icon)
-    QRMaterial.albedoTexture = QRTexture
+    QRMaterial.albedoTexture = new Texture(icon)
     QRPlane.addComponent(QRMaterial)
 
     QRPlane.addComponent(
