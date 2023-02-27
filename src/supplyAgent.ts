@@ -5,6 +5,7 @@ import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { uuidv4, parseErrors, addUrlParam } from './utils'
 import { Chain } from './enums'
 import setTimeout from './timer'
+import { FlatFetchInit, signedFetch } from '@decentraland/SignedFetch'
 
 interface IHash {
   [details: string]: boolean;
@@ -103,15 +104,16 @@ export default class SupplyAgent {
   }
 
   private async fetch (url: string, data?: any, isJson: boolean = true, fetchFunction?: Function): Promise<any> {
-    if (fetchFunction === undefined) {
+    if (!fetchFunction) {
       fetchFunction = fetch
     }
-    let init: RequestInit = {}
+    let init: FlatFetchInit = {}
     if (isJson) {
       init.headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       }
+      init.responseBodyType = 'json'
     }
     if (data) {
       init.method = 'POST'
@@ -120,12 +122,12 @@ export default class SupplyAgent {
     let callResponse = await fetchFunction(url, init)
     let response = null
     if (isJson) {
-      response = await callResponse.json()
+      response = typeof callResponse.json === 'function' ? await callResponse.json() : callResponse.json
       if (!callResponse.ok) {
         throw new Error(parseErrors(response).join('\n'))
       }
     } else {
-      response = await callResponse.text
+      response = typeof callResponse.text === 'function' ? await callResponse.text() : callResponse.text
     }
     return response
   }
@@ -190,26 +192,26 @@ export default class SupplyAgent {
 
     let refreshTime: number = 0
     this.placements.forEach((placement, index) => {
-
-      placement.reset()
+      if (cleanup) {
+        placement.reset()
+      }
 
       const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound')
         return
       }
-      // refreshTime = Math.max(refreshTime, creative.refreshTime)
+      refreshTime = Math.max(refreshTime, creative.refreshTime)
       placement.renderCreative(creative)
       if (creative.infoBox) {
         placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
       }
 
-      // this.signedFetch(creative.viewUrl).then((response: any) => {
-      //   log(response)
-      //   if (response.registerUrl) {
-      //     this.registerContext(response.registerUrl, userAccount)
-      //   }
-      // })
+      this.signedFetch(creative.viewUrl).then((response: any) => {
+        if (response.context) {
+          response.context.forEach((url: string) => { this.registerContext(url, userAccount) })
+        }
+      })
     })
 
     setTimeout(() => {
