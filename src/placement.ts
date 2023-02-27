@@ -1,5 +1,5 @@
-import Creative from "./creative";
-import { addUrlParam } from "./utils";
+import Creative from './creative'
+import { addUrlParam } from './utils'
 
 declare type PlacementProps = {
   name: string | null,
@@ -11,19 +11,19 @@ declare type PlacementProps = {
 }
 
 export declare interface IPlacement extends IEntity {
-  getProps(): PlacementProps;
+  getProps (): PlacementProps;
 
-  renderMessage(message: string, icon: string): void;
+  renderMessage (message: string, icon: string): void;
 
-  renderCreative(creative: Creative): void;
+  renderCreative (creative: Creative): void;
 
   renderInfoBox (url: string): void;
 
-  reset(): void;
+  reset (): void;
 }
 
 export class PlainPlacement extends Entity implements IPlacement {
-  public constructor(
+  public constructor (
     name: string,
     protected types: string[] | null = null,
     protected mimes: string[] | null = null
@@ -31,7 +31,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     super(name)
   }
 
-  public getProps(): PlacementProps {
+  public getProps (): PlacementProps {
     const scale = this.getCombinedScale()
     return {
       name: this.name || null,
@@ -43,7 +43,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  public renderMessage(message: string, icon: string): void {
+  public renderMessage (message: string, icon: string): void {
     const data = [
       message,
       '\nProps: ' + JSON.stringify(this.getProps(), null, '\t')
@@ -54,7 +54,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     )
   }
 
-  renderCreative(creative: Creative): void {
+  renderCreative (creative: Creative): void {
     let QRPlane = new Entity()
     QRPlane.setParent(this)
     QRPlane.addComponent(new PlaneShape())
@@ -153,7 +153,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     )
   }
 
-  public reset(): void {
+  public reset (): void {
     for (let k in this.children) {
       let entity = this.children[k]
       entity.removeComponent(Transform)
@@ -164,7 +164,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  protected getCombinedScale(): Vector3 {
+  protected getCombinedScale (): Vector3 {
     let scale = this.getComponent(Transform).scale
     let entity = this.getParent()
     while (entity) {
@@ -178,7 +178,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     return scale
   }
 
-  protected renderText(icon: string, message: string): void {
+  protected renderText (icon: string, message: string): void {
     let QRPlane2 = new Entity()
     QRPlane2.setParent(this)
     QRPlane2.addComponent(new PlaneShape())

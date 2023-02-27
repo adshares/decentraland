@@ -2,7 +2,6 @@ import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import setTimeout from './timer'
 
-
 export type Props = {
   payout_network: string
   payout_address: string
@@ -13,9 +12,6 @@ export type Props = {
   hide_errors?: boolean
   onMaterial?: (material: Material) => void // use to customize ad sceeen material properties
 }
-
-
-
 
 interface IHash {
   [details: string]: boolean;
@@ -29,15 +25,12 @@ export default class AdsharesBanner {
   init (args?: any) {
   }
 
-
   getImpressionId (): string {
     if (this.impressionId == '') {
       this.impressionId = UrlSafeBase64Encode(this.getRandId(16))
     }
     return this.impressionId
   }
-
-
 
   getSceneTags (land: ILand, extraTags: string[]): string {
     if (land.sceneJsonData.tags) {
@@ -56,8 +49,6 @@ export default class AdsharesBanner {
     }
     return o
   }
-
-
 
   clearChildren (host: Entity) {
     for (let k in host.children) {

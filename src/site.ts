@@ -12,7 +12,7 @@ interface IHash {
 let SignedFetch: Function
 let isBuilder = false
 
-async function importFetch(): Promise<any> {
+async function importFetch (): Promise<any> {
   if (SignedFetch) {
     return SignedFetch
   }
@@ -35,32 +35,32 @@ export default class Site {
   private impressionId: string
   private loadedUcps: IHash = {}
 
-  public constructor(public publisher: Publisher) {
+  public constructor (public publisher: Publisher) {
     this.impressionId = uuidv4()
   }
 
-  public addPlacement(...placements: IPlacement[]): Site {
+  public addPlacement (...placements: IPlacement[]): Site {
     this.placements.push(...placements)
     return this
   }
 
-  public async start(): Promise<any> {
-    this.bannerCounter += this.placements.length;
+  public async start (): Promise<any> {
+    this.bannerCounter += this.placements.length
     const maxPlacements = this.getMaxPlacements()
     if (this.bannerCounter > maxPlacements) {
       const message = `To many placements, you can add up to ${maxPlacements} placements.`
       this.renderError(message)
-      throw new Error(message);
+      throw new Error(message)
     } else {
       return this.find()
     }
   }
 
-  private getMaxPlacements(): number {
+  private getMaxPlacements (): number {
     return 20
   }
 
-  private renderMessage(message: string, icon: string, placement: IPlacement | null = null): void {
+  private renderMessage (message: string, icon: string, placement: IPlacement | null = null): void {
     message = message + '\n\nAdserver: ' + this.publisher.adserver + '\nPublisher: ' + this.publisher.id
     if (placement !== null) {
       placement.renderMessage(message, icon)
@@ -69,17 +69,17 @@ export default class Site {
     }
   }
 
-  private renderError(message: string, placement: IPlacement | null = null): void {
+  private renderError (message: string, placement: IPlacement | null = null): void {
     this.renderMessage(message, 'error', placement)
   }
 
-  private getSceneUrl(land: ILand): string {
+  private getSceneUrl (land: ILand): string {
     return 'https://scene-' +
       land.sceneJsonData.scene.base.replace(new RegExp('-', 'g'), 'n')
         .replace(',', '-') + '.decentraland.org/'
   }
 
-  private async registerUcp(url: string, stid: string | null): Promise<boolean> {
+  private async registerUcp (url: string, stid: string | null): Promise<boolean> {
     if (!this.loadedUcps[url]) {
       const signedFetch = await importFetch()
       signedFetch(stid !== null ? `${url}&stid=${stid}` : url)
@@ -89,12 +89,12 @@ export default class Site {
     return false
   }
 
-  private async registerUser(userAccount: string | null): Promise<boolean> {
+  private async registerUser (userAccount: string | null): Promise<boolean> {
     const registerUrl = this.publisher.adserver + '/supply/register?iid=' + this.impressionId
     return this.registerUcp(registerUrl, userAccount)
   }
 
-  private getInfoUrl(impressionId: string, creative: Creative): string {
+  private getInfoUrl (impressionId: string, creative: Creative): string {
     return addUrlParam(this.publisher.adserver + '/supply/why', {
       iid: impressionId,
       bid: creative.creativeId,
@@ -104,7 +104,7 @@ export default class Site {
     })
   }
 
-  private async fetch(url: string, data: any) {
+  private async fetch (url: string, data: any) {
     try {
       let callResponse = await fetch(url, {
         headers: {
@@ -118,13 +118,13 @@ export default class Site {
       if (!callResponse.ok) {
         throw new Error(parseErrors(response).join('\n'))
       }
-      return response;
+      return response
     } catch (exception) {
       throw new Error(`Failed to reach URL ${url}`)
     }
   }
 
-  private async fetchCreatives(userAccount: string | null): Promise<Creative[]> {
+  private async fetchCreatives (userAccount: string | null): Promise<Creative[]> {
 
     const parcel = await getParcel()
     const placements: any[] = []
@@ -146,18 +146,18 @@ export default class Site {
       placements
     }
 
-    const creatives: Creative[] = [];
+    const creatives: Creative[] = []
     const response = await this.fetch(`${this.publisher.adserver}/supply/find`, request)
     response.data.forEach((item: any) => { creatives.push(new Creative(item)) })
     return creatives
   }
 
-  private async find(cleanup: boolean = false): Promise<Creative[]> {
+  private async find (cleanup: boolean = false): Promise<Creative[]> {
     const userAccount = await getUserAccount() || null
 
     this.registerUser(userAccount)
 
-    let creatives: Creative[] = [];
+    let creatives: Creative[] = []
     try {
       creatives = await this.fetchCreatives(userAccount)
     } catch (exception) {
