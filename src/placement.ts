@@ -87,7 +87,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
-    let QRTexture: VideoTexture | Texture
+    let QRTexture: Texture | VideoTexture
 
     //TODO check content hash
 
@@ -171,10 +171,14 @@ export class PlainPlacement extends Entity implements IPlacement {
   public reset (): void {
     for (let k in this.children) {
       let entity = this.children[k]
-      entity.removeComponent(Transform)
-      entity.removeComponent(PlaneShape)
-      entity.removeComponent(Material)
-      entity.removeComponent(OnClick)
+      // entity.removeComponent(Transform)
+      // entity.removeComponent(PlaneShape)
+      // delete entity.getComponent(Material).albedoTexture
+      // entity.getComponent(Material).albedoTexture = undefined
+      // entity.removeComponent(Material)
+      // entity.removeComponent(OnClick)
+      // entity.hasComponent(Texture) && entity.removeComponent(Texture)
+      // entity.hasComponent(VideoTexture) && entity.removeComponent(VideoTexture)
       engine.removeEntity(this.children[k])
       delete this.children[k]
     }
