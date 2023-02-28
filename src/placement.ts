@@ -9,6 +9,11 @@ declare type PlacementProps = {
   mimes: string[] | null,
 }
 
+declare type TPlacementParams = {
+  distance?: number,
+  hoverText?: string
+}
+
 export declare interface IPlacement extends IEntity {
   getProps (): PlacementProps;
 
@@ -19,15 +24,28 @@ export declare interface IPlacement extends IEntity {
   renderInfoBox (url: string): void;
 
   reset (): void;
+
+  setPlacementParams (params: TPlacementParams): void
 }
 
 export class PlainPlacement extends Entity implements IPlacement {
+  private _placementParams: TPlacementParams = {
+    distance: 10,
+    hoverText: undefined
+  }
   public constructor (
     name: string,
     protected types: string[] | null = null,
     protected mimes: string[] | null = null
   ) {
     super(name)
+  }
+
+  public setPlacementParams (params: TPlacementParams) {
+    this._placementParams = {
+      ...this._placementParams,
+      ...params
+    }
   }
 
   public getProps (): PlacementProps {
@@ -59,18 +77,17 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRPlane.addComponent(new PlaneShape())
     QRPlane.addComponent(
       new Transform({
-        position: new Vector3(0, 0.5, 0),
-        rotation: Quaternion.Euler(creative.type == 'image' ? 180 : 0, 0, 0),
+        position: new Vector3(0, 0, 0),
+        rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(1, 1, 1),
       }),
     )
 
     let QRMaterial = new Material()
-
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
-    let QRTexture: Texture | VideoTexture
+    let QRTexture: VideoTexture | Texture
 
     //TODO check content hash
 
@@ -89,7 +106,6 @@ export class PlainPlacement extends Entity implements IPlacement {
     } else {
       this.renderMessage(`Invalid banner format: ${creative.type}`, 'error')
     }
-
     // if (props.onMaterial) {
     //   props.onMaterial(QRMaterial)
     // }
@@ -106,7 +122,7 @@ export class PlainPlacement extends Entity implements IPlacement {
           }
         }
         openExternalURL(creative.clickUrl)
-      }),
+      }, {distance: this._placementParams.distance, hoverText: this._placementParams.hoverText}),
     )
   }
 
@@ -126,7 +142,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRPlane.addComponent(new PlaneShape())
     QRPlane.addComponent(
       new Transform({
-        position: new Vector3(-0.5 + scale.x / 2, 1 - scale.y / 2, 0.01),
+        position: new Vector3(0.5 - scale.x / 2 , (1 - scale.y) / 2 , -0.01),
         rotation: Quaternion.Euler(180, 0, 0),
         scale: new Vector3(scale.x, scale.y, 1),
       }),
@@ -148,7 +164,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRPlane.addComponent(
       new OnClick(() => {
         openExternalURL(url)
-      }),
+      }, {distance: this._placementParams.distance, hoverText: 'Why you see this'}),
     )
   }
 
@@ -159,6 +175,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       entity.removeComponent(PlaneShape)
       entity.removeComponent(Material)
       entity.removeComponent(OnClick)
+      engine.removeEntity(this.children[k])
       delete this.children[k]
     }
   }
