@@ -3,9 +3,8 @@ import Creative from './creative'
 import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { uuidv4, parseErrors, addUrlParam } from './utils'
-import { Chain } from './enums'
 import setTimeout from './timer'
-import { FlatFetchInit, signedFetch } from '@decentraland/SignedFetch'
+import { FlatFetchInit } from '@decentraland/SignedFetch'
 
 interface IHash {
   [details: string]: boolean;
@@ -49,7 +48,7 @@ export default class SupplyAgent {
     this.impressionId = uuidv4()
   }
 
-  public static fromWallet (adserver: string, chain: Chain, address: string): SupplyAgent {
+  public static fromWallet (adserver: string, chain: 'ads' | 'bsc', address: string): SupplyAgent {
     return new SupplyAgent(adserver, `${chain}:${address.toLowerCase()}`)
   }
 
@@ -58,7 +57,7 @@ export default class SupplyAgent {
     return this
   }
 
-  public async start (): Promise<any> {
+  public async spawn (): Promise<any> {
     this.bannerCounter += this.placements.length
     const maxPlacements = this.getMaxPlacements()
     if (this.bannerCounter > maxPlacements) {

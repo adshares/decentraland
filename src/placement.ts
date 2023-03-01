@@ -1,18 +1,5 @@
 import Creative from './creative'
-
-declare type PlacementProps = {
-  name: string | null,
-  width: number,
-  height: number,
-  depth: number | null,
-  types: string[] | null,
-  mimes: string[] | null,
-}
-
-declare type TPlacementParams = {
-  distance?: number,
-  hoverText?: string
-}
+import { Ratio } from './enums'
 
 export declare interface IPlacement extends IEntity {
   getProps (): PlacementProps;
@@ -24,28 +11,62 @@ export declare interface IPlacement extends IEntity {
   renderInfoBox (url: string): void;
 
   reset (): void;
+}
 
-  setPlacementParams (params: TPlacementParams): void
+declare type PlacementProps = {
+  name: string | null,
+  width: number,
+  height: number,
+  depth: number | null,
+  types: string[] | null,
+  mimes: string[] | null,
+}
+declare type TRatio = '9:16' | '3:4' | '1:1' | '4:3' | '16:9'
+declare type TBackgroundColor = `#${string}`
+declare type TConstructorParams = {
+  position?: Vector3,
+  rotation?: Quaternion,
+  width?: number,
+  ratio?: TRatio,
+  types?: PlacementProps['types'],
+  mimes?: PlacementProps['mimes'],
+  backgroundColor?: TBackgroundColor
 }
 
 export class PlainPlacement extends Entity implements IPlacement {
-  private _placementParams: TPlacementParams = {
-    distance: 10,
-    hoverText: undefined
-  }
+  private readonly _transform: Transform
+  private readonly _width: number
+  private readonly _ratio: TRatio
+  private readonly _types: PlacementProps['types']
+  private readonly _mimes: PlacementProps['mimes']
+  private readonly _infoBoxQrTexture: Texture = new Texture('https://assets.adshares.net/metaverse/watermark.png')
+  private readonly _backgroundColor: TBackgroundColor
+
   public constructor (
     name: string,
-    protected types: string[] | null = null,
-    protected mimes: string[] | null = null
+    params?: TConstructorParams
   ) {
     super(name)
+    this._width = params?.width || 1
+    this._ratio = params?.ratio || '1:1'
+    this._types = params?.types || null
+    this._mimes = params?.mimes || null
+    this._backgroundColor = params?.backgroundColor || '#757575'
+    this._transform = new Transform({
+      scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
+      position: params?.position,
+      rotation: params?.rotation,
+    })
+
+    this.initDefaultShape()
   }
 
-  public setPlacementParams (params: TPlacementParams) {
-    this._placementParams = {
-      ...this._placementParams,
-      ...params
-    }
+  private initDefaultShape () {
+    this.addComponent(this._transform)
+    this.addComponent(new PlaneShape())
+    const material = new Material()
+    material.albedoColor = Color3.FromHexString(this._backgroundColor)
+    this.addComponent(material)
   }
 
   public getProps (): PlacementProps {
@@ -55,8 +76,8 @@ export class PlainPlacement extends Entity implements IPlacement {
       width: scale.x,
       height: scale.y,
       depth: scale.z,
-      types: this.types || null,
-      mimes: this.mimes || null,
+      types: this._types || null,
+      mimes: this._mimes || null,
     }
   }
 
@@ -71,15 +92,18 @@ export class PlainPlacement extends Entity implements IPlacement {
     )
   }
 
-  renderCreative (creative: Creative): void {
+  public renderCreative (creative: Creative): void {
+    const size = creative.scope.split('x')
+    const scaleFactor = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
+
     let QRPlane = new Entity()
     QRPlane.setParent(this)
     QRPlane.addComponent(new PlaneShape())
     QRPlane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, 0),
+        position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
-        scale: new Vector3(1, 1, 1),
+        scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1),
       }),
     )
 
@@ -106,9 +130,6 @@ export class PlainPlacement extends Entity implements IPlacement {
     } else {
       this.renderMessage(`Invalid banner format: ${creative.type}`, 'error')
     }
-    // if (props.onMaterial) {
-    //   props.onMaterial(QRMaterial)
-    // }
 
     QRPlane.addComponent(QRMaterial)
     QRPlane.addComponent(
@@ -122,14 +143,12 @@ export class PlainPlacement extends Entity implements IPlacement {
           }
         }
         openExternalURL(creative.clickUrl)
-      }, {distance: this._placementParams.distance, hoverText: this._placementParams.hoverText}),
+      }, { distance: 50 }),
     )
   }
 
   public renderInfoBox (url: string): void {
     const hostScale = this.getCombinedScale()
-    let assetUrl = 'https://assets.adshares.net/metaverse/watermark.png'
-    let QRTexture = new Texture(assetUrl)
 
     let size = Math.sqrt(hostScale.x * hostScale.y) / 10
     let scale = {
@@ -142,7 +161,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRPlane.addComponent(new PlaneShape())
     QRPlane.addComponent(
       new Transform({
-        position: new Vector3(0.5 - scale.x / 2 , (1 - scale.y) / 2 , -0.01),
+        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.02),
         rotation: Quaternion.Euler(180, 0, 0),
         scale: new Vector3(scale.x, scale.y, 1),
       }),
@@ -153,34 +172,36 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
-    QRMaterial.albedoTexture = QRTexture
-
-    // if (props.onMaterial) {
-    //   props.onMaterial(QRMaterial)
-    // }
+    QRMaterial.albedoTexture = this._infoBoxQrTexture
 
     QRPlane.addComponent(QRMaterial)
 
     QRPlane.addComponent(
       new OnClick(() => {
         openExternalURL(url)
-      }, {distance: this._placementParams.distance, hoverText: 'Why you see this'}),
+      }, { distance: 50 }),
     )
   }
 
   public reset (): void {
     for (let k in this.children) {
-      let entity = this.children[k]
-      // entity.removeComponent(Transform)
-      // entity.removeComponent(PlaneShape)
-      // delete entity.getComponent(Material).albedoTexture
-      // entity.getComponent(Material).albedoTexture = undefined
-      // entity.removeComponent(Material)
-      // entity.removeComponent(OnClick)
-      // entity.hasComponent(Texture) && entity.removeComponent(Texture)
-      // entity.hasComponent(VideoTexture) && entity.removeComponent(VideoTexture)
       engine.removeEntity(this.children[k])
       delete this.children[k]
+    }
+  }
+
+  protected calculateScaleFactor (originWidth: number, originHeight: number) {
+    const maxScale = this.getComponent(Transform).scale
+    const scaleFactor = Math.min((maxScale.x / originWidth), (maxScale.y / originHeight))
+    const localWidth = scaleFactor * originWidth
+    const localHeight = scaleFactor * originHeight
+
+    const scaleX = localWidth / maxScale.x > 1 ? 1 : localWidth / maxScale.x
+    const scaleY = localHeight / maxScale.y > 1 ? 1 : localHeight / maxScale.y
+
+    return {
+      scaleX,
+      scaleY
     }
   }
 
@@ -195,6 +216,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       }
       entity = entity.getParent()
     }
+    scale.z = 0.1
     return scale
   }
 
