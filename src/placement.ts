@@ -32,11 +32,17 @@ declare type TConstructorParams = {
     mimes?: PlacementProps['mimes'],
 }
 
-const commonMaterials = {
-    default: new Material(),
+const commonMaterials: {
+    default?: Material,
+    infobox: Material,
+    text: Material,
+} = {
+    default: undefined,
     infobox: new Material(),
     text: new Material()
 }
+
+let messageInputText: UIInputText | undefined
 
 const commonTextures = {
     infobox: new Texture('https://assets.adshares.net/metaverse/watermark.png')
@@ -48,7 +54,8 @@ export class PlainPlacement extends Entity implements IPlacement {
     private readonly _ratio: TRatio
     private readonly _types: PlacementProps['types']
     private readonly _mimes: PlacementProps['mimes']
-    private readonly _backgroundColor: TBackgroundColor = '#757575'
+    private readonly _clickDistance: number = 50
+    private _backgroundMaterial?: Material
 
     public constructor(
         name: string,
@@ -67,18 +74,6 @@ export class PlainPlacement extends Entity implements IPlacement {
         this.initDefaultShape()
     }
 
-    private initDefaultShape() {
-        this.addComponent(this._transform)
-        this.addComponent(new PlaneShape())
-        const material = commonMaterials.default
-        commonMaterials.default.specularIntensity = 0
-        commonMaterials.default.metallic = 0
-        commonMaterials.default.roughness = 1
-        commonMaterials.default.albedoColor = Color3.White()
-        material.albedoColor = Color3.FromHexString(this._backgroundColor)
-        this.addComponent(material)
-    }
-
     public getProps(): PlacementProps {
         const scale = this.getCombinedScale()
         return {
@@ -89,6 +84,10 @@ export class PlainPlacement extends Entity implements IPlacement {
             types: this._types || null,
             mimes: this._mimes || null
         }
+    }
+
+    public setBackgroundMaterial(material?: Material): void {
+        this._backgroundMaterial = material;
     }
 
     public renderMessage(message: string, icon: string): void {
@@ -103,13 +102,16 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
 
     public renderCreative(creative: Creative): void {
+
+        this.addComponentOrReplace(this.getBackgroundMaterial())
+
         const size = creative.scope.split('x')
         const scaleFactor = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
 
-        let QRPlane = new Entity()
-        QRPlane.setParent(this)
-        QRPlane.addComponent(new PlaneShape())
-        QRPlane.addComponent(
+        const plane = new Entity()
+        plane.setParent(this)
+        plane.addComponent(new PlaneShape())
+        plane.addComponent(
             new Transform({
                 position: new Vector3(0, 0, -0.01),
                 rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
@@ -117,63 +119,59 @@ export class PlainPlacement extends Entity implements IPlacement {
             })
         )
 
-        let QRMaterial = new Material()
-        QRMaterial.metallic = 0
-        QRMaterial.roughness = 1
-        QRMaterial.specularIntensity = 0
-        let QRTexture: Texture | VideoTexture
+        const material = new Material()
+        material.metallic = 0
+        material.roughness = 1
+        material.specularIntensity = 0
+        let texture: Texture | VideoTexture
 
         //TODO check content hash
 
         if (creative.type == 'image') {
-            QRTexture = new Texture(creative.serveUrl)
-            QRMaterial.albedoTexture = QRTexture
+            texture = new Texture(creative.serveUrl)
+            material.albedoTexture = texture
         } else if (creative.type == 'video') {
-            let video_url = creative.serveUrl
-            video_url += video_url.indexOf('?') == -1 ? '?' : '&'
-            const video = new VideoClip(video_url + '/y.mp4')
-            QRTexture = new VideoTexture(video)
-            QRTexture.loop = true
-            QRTexture.volume = 0
-            QRMaterial.albedoTexture = QRTexture
-            QRTexture.play()
+            let videoUrl = creative.serveUrl
+            videoUrl += videoUrl.indexOf('?') == -1 ? '?' : '&'
+            const video = new VideoClip(videoUrl + '/y.mp4')
+            texture = new VideoTexture(video)
+            texture.loop = true
+            texture.volume = 0
+            material.albedoTexture = texture
+            texture.play()
         } else {
             this.renderMessage(`Invalid banner format: ${creative.type}`, 'error')
         }
 
-        QRPlane.addComponent(QRMaterial)
-        QRPlane.addComponent(
+        plane.addComponent(material)
+        plane.addComponent(
             new OnClick(() => {
-                if (QRTexture instanceof VideoTexture) {
-                    if (QRTexture.volume == 0) {
-                        QRTexture.volume = 1
+                if (texture instanceof VideoTexture) {
+                    if (texture.volume == 0) {
+                        texture.volume = 1
                         return
                     } else {
-                        QRTexture.volume = 0
+                        texture.volume = 0
                     }
                 }
                 openExternalURL(creative.clickUrl)
-            }, {distance: 50})
+            }, {distance: this._clickDistance})
         )
-
-        if (!commonMaterials.default.albedoColor) {
-            commonMaterials.default.albedoColor = Color3.FromHexString(this._backgroundColor)
-        }
     }
 
     public renderInfoBox(url: string): void {
         const hostScale = this.getCombinedScale()
 
-        let size = Math.sqrt(hostScale.x * hostScale.y) / 10
-        let scale = {
+        const size = Math.sqrt(hostScale.x * hostScale.y) / 10
+        const scale = {
             x: size / hostScale.x,
             y: size / hostScale.y
         }
 
-        let QRPlane = new Entity()
-        QRPlane.setParent(this)
-        QRPlane.addComponent(new PlaneShape())
-        QRPlane.addComponent(
+        const plane = new Entity()
+        plane.setParent(this)
+        plane.addComponent(new PlaneShape())
+        plane.addComponent(
             new Transform({
                 position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.02),
                 rotation: Quaternion.Euler(180, 0, 0),
@@ -181,19 +179,17 @@ export class PlainPlacement extends Entity implements IPlacement {
             })
         )
 
-        let QRMaterial = commonMaterials.infobox
+        const material = commonMaterials.infobox
+        material.metallic = 0
+        material.roughness = 1
+        material.specularIntensity = 0
+        material.albedoTexture = commonTextures.infobox
 
-        QRMaterial.metallic = 0
-        QRMaterial.roughness = 1
-        QRMaterial.specularIntensity = 0
-        QRMaterial.albedoTexture = commonTextures.infobox
-
-        QRPlane.addComponent(QRMaterial)
-
-        QRPlane.addComponent(
+        plane.addComponent(material)
+        plane.addComponent(
             new OnClick(() => {
                 openExternalURL(url)
-            }, {distance: 50})
+            }, {distance: this._clickDistance, hoverText: 'What is this?'})
         )
     }
 
@@ -202,6 +198,29 @@ export class PlainPlacement extends Entity implements IPlacement {
             engine.removeEntity(this.children[k])
             delete this.children[k]
         }
+    }
+
+    protected getBackgroundMaterial(): Material {
+        if (this._backgroundMaterial === undefined) {
+            return this.getDefaultMaterial();
+        }
+        return this._backgroundMaterial;
+    }
+
+    protected getDefaultMaterial(): Material {
+        if (commonMaterials.default === undefined) {
+            commonMaterials.default = new Material()
+            commonMaterials.default.specularIntensity = 0
+            commonMaterials.default.metallic = 0
+            commonMaterials.default.roughness = 1
+            commonMaterials.default.albedoColor = Color3.Black()
+        }
+        return commonMaterials.default;
+    }
+
+    protected initDefaultShape() {
+        this.addComponent(this._transform)
+        this.addComponent(new PlaneShape())
     }
 
     protected calculateScaleFactor(originWidth: number, originHeight: number) {
@@ -233,19 +252,52 @@ export class PlainPlacement extends Entity implements IPlacement {
         return scale
     }
 
+    protected showMessageCanvas(message: string): void {
+        if (messageInputText === undefined) {
+            const canvas = new UICanvas()
+            messageInputText = new UIInputText(canvas)
+            messageInputText.width = '30%'
+            messageInputText.height = '70%'
+            messageInputText.vAlign = 'center'
+            messageInputText.hAlign = 'right'
+            messageInputText.fontSize = 10
+            messageInputText.paddingLeft = messageInputText.paddingRight = messageInputText.paddingTop = messageInputText.paddingBottom = 10
+            messageInputText.color = Color4.White()
+            messageInputText.positionX = '-5%'
+            messageInputText.isPointerBlocker = false
+            messageInputText.hTextAlign = 'left'
+            messageInputText.vTextAlign = 'top'
+        }
+        messageInputText.placeholder = message
+        if (messageInputText?.parent !== undefined) {
+            messageInputText.parent.visible = true
+        }
+    }
+
+    protected hideMessageCanvas(): void {
+        if (messageInputText?.parent !== undefined) {
+            messageInputText.parent.visible = false
+        }
+    }
+
     protected renderText(icon: string, message: string): void {
-        let QRPlane = new Entity()
-        QRPlane.setParent(this)
-        QRPlane.addComponent(new PlaneShape())
+
+        const material = this.getDefaultMaterial()
+        material.albedoColor = Color3.White()
+        this.addComponentOrReplace(material)
+
+        const plane = new Entity()
+        plane.setParent(this)
+        plane.addComponent(new PlaneShape())
 
         const hostScale = this.getCombinedScale()
-        let size = Math.sqrt(hostScale.x * hostScale.y) / 2
-        let scale = {
+        const size = Math.sqrt(hostScale.x * hostScale.y) / 2
+        const scale = {
             x: size / hostScale.x,
             y: size / hostScale.y
         }
 
-        QRPlane.addComponent(
+        plane.addComponent(
             new Transform({
                 position: new Vector3(0, 0, -0.01),
                 rotation: Quaternion.Euler(180, 180, 0),
@@ -253,39 +305,22 @@ export class PlainPlacement extends Entity implements IPlacement {
             })
         )
 
-        let QRMaterial = commonMaterials.text
-        QRMaterial.albedoColor = Color3.White()
-        QRMaterial.metallic = 0
-        QRMaterial.roughness = 1
-        QRMaterial.specularIntensity = 0
-        commonMaterials.default.albedoColor = Color3.White()
+        const iconMaterial = commonMaterials.text
+        iconMaterial.albedoColor = Color3.White()
+        iconMaterial.metallic = 0
+        iconMaterial.roughness = 1
+        iconMaterial.specularIntensity = 0
+        iconMaterial.albedoTexture = new Texture(icon)
 
-        QRMaterial.albedoTexture = new Texture(icon)
-        QRPlane.addComponent(QRMaterial)
-
-        const canvas = new UICanvas()
-        canvas.visible = false
-        QRPlane.addComponent(
+        plane.addComponent(iconMaterial)
+        plane.addComponent(
             new OnPointerDown(() => {
-                const textInput = new UIInputText(canvas)
-                textInput.width = '30%'
-                textInput.height = '70%'
-                textInput.vAlign = 'center'
-                textInput.hAlign = 'right'
-                textInput.fontSize = 10
-                textInput.paddingLeft = textInput.paddingRight = textInput.paddingTop = textInput.paddingBottom = 10
-                textInput.placeholder = message
-                textInput.color = Color4.White()
-                textInput.positionX = '-5%'
-                textInput.isPointerBlocker = false
-                textInput.hTextAlign = 'left'
-                textInput.vTextAlign = 'top'
-                canvas.visible = true
-            }, {distance: 50, hoverText: 'WTF?'})
+                this.showMessageCanvas(message)
+            }, {distance: this._clickDistance, hoverText: 'Why am I seeing this?'})
         )
-        QRPlane.addComponent(
+        plane.addComponent(
             new OnPointerHoverExit(() => {
-                canvas.visible = false
+                this.hideMessageCanvas()
             })
         )
     }
