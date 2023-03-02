@@ -30,8 +30,18 @@ declare type TConstructorParams = {
   ratio?: TRatio,
   types?: PlacementProps['types'],
   mimes?: PlacementProps['mimes'],
-  backgroundColor?: TBackgroundColor
 }
+
+const commonMaterials = {
+  default: new Material(),
+  infobox: new Material(),
+  text: new Material()
+}
+
+const commonTextures = {
+  infobox: new Texture('https://assets.adshares.net/metaverse/watermark.png')
+}
+
 
 export class PlainPlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
@@ -39,8 +49,7 @@ export class PlainPlacement extends Entity implements IPlacement {
   private readonly _ratio: TRatio
   private readonly _types: PlacementProps['types']
   private readonly _mimes: PlacementProps['mimes']
-  private readonly _infoBoxQrTexture: Texture = new Texture('https://assets.adshares.net/metaverse/watermark.png')
-  private readonly _backgroundColor: TBackgroundColor
+  private readonly _backgroundColor: TBackgroundColor = '#757575'
 
   public constructor (
     name: string,
@@ -51,20 +60,22 @@ export class PlainPlacement extends Entity implements IPlacement {
     this._ratio = params?.ratio || '1:1'
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this._backgroundColor = params?.backgroundColor || '#757575'
     this._transform = new Transform({
       scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
       position: params?.position,
       rotation: params?.rotation,
     })
-
     this.initDefaultShape()
   }
 
   private initDefaultShape () {
     this.addComponent(this._transform)
     this.addComponent(new PlaneShape())
-    const material = new Material()
+    const material = commonMaterials.default
+    commonMaterials.default.specularIntensity = 0
+    commonMaterials.default.metallic = 0
+    commonMaterials.default.roughness = 1
+    commonMaterials.default.albedoColor = Color3.White()
     material.albedoColor = Color3.FromHexString(this._backgroundColor)
     this.addComponent(material)
   }
@@ -145,6 +156,10 @@ export class PlainPlacement extends Entity implements IPlacement {
         openExternalURL(creative.clickUrl)
       }, { distance: 50 }),
     )
+
+    if(!commonMaterials.default.albedoColor){
+      commonMaterials.default.albedoColor = Color3.FromHexString(this._backgroundColor)
+    }
   }
 
   public renderInfoBox (url: string): void {
@@ -167,12 +182,12 @@ export class PlainPlacement extends Entity implements IPlacement {
       }),
     )
 
-    let QRMaterial = new Material()
+    let QRMaterial = commonMaterials.infobox
 
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
-    QRMaterial.albedoTexture = this._infoBoxQrTexture
+    QRMaterial.albedoTexture = commonTextures.infobox
 
     QRPlane.addComponent(QRMaterial)
 
@@ -212,35 +227,14 @@ export class PlainPlacement extends Entity implements IPlacement {
       if (entity.hasComponent(Transform)) {
         let pScale = entity.getComponent(Transform).scale
         scale = scale.multiply(pScale)
-
       }
       entity = entity.getParent()
     }
-    scale.z = 0.1
+    scale.z = 1
     return scale
   }
 
   protected renderText (icon: string, message: string): void {
-    let QRPlane2 = new Entity()
-    QRPlane2.setParent(this)
-    QRPlane2.addComponent(new PlaneShape())
-    QRPlane2.addComponent(
-      new Transform({
-        position: new Vector3(0, 0.5, 0),
-        rotation: Quaternion.Euler(180, 0, 0),
-        scale: new Vector3(1, 1, 1),
-      }),
-    )
-
-    let QRMaterial2 = new Material()
-
-    QRMaterial2.metallic = 0
-    QRMaterial2.roughness = 1
-    QRMaterial2.specularIntensity = 0
-
-    QRMaterial2.albedoColor = Color3.White()
-    QRPlane2.addComponent(QRMaterial2)
-
     let QRPlane = new Entity()
     QRPlane.setParent(this)
     QRPlane.addComponent(new PlaneShape())
@@ -254,26 +248,26 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     QRPlane.addComponent(
       new Transform({
-        position: new Vector3(0, 0.5, 0.01),
+        position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(180, 180, 0),
         scale: new Vector3(scale.x, scale.y, 1),
       }),
     )
 
-    let QRMaterial = new Material()
+    let QRMaterial = commonMaterials.text
     QRMaterial.albedoColor = Color3.White()
     QRMaterial.metallic = 0
     QRMaterial.roughness = 1
     QRMaterial.specularIntensity = 0
+    commonMaterials.default.albedoColor = Color3.White()
 
     QRMaterial.albedoTexture = new Texture(icon)
     QRPlane.addComponent(QRMaterial)
 
+    const canvas = new UICanvas()
+    canvas.visible = false
     QRPlane.addComponent(
       new OnPointerDown(() => {
-        const canvas = new UICanvas()
-        canvas.visible = false
-
         const textInput = new UIInputText(canvas)
         textInput.width = '30%'
         textInput.height = '70%'
@@ -288,7 +282,12 @@ export class PlainPlacement extends Entity implements IPlacement {
         textInput.hTextAlign = 'left'
         textInput.vTextAlign = 'top'
         canvas.visible = true
-      }),
+      }, {distance: 50, hoverText: 'WTF?'}),
+    )
+    QRPlane.addComponent(
+      new OnPointerHoverExit(() => {
+        canvas.visible = false
+      })
     )
   }
 }

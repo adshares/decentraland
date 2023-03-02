@@ -65,7 +65,6 @@ PlainPlacement extends Entity and has access to Entity methods except *Entity.ad
   ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9',
   types?: string[] | null,
   mimes?: string[] | null,
-  backgroundColor?: string // HEX color
 }
 ```
 
@@ -101,7 +100,6 @@ const placement2 = new PlainPlacement('unit2', {
   rotation: new Quaternion(0,1,0,1),
   width: 3,
   ratio: '3:4',
-  backgroundColor: '#0062ff'
 })
 engine.addEntity(placement2)
 

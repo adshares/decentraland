@@ -38,6 +38,7 @@ export default class SupplyAgent {
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
+  public readonly version = '2.0.0'
 
   public constructor (adserver: string, publisherId: string) {
     while (adserver.slice(-1) === '/') {
@@ -74,7 +75,7 @@ export default class SupplyAgent {
   }
 
   private renderMessage (message: string, icon: string, placement: IPlacement | null = null): void {
-    message = message + '\n\nAdserver: ' + this.adserver + '\nPublisher: ' + this.publisherId
+    message = message + '\n\nAdserver: ' + this.adserver + '\nPublisher: ' + this.publisherId + '\nVersion: ' + this.version
     if (placement !== null) {
       placement.renderMessage(message, icon)
     } else {
@@ -151,7 +152,7 @@ export default class SupplyAgent {
         vendor: 'decentraland',
         uid: userAccount || '',
         metamask: userAccount !== null,
-        version: '2.0.0',
+        version: this.version,
       },
       placements
     }
