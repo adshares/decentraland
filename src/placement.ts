@@ -42,7 +42,6 @@ const commonTextures = {
   infobox: new Texture('https://assets.adshares.net/metaverse/watermark.png')
 }
 
-
 export class PlainPlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
   private readonly _width: number
@@ -63,7 +62,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     this._transform = new Transform({
       scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
       position: params?.position,
-      rotation: params?.rotation,
+      rotation: params?.rotation
     })
     this.initDefaultShape()
   }
@@ -88,7 +87,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       height: scale.y,
       depth: scale.z,
       types: this._types || null,
-      mimes: this._mimes || null,
+      mimes: this._mimes || null
     }
   }
 
@@ -114,8 +113,8 @@ export class PlainPlacement extends Entity implements IPlacement {
       new Transform({
         position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
-        scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1),
-      }),
+        scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
+      })
     )
 
     let QRMaterial = new Material()
@@ -154,10 +153,10 @@ export class PlainPlacement extends Entity implements IPlacement {
           }
         }
         openExternalURL(creative.clickUrl)
-      }, { distance: 50 }),
+      }, { distance: 50 })
     )
 
-    if(!commonMaterials.default.albedoColor){
+    if (!commonMaterials.default.albedoColor) {
       commonMaterials.default.albedoColor = Color3.FromHexString(this._backgroundColor)
     }
   }
@@ -168,7 +167,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     let size = Math.sqrt(hostScale.x * hostScale.y) / 10
     let scale = {
       x: size / hostScale.x,
-      y: size / hostScale.y,
+      y: size / hostScale.y
     }
 
     let QRPlane = new Entity()
@@ -178,8 +177,8 @@ export class PlainPlacement extends Entity implements IPlacement {
       new Transform({
         position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.02),
         rotation: Quaternion.Euler(180, 0, 0),
-        scale: new Vector3(scale.x, scale.y, 1),
-      }),
+        scale: new Vector3(scale.x, scale.y, 1)
+      })
     )
 
     let QRMaterial = commonMaterials.infobox
@@ -194,7 +193,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     QRPlane.addComponent(
       new OnClick(() => {
         openExternalURL(url)
-      }, { distance: 50 }),
+      }, { distance: 50 })
     )
   }
 
@@ -230,7 +229,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       }
       entity = entity.getParent()
     }
-    scale.z = 1
+    scale.z = 0.1
     return scale
   }
 
@@ -243,15 +242,15 @@ export class PlainPlacement extends Entity implements IPlacement {
     let size = Math.sqrt(hostScale.x * hostScale.y) / 2
     let scale = {
       x: size / hostScale.x,
-      y: size / hostScale.y,
+      y: size / hostScale.y
     }
 
     QRPlane.addComponent(
       new Transform({
         position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(180, 180, 0),
-        scale: new Vector3(scale.x, scale.y, 1),
-      }),
+        scale: new Vector3(scale.x, scale.y, 1)
+      })
     )
 
     let QRMaterial = commonMaterials.text
@@ -282,7 +281,7 @@ export class PlainPlacement extends Entity implements IPlacement {
         textInput.hTextAlign = 'left'
         textInput.vTextAlign = 'top'
         canvas.visible = true
-      }, {distance: 50, hoverText: 'WTF?'}),
+      }, { distance: 50, hoverText: 'WTF?' })
     )
     QRPlane.addComponent(
       new OnPointerHoverExit(() => {
