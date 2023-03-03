@@ -35,7 +35,7 @@ npm update @adshares/decentraland
 ### 1. Import dependencies
 
 ```js
-import {PlainPlacement, SupplyAgent} from '../node_modules/@decentraland/src/index'
+import {PlainPlacement, SupplyAgent} from '../node_modules/@adshares/decentraland/src/index'
 ```
 
 ### 2. Create supply agent
@@ -94,7 +94,7 @@ agent.addPlacement(placement: Entity).spawn()
 ### Example
 
 ```js
-import {PlainPlacement, SupplyAgent} from '../node_modules/@decentraland/src/index'
+import {PlainPlacement, SupplyAgent} from '../node_modules/@adshares/decentraland/src/index'
 
 const agent = new SupplyAgent('https://app.web3ads.net', 'e39f6593-578e-41f0-8d06-88aff41c6a19')
 
