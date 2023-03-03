@@ -2,7 +2,7 @@ import Creative from './creative'
 import {Ratio} from './enums'
 
 export declare interface IPlacement extends IEntity {
-    getProps(): PlacementProps;
+    getProps(): TPlacementProps;
 
     renderMessage(message: string, icon: string): void;
 
@@ -13,7 +13,7 @@ export declare interface IPlacement extends IEntity {
     reset(): void;
 }
 
-declare type PlacementProps = {
+declare type TPlacementProps = {
     name: string | null,
     width: number,
     height: number,
@@ -22,14 +22,14 @@ declare type PlacementProps = {
     mimes: string[] | null,
 }
 declare type TRatio = '9:16' | '3:4' | '1:1' | '4:3' | '16:9'
-declare type TBackgroundColor = `#${string}`
 declare type TConstructorParams = {
     position?: Vector3,
     rotation?: Quaternion,
     width?: number,
     ratio?: TRatio,
-    types?: PlacementProps['types'],
-    mimes?: PlacementProps['mimes'],
+    types?: TPlacementProps['types'],
+    mimes?: TPlacementProps['mimes'],
+    background?: Material | null,
 }
 
 const commonMaterials: {
@@ -52,10 +52,10 @@ export class PlainPlacement extends Entity implements IPlacement {
     private readonly _transform: Transform
     private readonly _width: number
     private readonly _ratio: TRatio
-    private readonly _types: PlacementProps['types']
-    private readonly _mimes: PlacementProps['mimes']
+    private readonly _types: TPlacementProps['types']
+    private readonly _mimes: TPlacementProps['mimes']
     private readonly _clickDistance: number = 50
-    private _backgroundMaterial?: Material
+    private _backgroundMaterial?: Material | null
 
     public constructor(
         name: string,
@@ -66,6 +66,7 @@ export class PlainPlacement extends Entity implements IPlacement {
         this._ratio = params?.ratio || '1:1'
         this._types = params?.types || null
         this._mimes = params?.mimes || null
+        this._backgroundMaterial = params?.background
         this._transform = new Transform({
             scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
             position: params?.position,
@@ -74,7 +75,7 @@ export class PlainPlacement extends Entity implements IPlacement {
         this.initDefaultShape()
     }
 
-    public getProps(): PlacementProps {
+    public getProps(): TPlacementProps {
         const scale = this.getCombinedScale()
         return {
             name: this.name || null,
@@ -84,10 +85,6 @@ export class PlainPlacement extends Entity implements IPlacement {
             types: this._types || null,
             mimes: this._mimes || null
         }
-    }
-
-    public setBackgroundMaterial(material?: Material): void {
-        this._backgroundMaterial = material;
     }
 
     public renderMessage(message: string, icon: string): void {
@@ -103,7 +100,11 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     public renderCreative(creative: Creative): void {
 
-        this.addComponentOrReplace(this.getBackgroundMaterial())
+        const backgroundM = this.getBackgroundMaterial();
+        if (backgroundM !== null) {
+            this.addComponentOrReplace(new PlaneShape())
+            this.addComponentOrReplace(backgroundM)
+        }
 
         const size = creative.scope.split('x')
         const scaleFactor = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
@@ -200,7 +201,7 @@ export class PlainPlacement extends Entity implements IPlacement {
         }
     }
 
-    protected getBackgroundMaterial(): Material {
+    protected getBackgroundMaterial(): Material | null {
         if (this._backgroundMaterial === undefined) {
             return this.getDefaultMaterial();
         }
@@ -220,7 +221,6 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     protected initDefaultShape() {
         this.addComponent(this._transform)
-        this.addComponent(new PlaneShape())
     }
 
     protected calculateScaleFactor(originWidth: number, originHeight: number) {
@@ -284,6 +284,8 @@ export class PlainPlacement extends Entity implements IPlacement {
 
         const material = this.getDefaultMaterial()
         material.albedoColor = Color3.White()
+
+        this.addComponentOrReplace(new PlaneShape())
         this.addComponentOrReplace(material)
 
         const plane = new Entity()

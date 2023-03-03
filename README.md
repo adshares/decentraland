@@ -14,10 +14,9 @@
 
 <br>
 
-Adshares smart items for **Decentraland** scenes. You can use it in your scenes for addition hassle-free earnings.
+Adshares plugin for **Decentraland** SDK. You can use it in your scenes for addition hassle-free earnings.
 
 Easy configuration. Just fill out your payout address (Adshares blockchain or as BEP20 token) and get paid in $ADS for every visitor on your scene.
-
 
 ## Install
 
@@ -36,13 +35,19 @@ npm update @adshares/decentraland
 ### 1. Import dependencies
 
 ```js
-import { PlainPlacement, SupplyAgent } from '../node_modules/@decentraland/src/index'
+import {PlainPlacement, SupplyAgent} from '../node_modules/@decentraland/src/index'
 ```
 
 ### 2. Create supply agent
 
 ```js
-const site = SupplyAgent.fromWallet(adserver: string, chain: string, wallet: string)
+const agent = new SupplyAgent(adserver: string, publisherId: string)
+```
+
+or
+
+```js
+const agent = SupplyAgent.fromWallet(adserver: string, chain: string, wallet: string)
 ```
 
 In function **fromWallet()** first argument is adserver network, second argument is payout network (ads, bsc), and third argument is wallet address in this payout network.
@@ -65,6 +70,7 @@ PlainPlacement extends Entity and has access to Entity methods except *Entity.ad
   ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9',
   types?: string[] | null,
   mimes?: string[] | null,
+  background?: Material | null,
 }
 ```
 
@@ -73,19 +79,24 @@ PlainPlacement extends Entity and has access to Entity methods except *Entity.ad
 ```js
 engine.addEntity(placement)
 ```
+or 
+
+```js
+placement.setParent(myEntity)
+```
 
 ### 5. Add placement into agent and spawn banner
 
 ```js
-site.addPlacement(placement: Entity).spawn()
+agent.addPlacement(placement: Entity).spawn()
 ```
 
 ### Example
 
 ```js
-import { PlainPlacement, SupplyAgent } from '../node_modules/@decentraland/src/index'
+import {PlainPlacement, SupplyAgent} from '../node_modules/@decentraland/src/index'
 
-const site = SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0002-0000064A-3695')
+const agent = new SupplyAgent('https://app.web3ads.net', 'e39f6593-578e-41f0-8d06-88aff41c6a19')
 
 const placement1 = new PlainPlacement('unit1', {
   position: new Vector3(8,2, 8),
@@ -103,7 +114,7 @@ const placement2 = new PlainPlacement('unit2', {
 })
 engine.addEntity(placement2)
 
-site.addPlacement(placement1, placement2).spawn()
+agent.addPlacement(placement1, placement2).spawn()
 ```
 
 ![Placement example](/assets/placement_example.png "Decentraland scene")
@@ -118,6 +129,8 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
+- **[Mykola Zhura](https://github.com/Niko-Yea)** - _programmer_
+- **[Maciej Pilarczyk](https://github.com/m-pilarczyk)** - _programmer_
 - **[Contributor](https://github.com/smartsir796)** - _programmer_
 
 See also the list of [contributors](https://github.com/adshares/decentraland/contributors) who participated in this project.
@@ -128,6 +141,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## More info
 
+- [DCL Example Scene](https://github.com/adshares/dcl-scene)
+- [DCL Smart Banner](https://github.com/adshares/dcl-smart-banner)
 - [Adshares](https://adshares.net)
-- [Usage instructions](https://adshar.es/decentraland)
-- [DCL smart items](https://docs.decentraland.org/development-guide/smart-items/)
+- [Adshares Docs](https://docs.adshares.net)

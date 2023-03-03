@@ -1,8 +1,8 @@
 {
   "name": "@adshares/decentraland",
   "version": "2.0.0",
-  "display-name": "Adshares DCL smart item",
-  "description": "Adshares Decentraland smart item banner",
+  "display-name": "Adshares DCL plugin",
+  "description": "Adshares Decentraland SDK plugin",
   "author": "Adshares <dev@adshares.net>",
   "license": "GPL-3.0",
   "keywords": [
@@ -24,8 +24,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "decentraland-ecs": "^6.11.11",
-    "uuid": "^9.0.0"
+    "decentraland-ecs": "^6.11.11"
   },
   "devDependencies": {
     "typescript": "^4.9.4"
