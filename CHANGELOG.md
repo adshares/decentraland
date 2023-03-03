@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2022-11-08
+### Fixed
+- Adshares logo
+- Error handling
+
 ## [2.0.0] - 2022-11-08
 ### Changed
 - Code refactor
@@ -56,7 +61,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/adshares/decentraland/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/adshares/decentraland/compare/v2.0.0...2.0.1
 [2.0.0]: https://github.com/adshares/decentraland/compare/v1.1.8...2.0.0
 [1.1.8]: https://github.com/adshares/decentraland/compare/v1.1.7...1.1.8
 [1.1.7]: https://github.com/adshares/decentraland/compare/v1.1.6...1.1.7

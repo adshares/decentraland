@@ -282,6 +282,7 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     protected renderText(icon: string, message: string): void {
 
+        this.reset()
         const material = this.getDefaultMaterial()
         material.albedoColor = Color3.White()
 
