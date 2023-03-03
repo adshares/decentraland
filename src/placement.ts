@@ -175,7 +175,7 @@ export class PlainPlacement extends Entity implements IPlacement {
         plane.addComponent(
             new Transform({
                 position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.02),
-                rotation: Quaternion.Euler(180, 0, 0),
+                rotation: Quaternion.Euler(180, 180, 0),
                 scale: new Vector3(scale.x, scale.y, 1)
             })
         )
