@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2022-11-08
+### Changed
+- Code refactor
+- Support for new AdServer API
+### Removed
+- Smart item code (moved to the separate project)
+
 ## [1.1.8] - 2022-11-08
 ### Fixed
 - Less invasive error rendering
@@ -49,7 +56,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v1.1.8...HEAD
+[Unreleased]: https://github.com/adshares/decentraland/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/adshares/decentraland/compare/v1.1.8...2.0.0
 [1.1.8]: https://github.com/adshares/decentraland/compare/v1.1.7...1.1.8
 [1.1.7]: https://github.com/adshares/decentraland/compare/v1.1.6...1.1.7
 [1.1.6]: https://github.com/adshares/decentraland/compare/v1.1.5...1.1.6
