@@ -196,7 +196,9 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     public reset(): void {
         for (let k in this.children) {
-            engine.removeEntity(this.children[k])
+            if(this.children[k].isAddedToEngine()){
+                engine.removeEntity(this.children[k])
+            }
             delete this.children[k]
         }
     }
