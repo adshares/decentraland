@@ -35,32 +35,37 @@ npm update @adshares/decentraland
 ### 1. Import dependencies
 
 ```js
-import {PlainPlacement, SupplyAgent} from '../node_modules/@adshares/decentraland/src/index'
+import * as Ads from '../node_modules/@adshares/decentraland/src/index'
 ```
 
 ### 2. Create supply agent
 
 ```js
-const agent = new SupplyAgent(adserver: string, publisherId: string)
+const agent = new Ads.SupplyAgent(adserver: string, publisherId: string)
 ```
 
 or
 
 ```js
-const agent = SupplyAgent.fromWallet(adserver: string, chain: string, wallet: string)
+const agent = Ads.SupplyAgent.fromWallet(adserver: string, chain: string, wallet: string)
 ```
 
 In function **fromWallet()** first argument is adserver network, second argument is payout network (ads, bsc), and third argument is wallet address in this payout network.
 
-### 3. Create Placement
+### 3. Create Placement or Stand
+
+#### Placements
+
+Placements are the basic objects for displaying creatives.
+Every placement implements IEntity and has access to IEntity methods.
+
+Usage:
 
 ```js
-const placement = new PlainPlacement(name: string, options?: {})
+const placement = new Ads.PlainPlacement(name: string, options?: {})
 ```
 
-PlainPlacement extends Entity and has access to Entity methods except *Entity.addComponent()*
-
-#### Available options:
+Available options:
 
 ```js
 {
@@ -68,56 +73,100 @@ PlainPlacement extends Entity and has access to Entity methods except *Entity.ad
   rotation?: Quaternion, // @decentraland-ecs
   width?: number,
   ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9',
+  no?: number | null,
   types?: string[] | null,
   mimes?: string[] | null,
   background?: Material | null,
 }
 ```
 
-### 4. Add placement into Decentraland engine
+#### Stands
+
+Stands combine several placements into one object.
+Every stand implements IEntity and has access to IEntity methods.
+
+Available stands:
+
+| Class | Description                | Ratios | Models             |
+|-------|----------------------------|--------|--------------------|
+| Totem | A simple advertising totem | 9:16   | ads_totem_9_16.glb |
+
+You must copy the models to the root scene folder before using the stands. It's a good practice to copy only the models you use.
+
+```bash
+cp -r node_modules/@adshares/decentraland/models/ads_totem_9_16.glb models/
+```
+
+Usage:
+
+```js
+const totem = new Ads.Totem(name: string, options?: {})
+```
+
+Available options:
+
+```js
+{
+  types?: string[] | null,
+  mimes?: string[] | null,
+}
+```
+
+
+### 4. Add placements into Decentraland engine
 
 ```js
 engine.addEntity(placement)
+// or
+engine.addEntity(totem)
 ```
 or 
 
 ```js
 placement.setParent(myEntity)
+// or
+totem.setParent(myEntity)
 ```
 
 ### 5. Add placement into agent and spawn banner
 
 ```js
-agent.addPlacement(placement: Entity).spawn()
+agent.addPlacement(placement: IPlacement | IStand).spawn()
 ```
 
 ### Example
 
 ```js
-import {PlainPlacement, SupplyAgent} from '../node_modules/@adshares/decentraland/src/index'
+import * as Ads from '../node_modules/@adshares/decentraland/src/index'
 
-const agent = new SupplyAgent('https://app.web3ads.net', 'e39f6593-578e-41f0-8d06-88aff41c6a19')
+const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
 
-const placement1 = new PlainPlacement('unit1', {
+const placement1 = new Ads.PlainPlacement('unit1', {
   position: new Vector3(8,2, 8),
-  rotation: new Quaternion(0,0,0,1),
+  rotation: new Quaternion(0, 0, 0, 1),
   width: 5,
   ratio: '16:9',
 })
 engine.addEntity(placement1)
 
-const placement2 = new PlainPlacement('unit2', {
-  position: new Vector3(11,2, 6),
-  rotation: new Quaternion(0,1,0,1),
+const placement2 = new Ads.PlainPlacement('unit2', {
+  position: new Vector3(11, 2, 6),
+  rotation: new Quaternion(0, 1, 0, 1),
   width: 3,
   ratio: '3:4',
 })
 engine.addEntity(placement2)
 
-agent.addPlacement(placement1, placement2).spawn()
+const totem = new Ads.Totem('unit3', {
+  position: new Vector3(2, 0, 2),
+})
+engine.addEntity(totem)
+
+agent.addPlacement(placement1, placement2, totem).spawn()
 ```
 
 ![Placement example](/assets/placement_example.png "Decentraland scene")
+
 
 ### Contributing
 
