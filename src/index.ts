@@ -1,7 +1,7 @@
 import Creative from './creative'
 import { Chain } from './enums'
 import { IPlacement, PlainPlacement } from './placement'
-import { IStand, Totem } from './stand'
+import { IStand, Totem, Billboard } from './stand'
 import SupplyAgent from './supplyAgent'
 
 export {
@@ -10,6 +10,7 @@ export {
   IPlacement,
   PlainPlacement,
   IStand,
-  Totem,
   Creative,
+  Totem,
+  Billboard,
 }
