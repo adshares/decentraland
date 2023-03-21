@@ -87,19 +87,19 @@ Every stand implements IEntity and has access to IEntity methods.
 
 Available stands:
 
-| Class     | Description                                                      | Ratios                                    | Models                                                                                                          |
-|-----------|------------------------------------------------------------------|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| Totem     | A simple advertising totem                                       | 9:16                                      | ads_totem_9_16.glb                                                                                              |
-| Billboard | Advertising billboard with available parameters                  | 9:16<br/> 16:9<br/> 3:4<br/> 4:3<br/> 1:1 | ads_totem_9_16.glb<br/> ads_totem_16_9.glb<br/> ads_totem_3_4.glb<br/> ads_totem_4_3.glb<br/> ads_totem_1_1.glb | 
-| Citylight | Rectangular 4-sided advertising totem with the ability to rotate | 9:16                                      | ads_citilight.glb                                                                                               |
+| Class     | Description                                                      | Ratios                                    | Models                                                                                                                               |
+|-----------|------------------------------------------------------------------|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| Totem     | A simple advertising totem                                       | 9:16                                      | ads_totem_9_16.glb                                                                                                                   |
+| Billboard | Advertising billboard with available parameters                  | 9:16<br/> 16:9<br/> 3:4<br/> 4:3<br/> 1:1 | ads_billboard_9_16.glb<br/> ads_billboard_16_9.glb<br/> ads_billboard_3_4.glb<br/> ads_billboard_4_3.glb<br/> ads_billboard_1_1.glb  | 
+| Citylight | Rectangular 4-sided advertising totem with the ability to rotate | 9:16                                      | ads_citilight_9_16.glb                                                                                                               |
 
 You must copy the models to the root scene folder before using the stands. It's a good practice to copy only the models you use.
 
 ```bash
-mkdir -p models/adshares && cp -r node_modules/@adshares/decentraland/models/ads_totem_9_16.glb models/adshares
+mkdir -p models/@adshares && cp -r node_modules/@adshares/decentraland/models/ads_totem_9_16.glb models/@adshares
 ```
 
-Usage:
+Usage Totem:
 
 ```js
 const totem = new Ads.Totem(name: string, options?: {})
@@ -111,8 +111,38 @@ Available options:
 {
   types?: string[] | null,
   mimes?: string[] | null,
-  ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9', //for Billboard class only, default 1:1
-  rotation?: boolean, //for Citylight class only, default false
+}
+```
+
+Usage Billboard:
+
+```js
+const billboard = new Ads.Billboard(name: string, options?: {})
+```
+
+Available options:
+
+```js
+{
+  types?: string[] | null,
+  mimes?: string[] | null,
+  ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9', // default 1:1
+}
+```
+
+Usage Citylight:
+
+```js
+const citylight = new Ads.Citylight(name: string, options?: {})
+```
+
+Available options:
+
+```js
+{
+  types?: string[] | null,
+  mimes?: string[] | null,
+  rotation?: boolean, // default false
 }
 ```
 

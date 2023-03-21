@@ -1,7 +1,7 @@
 import { IPlacement, PlainPlacement } from './placement'
 
 export declare interface IStand extends IEntity {
-  getPlacements (): (IPlacement | undefined)[];
+  getPlacements (): IPlacement[];
 }
 
 export class Totem extends Entity implements IStand {
@@ -37,12 +37,12 @@ export class Totem extends Entity implements IStand {
       types: this._types,
       mimes: this._mimes
     })
-    this.addComponent(new GLTFShape('models/ads_totem_9_16.glb'))
+    this.addComponent(new GLTFShape('models/@adshares/ads_totem_9_16.glb'))
     this._frontPlacement.setParent(this)
     this._backPlacement.setParent(this)
   }
 
-  public getPlacements (): (IPlacement | undefined)[] {
+  public getPlacements (): IPlacement[] {
     return [
       this._frontPlacement,
       this._backPlacement
@@ -54,8 +54,8 @@ export class Billboard extends Entity implements IStand {
   private readonly _ratio: '16:9' | '4:3' | '1:1' | '3:4' | '9:16'
   private readonly _types: string[] | null
   private readonly _mimes: string[] | null
-  private _frontPlacement: IPlacement | undefined
-  private _backPlacement: IPlacement | undefined
+  private readonly _frontPlacement: IPlacement
+  private readonly _backPlacement: IPlacement
 
   public constructor (
     name: string,
@@ -69,13 +69,9 @@ export class Billboard extends Entity implements IStand {
     this._ratio = params?.ratio || '1:1'
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this.initBillboard()
-  }
-
-  initBillboard () {
     switch (this._ratio) {
       case '3:4':
-        this.addComponent(new GLTFShape('models/ads_billboard_3_4.glb'))
+        this.addComponent(new GLTFShape('models/@adshares/ads_billboard_3_4.glb'))
         this._frontPlacement = new PlainPlacement(`${this.name} front`, {
           position: new Vector3(0, 6.19396, -0.27),
           width: 6,
@@ -96,7 +92,7 @@ export class Billboard extends Entity implements IStand {
         break
 
       case '4:3':
-        this.addComponent(new GLTFShape('models/ads_billboard_4_3.glb'))
+        this.addComponent(new GLTFShape('models/@adshares/ads_billboard_4_3.glb'))
         this._frontPlacement = new PlainPlacement(`${this.name} front`, {
           position: new Vector3(0, 4.65903, -0.27),
           width: 6.8,
@@ -117,7 +113,7 @@ export class Billboard extends Entity implements IStand {
         break
 
       case '9:16':
-        this.addComponent(new GLTFShape('models/ads_billboard_9_16.glb'))
+        this.addComponent(new GLTFShape('models/@adshares/ads_billboard_9_16.glb'))
         this._frontPlacement = new PlainPlacement(`${this.name} front`, {
           position: new Vector3(0, 6.55398, -0.27),
           width: 4.53,
@@ -138,7 +134,7 @@ export class Billboard extends Entity implements IStand {
         break
 
       case '16:9':
-        this.addComponent(new GLTFShape('models/ads_billboard_16_9.glb'))
+        this.addComponent(new GLTFShape('models/@adshares/ads_billboard_16_9.glb'))
         this._frontPlacement = new PlainPlacement(`${this.name} front`, {
           position: new Vector3(0, 4.54934, -0.29),
           width: 8.65,
@@ -160,7 +156,7 @@ export class Billboard extends Entity implements IStand {
 
       case '1:1':
       default:
-        this.addComponent(new GLTFShape('models/ads_billboard_1_1.glb'))
+        this.addComponent(new GLTFShape('models/@adshares/ads_billboard_1_1.glb'))
         this._frontPlacement = new PlainPlacement(`${this.name} front`, {
           position: new Vector3(0, 5.43059, -0.259),
           width: 6.15,
@@ -184,7 +180,7 @@ export class Billboard extends Entity implements IStand {
     this._backPlacement.setParent(this)
   }
 
-  public getPlacements (): (IPlacement | undefined)[] {
+  public getPlacements (): IPlacement[] {
     return [
       this._frontPlacement,
       this._backPlacement
@@ -212,7 +208,7 @@ export class Citylight extends Entity implements IStand{
     super(name)
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this.addComponent(new GLTFShape('models/ads_citilight.glb'))
+    this.addComponent(new GLTFShape('models/@adshares/ads_citilight_9_16.glb'))
     this._placement_1 = new PlainPlacement(`${this.name} 1`, {
       position: new Vector3(0, 1.46, -0.66737),
       width: 1.11,
@@ -257,7 +253,7 @@ export class Citylight extends Entity implements IStand{
     if (params?.rotation) adsRotationSystem.add([this])
   }
 
-  public getPlacements (): (IPlacement | undefined)[] {
+  public getPlacements (): IPlacement[] {
     return [
       this._placement_1,
       this._placement_2,
