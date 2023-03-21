@@ -87,14 +87,16 @@ Every stand implements IEntity and has access to IEntity methods.
 
 Available stands:
 
-| Class | Description                | Ratios | Models             |
-|-------|----------------------------|--------|--------------------|
-| Totem | A simple advertising totem | 9:16   | ads_totem_9_16.glb |
+| Class     | Description                                                      | Ratios                                    | Models                                                                                                          |
+|-----------|------------------------------------------------------------------|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Totem     | A simple advertising totem                                       | 9:16                                      | ads_totem_9_16.glb                                                                                              |
+| Billboard | Advertising billboard with available parameters                  | 9:16<br/> 16:9<br/> 3:4<br/> 4:3<br/> 1:1 | ads_totem_9_16.glb<br/> ads_totem_16_9.glb<br/> ads_totem_3_4.glb<br/> ads_totem_4_3.glb<br/> ads_totem_1_1.glb | 
+| Citylight | Rectangular 4-sided advertising totem with the ability to rotate | 9:16                                      | ads_citilight.glb                                                                                               |
 
 You must copy the models to the root scene folder before using the stands. It's a good practice to copy only the models you use.
 
 ```bash
-cp -r node_modules/@adshares/decentraland/models/ads_totem_9_16.glb models/
+mkdir -p models/adshares && cp -r node_modules/@adshares/decentraland/models/ads_totem_9_16.glb models/adshares
 ```
 
 Usage:
@@ -109,6 +111,8 @@ Available options:
 {
   types?: string[] | null,
   mimes?: string[] | null,
+  ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9', //for Billboard class only, default 1:1
+  rotation?: boolean, //for Citylight class only, default false
 }
 ```
 
@@ -134,7 +138,7 @@ totem.setParent(myEntity)
 agent.addPlacement(placement: IPlacement | IStand).spawn()
 ```
 
-### Example
+### Example to add placements
 
 ```js
 import * as Ads from '../node_modules/@adshares/decentraland/src/index'
@@ -167,6 +171,29 @@ agent.addPlacement(placement1, placement2, totem).spawn()
 
 ![Placement example](/assets/placement_example.png "Decentraland scene")
 
+
+### Example to add advertising stands
+
+```js
+import * as Ads from '../node_modules/@adshares/decentraland/src/index'
+
+const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
+
+const totem = new Ads.Totem('totem')
+totem.addComponent(new Transform({
+  position: new Vector3(3,0,8),
+}))
+engine.addEntity(totem)
+
+const billboard = new Ads.Billboard('billboard_16_9', { ratio: '16:9' })
+billboard.addComponent(new Transform({
+  position: new Vector3(11,0,8),
+}))
+engine.addEntity(billboard)
+agent.addPlacement(totem, billboard).spawn()
+```
+
+![Placement example](/assets/stands_example.png "Decentraland scene") 
 
 ### Contributing
 
