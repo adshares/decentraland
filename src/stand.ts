@@ -1,7 +1,7 @@
 import { IPlacement, PlainPlacement } from './placement'
 
 export declare interface IStand extends IEntity {
-  getPlacements (): IPlacement[];
+  getPlacements (): (IPlacement | undefined)[];
 }
 
 export class Totem extends Entity implements IStand {
@@ -42,7 +42,7 @@ export class Totem extends Entity implements IStand {
     this._backPlacement.setParent(this)
   }
 
-  public getPlacements (): IPlacement[] {
+  public getPlacements (): (IPlacement | undefined)[] {
     return [
       this._frontPlacement,
       this._backPlacement
@@ -54,8 +54,8 @@ export class Billboard extends Entity implements IStand {
   private readonly _ratio: '16:9' | '4:3' | '1:1' | '3:4' | '9:16'
   private readonly _types: string[] | null
   private readonly _mimes: string[] | null
-  private _frontPlacement: IPlacement
-  private _backPlacement: IPlacement
+  private _frontPlacement: IPlacement | undefined
+  private _backPlacement: IPlacement | undefined
 
   public constructor (
     name: string,
@@ -184,7 +184,7 @@ export class Billboard extends Entity implements IStand {
     this._backPlacement.setParent(this)
   }
 
-  public getPlacements (): IPlacement[] {
+  public getPlacements (): (IPlacement | undefined)[] {
     return [
       this._frontPlacement,
       this._backPlacement
@@ -257,7 +257,7 @@ export class Citylight extends Entity implements IStand{
     if (params?.rotation) adsRotationSystem.add([this])
   }
 
-  public getPlacements (): IPlacement[] {
+  public getPlacements (): (IPlacement | undefined)[] {
     return [
       this._placement_1,
       this._placement_2,
