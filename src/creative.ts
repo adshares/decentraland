@@ -1,6 +1,6 @@
 import { addUrlParam, uuidv4 } from './utils'
 
-export default class Creative {
+export class Creative {
   clickUrl: string = ''
   creativeId: string = ''
   demandServer: string = ''
@@ -30,4 +30,10 @@ export default class Creative {
     this.viewUrl = addUrlParam(this.viewUrl, { cid: this.caseId })
     this.clickUrl = addUrlParam(this.clickUrl, { cid: this.caseId })
   }
+}
+
+export declare type TCustomCommand = {
+  teleportTo?: string,
+  openExternalURL?: string,
+  delay?: number,
 }

@@ -1,5 +1,5 @@
 import {IPlacement} from './placement'
-import Creative from './creative'
+import {Creative, TCustomCommand} from './creative'
 import {getUserAccount} from '@decentraland/EthereumController'
 import {getParcel, ILand} from '@decentraland/ParcelIdentity'
 import {addUrlParam, parseErrors, uuidv4} from './utils'
@@ -162,7 +162,7 @@ export default class SupplyAgent {
         return this.fetch(url, data, isJson, await importFetch())
     }
 
-    private async fetchCreatives(userAccount?: string): Promise<Creative[]> {
+    private async fetchCreatives(userAccount?: string): Promise<{ creatives: Creative[], customCommands: TCustomCommand[] }> {
         const parcel = await getParcel()
         const placements: any[] = []
         this.placements.forEach((placement, index) => {
@@ -184,11 +184,15 @@ export default class SupplyAgent {
         }
 
         const creatives: Creative[] = []
+        const customCommands: TCustomCommand[] = []
         const response = await this.fetch(`${this.adserver}/supply/find`, request)
         response.data.forEach((item: any) => {
             creatives.push(new Creative(item))
         })
-        return creatives
+        if(response.custom) {
+            customCommands.push(response.custom)
+        }
+        return {creatives, customCommands}
     }
 
     private registerContext(url: string, seedTrackingId?: string): boolean {
@@ -211,8 +215,11 @@ export default class SupplyAgent {
         this.registerUser(userAccount)
 
         let creatives: Creative[] = []
+        let customCommands: TCustomCommand[] = []
         try {
-            creatives = await this.fetchCreatives(userAccount)
+            const response = await this.fetchCreatives(userAccount)
+            creatives = response.creatives
+            customCommands = response.customCommands
         } catch (exception) {
             this.renderError('' + exception)
             throw exception
@@ -242,6 +249,9 @@ export default class SupplyAgent {
                     })
                 }
             })
+
+            const customCommand = customCommands.filter((command, commandIndex) => commandIndex === index )[0]
+            if(customCommand) placement.executeCustomCommand(customCommand)
         })
 
         setTimeout(() => {

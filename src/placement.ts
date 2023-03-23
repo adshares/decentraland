@@ -1,5 +1,6 @@
-import Creative from './creative'
+import {Creative, TCustomCommand} from './creative'
 import {Ratio} from './enums'
+import setTimeout from "./timer";
 
 export declare interface IPlacement extends IEntity {
     getProps(): TPlacementProps;
@@ -9,6 +10,8 @@ export declare interface IPlacement extends IEntity {
     renderCreative(creative: Creative): void;
 
     renderInfoBox(url: string): void;
+
+    executeCustomCommand(customCommand: TCustomCommand): void
 
     reset(): void;
 }
@@ -328,5 +331,12 @@ export class PlainPlacement extends Entity implements IPlacement {
                 this.hideMessageCanvas()
             })
         )
+    }
+
+    executeCustomCommand(customCommand: TCustomCommand) {
+        setTimeout(() => {
+            if (customCommand.teleportTo) teleportTo(customCommand.teleportTo)
+            if (customCommand.openExternalURL) openExternalURL(customCommand.openExternalURL)
+        }, customCommand.delay || 0)
     }
 }
