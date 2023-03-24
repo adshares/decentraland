@@ -1,4 +1,5 @@
 import { addUrlParam, uuidv4 } from './utils'
+import setTimeout from './timer'
 
 export class Creative {
   clickUrl: string = ''
@@ -33,7 +34,31 @@ export class Creative {
 }
 
 export declare type TCustomCommand = {
-  teleportTo?: string,
-  openExternalURL?: string,
-  delay?: number,
+  teleportTo?: {
+    coordinates: string
+    delay?: number
+  }
+}
+
+export class CustomCommand {
+  teleportTo: TCustomCommand['teleportTo'] = undefined
+
+  constructor (customCommand: TCustomCommand) {
+    for (const key in customCommand) {
+      if (this.hasOwnProperty(key)) {
+        // @ts-ignore
+        this[key] = customCommand[key]
+      }
+    }
+  }
+
+  executeCustomCommand () {
+    if (this.teleportTo) {
+      setTimeout(() => {
+        // @ts-ignore
+        teleportTo(this.teleportTo.coordinates)
+      }, this.teleportTo.delay || 0)
+      return
+    }
+  }
 }

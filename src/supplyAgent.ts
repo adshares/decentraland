@@ -1,5 +1,5 @@
 import {IPlacement} from './placement'
-import {Creative, TCustomCommand} from './creative'
+import { Creative, CustomCommand } from './creative'
 import {getUserAccount} from '@decentraland/EthereumController'
 import {getParcel, ILand} from '@decentraland/ParcelIdentity'
 import {addUrlParam, parseErrors, uuidv4} from './utils'
@@ -162,7 +162,7 @@ export default class SupplyAgent {
         return this.fetch(url, data, isJson, await importFetch())
     }
 
-    private async fetchCreatives(userAccount?: string): Promise<{ creatives: Creative[], customCommands: TCustomCommand[] }> {
+    private async fetchCreatives(userAccount?: string): Promise<{creatives: Creative[], customCommands: CustomCommand[]}> {
         const parcel = await getParcel()
         const placements: any[] = []
         this.placements.forEach((placement, index) => {
@@ -184,13 +184,13 @@ export default class SupplyAgent {
         }
 
         const creatives: Creative[] = []
-        const customCommands: TCustomCommand[] = []
+        const customCommands: CustomCommand[] = []
         const response = await this.fetch(`${this.adserver}/supply/find`, request)
         response.data.forEach((item: any) => {
             creatives.push(new Creative(item))
         })
         if(response.custom) {
-            customCommands.push(response.custom)
+            customCommands.push(new CustomCommand(response.custom))
         }
         return {creatives, customCommands}
     }
@@ -215,7 +215,7 @@ export default class SupplyAgent {
         this.registerUser(userAccount)
 
         let creatives: Creative[] = []
-        let customCommands: TCustomCommand[] = []
+        let customCommands: CustomCommand[] = []
         try {
             const response = await this.fetchCreatives(userAccount)
             creatives = response.creatives
@@ -233,7 +233,7 @@ export default class SupplyAgent {
 
             const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
             if (!creative) {
-                this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound')
+                this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
                 return
             }
             refreshTime = Math.max(refreshTime, creative.refreshTime)
@@ -249,10 +249,11 @@ export default class SupplyAgent {
                     })
                 }
             })
-
-            const customCommand = customCommands.filter((command, commandIndex) => commandIndex === index )[0]
-            if(customCommand) placement.executeCustomCommand(customCommand)
         })
+
+        if (customCommands.length > 0) {
+            customCommands.forEach(command => command.executeCustomCommand())
+        }
 
         setTimeout(() => {
             this.find(!isBuilder)
