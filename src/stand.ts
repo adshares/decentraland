@@ -208,7 +208,7 @@ export class Citylight extends Entity implements IStand{
     super(name)
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this.addComponent(new GLTFShape('models/@adshares/ads_citilight_9_16.glb'))
+    this.addComponent(new GLTFShape('models/@adshares/ads_citylight_9_16.glb'))
     this._placement_1 = new PlainPlacement(`${this.name} 1`, {
       position: new Vector3(0, 1.46, -0.66737),
       width: 1.11,
@@ -250,7 +250,7 @@ export class Citylight extends Entity implements IStand{
     this._placement_3.setParent(this)
     this._placement_4.setParent(this)
 
-    if (params?.rotation) adsRotationSystem.add([this])
+    if (params?.rotation || params?.rotation === undefined) adsRotationSystem.add([this])
   }
 
   public getPlacements (): IPlacement[] {

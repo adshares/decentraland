@@ -35,7 +35,7 @@ npm update @adshares/decentraland
 ### 1. Import dependencies
 
 ```js
-import * as Ads from '../node_modules/@adshares/decentraland/src/index'
+import * as Ads from '@adshares/decentraland'
 ```
 
 ### 2. Create supply agent
@@ -90,8 +90,9 @@ Available stands:
 | Class     | Description                                                      | Ratios                                    | Models                                                                                                                              |
 |-----------|------------------------------------------------------------------|-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | Totem     | A simple advertising totem                                       | 9:16                                      | ads_totem_9_16.glb                                                                                                                  |
-| Billboard | Advertising billboard with available parameters                  | 9:16<br/> 16:9<br/> 3:4<br/> 4:3<br/> 1:1 | ads_billboard_9_16.glb<br/> ads_billboard_16_9.glb<br/> ads_billboard_3_4.glb<br/> ads_billboard_4_3.glb<br/> ads_billboard_1_1.glb | 
 | Citylight | Rectangular 4-sided advertising totem with the ability to rotate | 9:16                                      | ads_citylight_9_16.glb                                                                                                              |
+| Billboard | Advertising billboard with multiple ratios                       | 9:16<br/> 16:9<br/> 3:4<br/> 4:3<br/> 1:1 | ads_billboard_9_16.glb<br/> ads_billboard_16_9.glb<br/> ads_billboard_3_4.glb<br/> ads_billboard_4_3.glb<br/> ads_billboard_1_1.glb | 
+
 
 You must copy the models to the root scene folder before using the stands. It's a good practice to copy only the models you use.
 
@@ -114,6 +115,22 @@ Available options:
 }
 ```
 
+Usage Citylight:
+
+```js
+const citylight = new Ads.Citylight(name: string, options?: {})
+```
+
+Available options:
+
+```js
+{
+  types?: string[] | null,
+  mimes?: string[] | null,
+  rotation?: boolean, // default true
+}
+```
+
 Usage Billboard:
 
 ```js
@@ -127,22 +144,6 @@ Available options:
   types?: string[] | null,
   mimes?: string[] | null,
   ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9', // default 1:1
-}
-```
-
-Usage Citylight:
-
-```js
-const citylight = new Ads.Citylight(name: string, options?: {})
-```
-
-Available options:
-
-```js
-{
-  types?: string[] | null,
-  mimes?: string[] | null,
-  rotation?: boolean, // default false
 }
 ```
 
@@ -171,7 +172,7 @@ agent.addPlacement(placement: IPlacement | IStand).spawn()
 ### Example to add placements
 
 ```js
-import * as Ads from '../node_modules/@adshares/decentraland/src/index'
+import * as Ads from '@adshares/decentraland'
 
 const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
 
@@ -200,7 +201,7 @@ agent.addPlacement(placement1, placement2, totem).spawn()
 ### Example to add advertising stands
 
 ```js
-import * as Ads from '../node_modules/@adshares/decentraland/src/index'
+import * as Ads from '@adshares/decentraland'
 
 const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
 
