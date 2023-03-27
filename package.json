@@ -1,6 +1,6 @@
 {
   "name": "@adshares/decentraland",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "display-name": "Adshares DCL plugin",
   "description": "Adshares Decentraland SDK plugin",
   "author": "Adshares <dev@adshares.net>",
@@ -9,7 +9,9 @@
     "adshares",
     "ads",
     "decentraland",
-    "dcl"
+    "dcl",
+    "sdk",
+    "library"
   ],
   "repository": {
     "type": "git",
@@ -18,15 +20,37 @@
   "bugs": {
     "url": "https://github.com/adshares/decentraland/issues"
   },
+  "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "homepage": "https://github.com/adshares/decentraland#readme",
+  "decentralandLibrary": {
+    "main": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "!dist/types"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "rollup -c",
+    "link": "npm link && rollup --watch -c "
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0",
+    "yarn": "please use npm"
   },
   "dependencies": {
-    "decentraland-ecs": "^6.11.11"
+    "decentraland-ecs": "latest"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^8.3.1",
+    "rollup": "^2.70.1",
+    "tslib": "^2.5.0",
     "typescript": "^4.9.4"
   }
 }
