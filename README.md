@@ -21,7 +21,7 @@ Easy configuration. Just fill out your payout address (Adshares blockchain or as
 ## Install
 
 ```bash
-npm install @adshares/decentraland
+npm install @adshares/decentraland -B
 ```
 
 ### Update

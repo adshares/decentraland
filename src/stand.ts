@@ -188,7 +188,7 @@ export class Billboard extends Entity implements IStand {
   }
 }
 
-export class Citylight extends Entity implements IStand{
+export class Citylight extends Entity implements IStand {
   private readonly _types: string[] | null
   private readonly _mimes: string[] | null
   private readonly _placement_1: IPlacement
@@ -265,6 +265,7 @@ export class Citylight extends Entity implements IStand{
 
 class AdsRotationSystem implements ISystem {
   private _entities: Entity[] = []
+
   constructor () {
     engine.addSystem(this)
   }
@@ -275,7 +276,8 @@ class AdsRotationSystem implements ISystem {
       transform.rotate(Vector3.Up(), 0.5)
     })
   }
-  public add(entities: Entity[]) {
-    this._entities = [...this._entities, ...entities ]
+
+  public add (entities: Entity[]) {
+    this._entities = [...this._entities, ...entities]
   }
 }
