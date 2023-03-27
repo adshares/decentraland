@@ -1,14 +1,16 @@
 {
-  "extends": "./node_modules/decentraland-ecs/types/tsconfig.strict.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "declaration": true
-  },
   "include": [
-    "src/**/*"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.test.js"
-  ]
+    "dist",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "module": "ESNext",
+    "declaration": true,
+    "declarationDir": "dist",
+    "outDir": "dist"
+  },
+  "extends": "./node_modules/decentraland-ecs/types/tsconfig.json"
 }
