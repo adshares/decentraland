@@ -1,4 +1,4 @@
-import Creative from './creative'
+import { Creative } from './creative'
 import { Chain } from './enums'
 import { IPlacement, PlainPlacement } from './placement'
 import { Billboard, Citylight, IStand, Totem } from './stand'
@@ -13,5 +13,5 @@ export {
   Creative,
   Totem,
   Billboard,
-  Citylight
+  Citylight,
 }
