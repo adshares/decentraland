@@ -1,5 +1,6 @@
 import { IPlacement, TPlacementProps } from './placement'
 import { Creative } from './creative'
+import setTimeout from './timer'
 
 const canvas = new UICanvas()
 
@@ -10,6 +11,7 @@ export class UIPlacement extends Entity implements IPlacement {
   background: UIContainerRect
   placement: UIImage
   closeIcon: UIImage
+  closeIconTimer: UIText
   closeBg: UIContainerRect
   infoBox: UIImage
 
@@ -35,6 +37,7 @@ export class UIPlacement extends Entity implements IPlacement {
   }
 
   public renderCreative (creative: Creative) {
+    let closeIconCounter = 5
     const size = creative.scope.split('x')
     const scale = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
     log(size)
@@ -57,7 +60,6 @@ export class UIPlacement extends Entity implements IPlacement {
     this.placement.positionY = 0
     this.placement.onClick = new OnClick(() => {
       openExternalURL(creative.clickUrl)
-      this.closeIcon.visible = true
     })
     this.placement.visible = true
 
@@ -74,6 +76,30 @@ export class UIPlacement extends Entity implements IPlacement {
       this.reset()
     })
     this.closeIcon.visible = false
+
+    this.closeIconTimer = new UIText(this.placement)
+    this.closeIconTimer.positionX = parseInt(String(this.placement.width)) / 2 + 6
+    this.closeIconTimer.positionY = parseInt(String(this.placement.height)) / 2 + 6
+    this.closeIconTimer.fontSize = 12
+    this.closeIconTimer.value = '5'
+    this.setInterval(() => {
+      this.closeIconTimer.value = (parseInt(this.closeIconTimer.value) - 1).toString()
+      if (parseInt(this.closeIconTimer.value) === 0) {
+        this.closeIconTimer.visible = false
+        this.closeIcon.visible = true
+      }
+    }, 5)
+  }
+
+  setInterval (callback, delay) {
+    setTimeout(() => {
+      if (0 !== delay) {
+        log(delay)
+        callback()
+        this.setInterval(callback, delay - 1)
+        return
+      }
+    }, 1000)
   }
 
   public renderInfoBox (url: string) {
@@ -86,7 +112,6 @@ export class UIPlacement extends Entity implements IPlacement {
     this.infoBox.sourceHeight = 128
     this.infoBox.onClick = new OnClick(() => {
       openExternalURL(url)
-      this.closeIcon.visible = true
     })
     this.infoBox.visible = true
   }
