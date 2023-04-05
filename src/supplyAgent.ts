@@ -281,6 +281,7 @@ export default class SupplyAgent {
         this.uiPlacements.forEach((placement, index) => {
           placement.reset()
           const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
+          if(creative.type === 'video') return
           refreshTime = Math.max(refreshTime, creative.refreshTime)
           this.renderCreative(placement, creative, userAccount)
         })

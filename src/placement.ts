@@ -13,7 +13,7 @@ export declare interface IPlacement extends IEntity {
   reset (): void;
 }
 
-declare type TPlacementProps = {
+export declare type TPlacementProps = {
   name: string | null,
   width: number,
   height: number,
