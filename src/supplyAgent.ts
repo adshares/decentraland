@@ -1,11 +1,17 @@
-import {IPlacement} from './placement'
+import { IPlacement } from './placement'
 import { Creative, CustomCommand } from './creative'
-import {getUserAccount} from '@decentraland/EthereumController'
-import {getParcel, ILand} from '@decentraland/ParcelIdentity'
-import {addUrlParam, parseErrors, uuidv4} from './utils'
+import { getUserAccount } from '@decentraland/EthereumController'
+import { getParcel, ILand } from '@decentraland/ParcelIdentity'
+import { addUrlParam, parseErrors, uuidv4 } from './utils'
 import setTimeout from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
+import { UIPlacement } from './UIPlacement'
+
+enum PlacementType {
+  PLAIN = 'plain',
+  UI = 'ui'
+}
 
 interface IHash {
   [details: string]: boolean;
@@ -35,6 +41,7 @@ export default class SupplyAgent {
   private readonly adserver: string
   private readonly publisherId: string
   private placements: IPlacement[] = []
+  private uiPlacements: IPlacement[] = []
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
@@ -47,6 +54,7 @@ export default class SupplyAgent {
     this.adserver = adserver
     this.publisherId = publisherId
     this.impressionId = uuidv4()
+    this.renderInfo()
   }
 
   public static fromWallet (adserver: string, chain: 'ads' | 'bsc', address: string): SupplyAgent {
@@ -61,11 +69,6 @@ export default class SupplyAgent {
         this.placements.push(item)
       }
     })
-    return this
-  }
-
-  public async spawn (): Promise<any> {
-    this.renderInfo()
     this.bannerCounter += this.placements.length
     const maxPlacements = this.getMaxPlacements()
     if (this.bannerCounter > maxPlacements) {
@@ -73,8 +76,29 @@ export default class SupplyAgent {
       this.renderError(message)
       throw new Error(message)
     } else {
-      return this.find()
+      this.find(PlacementType.PLAIN)
+      return this
     }
+  }
+
+  allowUIPlacements (...position: Array<'top' | 'bottom' | 'left' | 'right' | 'center'>) {
+    position.forEach(pos => {
+      if (pos === 'center') {
+        const leftUI = new UIPlacement('UICenter')
+        this.uiPlacements.push(leftUI)
+      } else if (pos === 'top') {
+        this.uiPlacements.push()
+      } else if (pos === 'bottom') {
+        this.uiPlacements.push()
+      } else if (pos === 'left') {
+        this.uiPlacements.push()
+      } else if (pos === 'right') {
+        this.uiPlacements.push()
+      }
+    })
+    log(this.uiPlacements)
+    this.find(PlacementType.UI)
+    return this
   }
 
   private getMaxPlacements (): number {
@@ -168,12 +192,21 @@ export default class SupplyAgent {
     return this.fetch(url, data, isJson, await importFetch())
   }
 
-    private async fetchCreatives(userAccount?: string): Promise<{creatives: Creative[], customCommands: CustomCommand[]}> {
-        const parcel = await getParcel()
-        const placements: any[] = []
-        this.placements.forEach((placement, index) => {
-            placements.push({...placement.getProps(), id: '' + index})
-        })
+  private async fetchCreatives (type: PlacementType.UI | PlacementType.PLAIN, userAccount?: string): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+    const parcel = await getParcel()
+    const placements: any[] = []
+
+    if (type === PlacementType.PLAIN) {
+      this.placements.forEach((placement, index) => {
+        placements.push({ ...placement.getProps(), id: type + index })
+      })
+    }
+
+    if (type === PlacementType.UI) {
+      this.uiPlacements.forEach((placement, index) => {
+        placements.push({ ...placement.getProps(), id: type + index })
+      })
+    }
 
     const request = {
       context: {
@@ -189,17 +222,17 @@ export default class SupplyAgent {
       placements
     }
 
-        const creatives: Creative[] = []
-        const customCommands: CustomCommand[] = []
-        const response = await this.fetch(`${this.adserver}/supply/find`, request)
-        response.data.forEach((item: any) => {
-            creatives.push(new Creative(item))
-        })
-        if(response.custom) {
-            customCommands.push(new CustomCommand(response.custom))
-        }
-        return {creatives, customCommands}
+    const creatives: Creative[] = []
+    const customCommands: CustomCommand[] = []
+    const response = await this.fetch(`${this.adserver}/supply/find`, request)
+    response.data.forEach((item: any) => {
+      creatives.push(new Creative(item))
+    })
+    if (response.custom) {
+      customCommands.push(new CustomCommand(response.custom))
     }
+    return { creatives, customCommands }
+  }
 
   private registerContext (url: string, seedTrackingId?: string): boolean {
     if (!this.loadedContexts[url]) {
@@ -215,56 +248,74 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async find (cleanup: boolean = false): Promise<Creative[]> {
+  private async find (type: PlacementType): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
     const userAccount = await getUserAccount()
-
-    this.registerUser(userAccount)
-
-        let creatives: Creative[] = []
-        let customCommands: CustomCommand[] = []
-        try {
-            const response = await this.fetchCreatives(userAccount)
-            creatives = response.creatives
-            customCommands = response.customCommands
-        } catch (exception) {
-            this.renderError('' + exception)
-            throw exception
-        }
+    let creatives: Creative[] = []
+    let customCommands: CustomCommand[] = []
+    try {
+      const response = await this.fetchCreatives(type, userAccount)
+      creatives = response.creatives
+      customCommands = response.customCommands
+    } catch (exception) {
+      this.renderError('' + exception)
+      throw exception
+    }
 
     let refreshTime: number = 0
-    this.placements.forEach((placement, index) => {
-      if (cleanup) {
-        placement.reset()
-      }
-
-            const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
-            if (!creative) {
-                this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-                return
-            }
-            refreshTime = Math.max(refreshTime, creative.refreshTime)
-            placement.renderCreative(creative)
-            if (creative.infoBox) {
-                placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
-            }
-
-      this.signedFetch(creative.viewUrl).then((response: any) => {
-        if (response.context) {
-          response.context.forEach((url: string) => {
-            this.registerContext(url, userAccount)
-          })
-        }
-      })
-    })
-
-        if (customCommands.length > 0) {
-            customCommands.forEach(command => command.executeCustomCommand())
-        }
-
+    switch (type) {
+      case PlacementType.PLAIN:
+        this.registerUser(userAccount)
+        this.placements.forEach((placement, index) => {
+          placement.reset()
+          const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
+          refreshTime = Math.max(refreshTime, creative.refreshTime)
+          this.renderCreative(placement, creative, userAccount)
+        })
         setTimeout(() => {
-            this.find(!isBuilder)
+          this.find(type)
         }, Math.max(refreshTime, 5000))
+        break
 
-    return creatives
+      case PlacementType.UI:
+        this.registerUser(userAccount)
+        this.uiPlacements.forEach((placement, index) => {
+          placement.reset()
+          const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
+          refreshTime = Math.max(refreshTime, creative.refreshTime)
+          this.renderCreative(placement, creative, userAccount)
+        })
+        setTimeout(() => {
+          this.find(type)
+        }, Math.max(refreshTime, 5000))
+        break
+
+      default:
+        break
+    }
+
+    if (customCommands.length > 0) {
+      customCommands.forEach(command => command.executeCustomCommand())
+    }
+
+    return { creatives, customCommands }
+  }
+
+  renderCreative (placement, creative, userAccount) {
+    if (!creative) {
+      this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+      return
+    }
+    placement.renderCreative(creative)
+    if (creative.infoBox) {
+      placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
+    }
+
+    this.signedFetch(creative.viewUrl).then((response: any) => {
+      if (response.context) {
+        response.context.forEach((url: string) => {
+          this.registerContext(url, userAccount)
+        })
+      }
+    })
   }
 }
