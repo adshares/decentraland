@@ -1,6 +1,6 @@
 import { IPlacement, TPlacementProps } from './placement'
 import { Creative } from './creative'
-import setTimeout from './timer'
+import { setInterval } from './timer'
 
 const canvas = new UICanvas()
 
@@ -8,14 +8,15 @@ export class UIPlacement extends Entity implements IPlacement {
   name: string
   width: number = 500
   height: number = 500
-  background: UIContainerRect
-  placement: UIImage
-  closeIcon: UIImage
-  closeIconTimer: UIText
-  closeBg: UIContainerRect
-  infoBox: UIImage
+  background: any
+  placement: any
+  closeIcon: any
+  closeIconTimer: any
+  infoBox: any
+  closeInterval: any
 
-  constructor (name) {
+
+  constructor (name: string) {
     super(name)
     this.name = name
   }
@@ -37,11 +38,8 @@ export class UIPlacement extends Entity implements IPlacement {
   }
 
   public renderCreative (creative: Creative) {
-    let closeIconCounter = 5
     const size = creative.scope.split('x')
     const scale = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
-    log(size)
-    log(scale)
 
     this.background = new UIContainerRect(canvas)
     // this.background.color = Color4.Red()
@@ -82,24 +80,14 @@ export class UIPlacement extends Entity implements IPlacement {
     this.closeIconTimer.positionY = parseInt(String(this.placement.height)) / 2 + 6
     this.closeIconTimer.fontSize = 12
     this.closeIconTimer.value = '5'
-    this.setInterval(() => {
+    this.closeInterval = setInterval('closeInterval',() => {
       this.closeIconTimer.value = (parseInt(this.closeIconTimer.value) - 1).toString()
       if (parseInt(this.closeIconTimer.value) === 0) {
         this.closeIconTimer.visible = false
         this.closeIcon.visible = true
       }
-    }, 5)
-  }
-
-  setInterval (callback, delay) {
-    setTimeout(() => {
-      if (0 !== delay) {
-        log(delay)
-        callback()
-        this.setInterval(callback, delay - 1)
-        return
-      }
-    }, 1000)
+    }, 5000)
+    this.closeIconTimer.visible = true
   }
 
   public renderInfoBox (url: string) {
@@ -121,7 +109,9 @@ export class UIPlacement extends Entity implements IPlacement {
       this.background.visible = false
       this.placement.visible = false
       this.closeIcon.visible = false
+      this.closeIconTimer.visible = false
       this.infoBox.visible = false
+      this.closeInterval.clear(this.name + 'clsBtnInterval')
     }
   }
 

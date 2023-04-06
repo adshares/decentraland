@@ -2,7 +2,7 @@ type ITimerComponent = {
   id?: string
   elapsedTime: number
   targetTime: number
-  onTargetTimeReached: (components: ITimerComponent[], index) => void
+  onTargetTimeReached: () => void
 }
 
 export class TimerSystem implements ISystem {
@@ -39,7 +39,7 @@ export class TimerSystem implements ISystem {
     this._components.forEach((component, index) => {
       component.elapsedTime += dt
       if (component.elapsedTime >= component.targetTime) {
-        component.onTargetTimeReached(this._components, index)
+        component.onTargetTimeReached()
         this._components.splice(index, 1)
       }
 

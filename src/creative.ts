@@ -1,5 +1,5 @@
 import { addUrlParam, uuidv4 } from './utils'
-import setTimeout from './timer'
+import { setTimeout } from './timer'
 
 export class Creative {
   clickUrl: string = ''

@@ -1,12 +1,13 @@
 import { IPlacement } from './placement'
 import { Creative, CustomCommand } from './creative'
-import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
-import setTimeout from './timer'
+import { setTimeout } from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
 import { UIPlacement } from './UIPlacement'
+import { getUserData } from '@decentraland/Identity'
+import { getPlayerData, getPlayersInScene } from '@decentraland/Players'
 
 enum PlacementType {
   PLAIN = 'plain',
@@ -96,7 +97,6 @@ export default class SupplyAgent {
         this.uiPlacements.push()
       }
     })
-    log(this.uiPlacements)
     this.find(PlacementType.UI)
     return this
   }
@@ -192,7 +192,7 @@ export default class SupplyAgent {
     return this.fetch(url, data, isJson, await importFetch())
   }
 
-  private async fetchCreatives (type: PlacementType.UI | PlacementType.PLAIN, userAccount?: string): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+  private async fetchCreatives (type: PlacementType.UI | PlacementType.PLAIN, userAccount: string | null): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
     const parcel = await getParcel()
     const placements: any[] = []
 
@@ -215,7 +215,7 @@ export default class SupplyAgent {
         publisher: this.publisherId,
         medium: 'metaverse',
         vendor: 'decentraland',
-        uid: userAccount || '',
+        uid: userAccount,
         metamask: userAccount !== null,
         version: this.version,
       },
@@ -234,7 +234,7 @@ export default class SupplyAgent {
     return { creatives, customCommands }
   }
 
-  private registerContext (url: string, seedTrackingId?: string): boolean {
+  private registerContext (url: string, seedTrackingId: string | null): boolean {
     if (!this.loadedContexts[url]) {
       this.signedFetch(seedTrackingId ? addUrlParam(url, { stid: seedTrackingId }) : url, null, false).then()
       this.loadedContexts[url] = true
@@ -243,13 +243,17 @@ export default class SupplyAgent {
     return false
   }
 
-  private registerUser (userAccount?: string): boolean {
+  private registerUser (userAccount: string | null): boolean {
     const registerUrl = this.adserver + '/supply/register?iid=' + this.impressionId
     return this.registerContext(registerUrl, userAccount)
   }
 
   private async find (type: PlacementType): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
-    const userAccount = await getUserAccount()
+    const userData = await getUserData()
+    const userAccount: string | null = userData?.userId || null
+    const playersInScene = await getPlayersInScene()
+    const isPlayerInScene = userAccount && playersInScene.map(p => p.userId).indexOf(userAccount) !== -1
+    log(isPlayerInScene)
     let creatives: Creative[] = []
     let customCommands: CustomCommand[] = []
     try {
@@ -261,33 +265,35 @@ export default class SupplyAgent {
       throw exception
     }
 
-    let refreshTime: number = 0
     switch (type) {
       case PlacementType.PLAIN:
+        let plainRefreshTime: number = 0
         this.registerUser(userAccount)
         this.placements.forEach((placement, index) => {
           placement.reset()
           const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-          refreshTime = Math.max(refreshTime, creative.refreshTime)
+          plainRefreshTime = Math.max(plainRefreshTime, creative.refreshTime)
           this.renderCreative(placement, creative, userAccount)
         })
         setTimeout(() => {
           this.find(type)
-        }, Math.max(refreshTime, 5000))
+        }, Math.max(plainRefreshTime, 5000))
         break
 
       case PlacementType.UI:
+        let uiRefreshTime: number = 0
         this.registerUser(userAccount)
         this.uiPlacements.forEach((placement, index) => {
           placement.reset()
           const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-          if(creative.type === 'video') return
-          refreshTime = Math.max(refreshTime, creative.refreshTime)
+          if (creative.type === 'video') return
+          uiRefreshTime = Math.max(uiRefreshTime, creative.refreshTime)
           this.renderCreative(placement, creative, userAccount)
         })
+
         setTimeout(() => {
           this.find(type)
-        }, Math.max(refreshTime, 5000))
+        }, Math.max(uiRefreshTime, 5000))
         break
 
       default:
@@ -301,7 +307,7 @@ export default class SupplyAgent {
     return { creatives, customCommands }
   }
 
-  renderCreative (placement, creative, userAccount) {
+  renderCreative (placement: IPlacement, creative: Creative, userAccount: string | null) {
     if (!creative) {
       this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
       return
