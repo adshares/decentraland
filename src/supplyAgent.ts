@@ -286,7 +286,10 @@ export default class SupplyAgent {
         this.uiPlacements.forEach((placement, index) => {
           placement.reset()
           const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-          if (creative.type === 'video') return
+          if (creative.type === 'video') {
+            this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+            return
+          }
           uiRefreshTime = Math.max(uiRefreshTime, creative.refreshTime)
           this.renderCreative(placement, creative, userAccount)
         })
