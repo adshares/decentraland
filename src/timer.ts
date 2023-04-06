@@ -2,12 +2,11 @@ type ITimerComponent = {
   id?: string
   elapsedTime: number
   targetTime: number
-  onTargetTimeReached: () => void
+  onTargetTimeReached: (components: ITimerComponent[], index: number) => void
 }
 
 export class TimerSystem implements ISystem {
   private static _instance: TimerSystem | null = null
-
   protected _components: ITimerComponent[] = []
 
   static createAndAddToEngine (): TimerSystem {
@@ -26,12 +25,12 @@ export class TimerSystem implements ISystem {
     TimerSystem._instance = this
   }
 
-  clear(id: string) {
+  clear (id: string) {
     this._components = this._components.filter(component => {
-      if(!component.id){
+      if (!component.id) {
         return true
       }
-      return component.id.indexOf(id)
+      return component.id.indexOf(id) !== -1
     })
   }
 
@@ -39,8 +38,7 @@ export class TimerSystem implements ISystem {
     this._components.forEach((component, index) => {
       component.elapsedTime += dt
       if (component.elapsedTime >= component.targetTime) {
-        component.onTargetTimeReached()
-        this._components.splice(index, 1)
+        component.onTargetTimeReached(this._components, index)
       }
 
     })
@@ -52,7 +50,10 @@ export function setTimeout (fn: () => void, msecs: number) {
   let timer: ITimerComponent = {
     elapsedTime: 0,
     targetTime: msecs / 1000,
-    onTargetTimeReached: fn
+    onTargetTimeReached: (components, index) => {
+      fn()
+      components.splice(index, 1)
+    }
   }
   instance.addComponent(timer)
   return instance
@@ -60,14 +61,16 @@ export function setTimeout (fn: () => void, msecs: number) {
 
 export function setInterval (id: string, fn: () => void, msecs: number): TimerSystem {
   let instance = TimerSystem.createAndAddToEngine()
-  for (let tik = 1000; tik <= msecs; tik += 1000) {
-    let timer: ITimerComponent = {
-      id: id + tik.toString(),
-      elapsedTime: 0,
-      targetTime: tik / 1000,
-      onTargetTimeReached: fn
+  let timer: ITimerComponent = {
+    id: id + msecs.toString(),
+    elapsedTime: 0,
+    targetTime: msecs / 1000,
+    onTargetTimeReached: (components, index) => {
+      log(components)
+      if (components[index]) components[index].elapsedTime = 0 // why undefined ???
+      if (fn) fn()
     }
-    instance.addComponent(timer)
   }
+  instance.addComponent(timer)
   return instance
 }
