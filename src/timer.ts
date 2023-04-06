@@ -26,26 +26,11 @@ export class TimerSystem implements ISystem {
   }
 
   public clear (id: string) {
-    log(id)
     const componentIndex = this._components.map(c => c.id).indexOf(id)
     if (componentIndex !== -1) {
-      log('clear', id)
       this._components.splice(componentIndex, 1)
     }
   }
-
-  // public setInterval (id: string, fn: () => void, msecs: number): void {
-  //   let timer: ITimerComponent = {
-  //     id: id,
-  //     elapsedTime: 0,
-  //     targetTime: msecs / 1000,
-  //     onTargetTimeReached: (components, index) => {
-  //       if (components[index]) components[index].elapsedTime = 0 // why undefined ???
-  //       if (fn) fn()
-  //     }
-  //   }
-  //   this.addComponent(timer)
-  // }
 
   update (dt: number) {
     this._components.forEach((component, index) => {
