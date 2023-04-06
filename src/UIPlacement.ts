@@ -1,24 +1,63 @@
 import { IPlacement, TPlacementProps } from './placement'
 import { Creative } from './creative'
-import { setInterval } from './timer'
+import { TimerSystem, setInterval } from './timer'
 
 const canvas = new UICanvas()
 
 export class UIPlacement extends Entity implements IPlacement {
   name: string
-  width: number = 500
-  height: number = 500
+  position: 'top' | 'bottom' | 'left' | 'right' | 'center'
+  width: number = 0
+  height: number = 0
   background: any
   placement: any
   closeIcon: any
   closeIconTimer: any
   infoBox: any
   closeInterval: any
+  // closeInterval = TimerSystem.createAndAddToEngine()
 
-
-  constructor (name: string) {
+  constructor (name: string, position: 'top' | 'left' | 'right' | 'center') {
     super(name)
     this.name = name
+    this.position = position
+
+    // this.width =
+    //   this.position === 'center' && 500 ||
+    //   this.position === 'left' && 100 ||
+    //   this.position === 'right' && 100 ||
+    //   this.position === 'top' && 500
+    //
+    // this.height =
+    //   this.position === 'center' && 500 ||
+    //   this.position === 'left' && 500 ||
+    //   this.position === 'right' && 500 ||
+    //   this.position === 'top' && 100
+
+    switch (this.position) {
+      case 'center':
+        this.width = 500
+        this.height = 500
+        break
+
+      case 'left':
+        this.width = 100
+        this.height = 500
+        break
+
+      case 'right':
+        this.width = 100
+        this.height = 500
+        break
+
+      case 'top':
+        this.width = 500
+        this.height = 100
+        break
+
+      default:
+        break
+    }
   }
 
   public getProps (): TPlacementProps {
@@ -42,10 +81,19 @@ export class UIPlacement extends Entity implements IPlacement {
     const scale = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
 
     this.background = new UIContainerRect(canvas)
-    // this.background.color = Color4.Red()
     this.background.width = this.width
     this.background.height = this.height
-    this.background.positionY = 50
+    this.background.positionX =
+      this.position === 'center' && 0 ||
+      this.position === 'left' && '-45%' ||
+      this.position === 'right' && '45%' ||
+      this.position === 'top' && 0
+
+    this.background.positionY =
+      this.position === 'center' && 0 ||
+      this.position === 'left' && 0 ||
+      this.position === 'right' && 0 ||
+      this.position === 'top' && '50%'
     this.background.visible = true
 
     this.placement = new UIImage(this.background, new Texture(creative.serveUrl))
@@ -80,13 +128,14 @@ export class UIPlacement extends Entity implements IPlacement {
     this.closeIconTimer.positionY = parseInt(String(this.placement.height)) / 2 + 6
     this.closeIconTimer.fontSize = 12
     this.closeIconTimer.value = '5'
-    this.closeInterval = setInterval('closeInterval',() => {
+    this.closeInterval = setInterval(this.name, () => {
       this.closeIconTimer.value = (parseInt(this.closeIconTimer.value) - 1).toString()
       if (parseInt(this.closeIconTimer.value) === 0) {
         this.closeIconTimer.visible = false
         this.closeIcon.visible = true
+        this.closeInterval.clear(this.name)
       }
-    }, 5000)
+    }, 1000)
     this.closeIconTimer.visible = true
   }
 
@@ -111,7 +160,7 @@ export class UIPlacement extends Entity implements IPlacement {
       this.closeIcon.visible = false
       this.closeIconTimer.visible = false
       this.infoBox.visible = false
-      this.closeInterval.clear(this.name + 'clsBtnInterval')
+      this.closeInterval.clear(this.name)
     }
   }
 

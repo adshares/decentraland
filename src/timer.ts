@@ -25,14 +25,27 @@ export class TimerSystem implements ISystem {
     TimerSystem._instance = this
   }
 
-  clear (id: string) {
-    this._components = this._components.filter(component => {
-      if (!component.id) {
-        return true
-      }
-      return component.id.indexOf(id) !== -1
-    })
+  public clear (id: string) {
+    log(id)
+    const componentIndex = this._components.map(c => c.id).indexOf(id)
+    if (componentIndex !== -1) {
+      log('clear', id)
+      this._components.splice(componentIndex, 1)
+    }
   }
+
+  // public setInterval (id: string, fn: () => void, msecs: number): void {
+  //   let timer: ITimerComponent = {
+  //     id: id,
+  //     elapsedTime: 0,
+  //     targetTime: msecs / 1000,
+  //     onTargetTimeReached: (components, index) => {
+  //       if (components[index]) components[index].elapsedTime = 0 // why undefined ???
+  //       if (fn) fn()
+  //     }
+  //   }
+  //   this.addComponent(timer)
+  // }
 
   update (dt: number) {
     this._components.forEach((component, index) => {
@@ -62,11 +75,10 @@ export function setTimeout (fn: () => void, msecs: number) {
 export function setInterval (id: string, fn: () => void, msecs: number): TimerSystem {
   let instance = TimerSystem.createAndAddToEngine()
   let timer: ITimerComponent = {
-    id: id + msecs.toString(),
+    id: id,
     elapsedTime: 0,
     targetTime: msecs / 1000,
     onTargetTimeReached: (components, index) => {
-      log(components)
       if (components[index]) components[index].elapsedTime = 0 // why undefined ???
       if (fn) fn()
     }

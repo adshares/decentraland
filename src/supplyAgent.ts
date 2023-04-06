@@ -82,19 +82,20 @@ export default class SupplyAgent {
     }
   }
 
-  allowUIPlacements (...position: Array<'top' | 'bottom' | 'left' | 'right' | 'center'>) {
+  allowUIPlacements (...position: Array<'top' /*| 'bottom' */ | 'left' | 'right' | 'center'>) {
     position.forEach(pos => {
       if (pos === 'center') {
-        const leftUI = new UIPlacement('UICenter')
-        this.uiPlacements.push(leftUI)
+        const centerUI = new UIPlacement('UICenter', 'center')
+        this.uiPlacements.push(centerUI)
       } else if (pos === 'top') {
-        this.uiPlacements.push()
-      } else if (pos === 'bottom') {
-        this.uiPlacements.push()
+        const topUI = new UIPlacement('UITop', 'top')
+        this.uiPlacements.push(topUI)
       } else if (pos === 'left') {
-        this.uiPlacements.push()
+        const leftUI = new UIPlacement('UILeft', 'left')
+        this.uiPlacements.push(leftUI)
       } else if (pos === 'right') {
-        this.uiPlacements.push()
+        const rightUI = new UIPlacement('UIRight', 'right')
+        this.uiPlacements.push(rightUI)
       }
     })
     this.find(PlacementType.UI)
@@ -253,7 +254,6 @@ export default class SupplyAgent {
     const userAccount: string | null = userData?.userId || null
     const playersInScene = await getPlayersInScene()
     const isPlayerInScene = userAccount && playersInScene.map(p => p.userId).indexOf(userAccount) !== -1
-    log(isPlayerInScene)
     let creatives: Creative[] = []
     let customCommands: CustomCommand[] = []
     try {
