@@ -2,7 +2,7 @@ import { IPlacement } from './placement'
 import { Creative, CustomCommand } from './creative'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
-import { setTimeout } from './timer'
+import { setInterval, setTimeout, TimerSystem } from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
 import { UIPlacement } from './UIPlacement'
@@ -249,83 +249,90 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async find (type: PlacementType): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+  private async find (type: PlacementType) /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
-    const playersInScene = await getPlayersInScene()
-    const isPlayerInScene = userAccount && playersInScene.map(p => p.userId).indexOf(userAccount) !== -1
-    let creatives: Creative[] = []
-    let customCommands: CustomCommand[] = []
-    try {
-      const response = await this.fetchCreatives(type, userAccount)
-      creatives = response.creatives
-      customCommands = response.customCommands
-    } catch (exception) {
-      this.renderError('' + exception)
-      throw exception
-    }
 
     switch (type) {
       case PlacementType.PLAIN:
-        let plainRefreshTime: number = 0
-        this.registerUser(userAccount)
-        this.placements.forEach((placement, index) => {
-          placement.reset()
-          const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-          plainRefreshTime = Math.max(plainRefreshTime, creative.refreshTime)
-          this.renderCreative(placement, creative, userAccount)
-        })
-        setTimeout(() => {
-          this.find(type)
-        }, Math.max(plainRefreshTime, 5000))
+        this.renderCreative(type, this.placements, userAccount)
+
+        setInterval(() => {
+          this.renderCreative(type, this.placements, userAccount)
+        }, 5000)
         break
 
       case PlacementType.UI:
         let uiRefreshTime: number = 0
-        this.registerUser(userAccount)
-        this.uiPlacements.forEach((placement, index) => {
-          placement.reset()
-          const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-          if (creative.type === 'video') {
-            this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+        let isPlayerInScene = false
+        let timerSystem = TimerSystem.createAndAddToEngine()
+        let timeoutId = ''
+
+        setInterval(async () => {
+          const playersInScene = await getPlayersInScene()
+          const checkResult = userAccount ? playersInScene.map(p => p.userId).indexOf(userAccount) !== -1 : false
+          if (checkResult === isPlayerInScene) {
             return
           }
-          uiRefreshTime = Math.max(uiRefreshTime, creative.refreshTime)
-          this.renderCreative(placement, creative, userAccount)
-        })
+          isPlayerInScene = checkResult
 
-        setTimeout(() => {
-          this.find(type)
-        }, Math.max(uiRefreshTime, 5000))
+          if (!isPlayerInScene) {
+            timerSystem.clear(timeoutId)
+            this.uiPlacements.forEach(placement => placement.reset())
+          }
+
+          if (isPlayerInScene) {
+            timeoutId = setInterval(() => {
+              this.renderCreative(PlacementType.UI, this.uiPlacements, userAccount)
+            }, 5000)
+          }
+
+        }, 1000)
         break
 
       default:
         break
     }
 
-    if (customCommands.length > 0) {
-      customCommands.forEach(command => command.executeCustomCommand())
-    }
-
-    return { creatives, customCommands }
+    // if (customCommands.length > 0) {
+    //   customCommands.forEach(command => command.executeCustomCommand())
+    // }
+    //
+    // return { creatives, customCommands }
   }
 
-  renderCreative (placement: IPlacement, creative: Creative, userAccount: string | null) {
-    if (!creative) {
-      this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-      return
-    }
-    placement.renderCreative(creative)
-    if (creative.infoBox) {
-      placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
-    }
-
-    this.signedFetch(creative.viewUrl).then((response: any) => {
-      if (response.context) {
-        response.context.forEach((url: string) => {
-          this.registerContext(url, userAccount)
-        })
+  async renderCreative (type: PlacementType, placements: IPlacement[], userAccount: string | null) {
+    const response = await this.fetchCreatives(type, userAccount)
+    const creatives = response.creatives
+    log('DO SOMETHING')
+    this.registerUser(userAccount)
+    placements.forEach((placement, index) => {
+      const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
+      if (type === PlacementType.UI && creative.type === 'video') {
+        this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+        return
       }
+      // uiRefreshTime = Math.max(uiRefreshTime, creative.refreshTime)
+      placement.reset()
+      if (!creative) {
+        this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+        return placement
+      }
+      placement.renderCreative(creative)
+      if (creative.infoBox) {
+        placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
+      }
+
+      this.signedFetch(creative.viewUrl).then((response: any) => {
+        if (response.context) {
+          response.context.forEach((url: string) => {
+            this.registerContext(url, userAccount)
+          })
+        }
+      })
+      return placement
+      // this.renderCreative(placement, creative, userAccount)
     })
+
   }
 }

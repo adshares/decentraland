@@ -43,9 +43,11 @@ export class TimerSystem implements ISystem {
   }
 }
 
-export function setTimeout (fn: () => void, msecs: number) {
+export function setTimeout ( fn: () => void, msecs: number) {
+  let id = Math.random().toString()
   let instance = TimerSystem.createAndAddToEngine()
   let timer: ITimerComponent = {
+    id,
     elapsedTime: 0,
     targetTime: msecs / 1000,
     onTargetTimeReached: (components, index) => {
@@ -54,10 +56,11 @@ export function setTimeout (fn: () => void, msecs: number) {
     }
   }
   instance.addComponent(timer)
-  return instance
+  return id
 }
 
-export function setInterval (id: string, fn: () => void, msecs: number): TimerSystem {
+export function setInterval ( fn: () => void, msecs: number) {
+  let id = Math.random().toString()
   let instance = TimerSystem.createAndAddToEngine()
   let timer: ITimerComponent = {
     id: id,
@@ -69,5 +72,5 @@ export function setInterval (id: string, fn: () => void, msecs: number): TimerSy
     }
   }
   instance.addComponent(timer)
-  return instance
+  return id
 }

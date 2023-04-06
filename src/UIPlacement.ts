@@ -15,6 +15,8 @@ export class UIPlacement extends Entity implements IPlacement {
   private _closeIcon: UIImage = new UIImage(this._placement, new Texture('https://decentraland.org/images/ui/dark-atlas-v3.png'))
   private _closeIconTimer: UIText = new UIText(this._placement)
   private closeInterval: TimerSystem = TimerSystem.createAndAddToEngine()
+  private intervalID: string = ''
+
 
   constructor (name: string, position: 'top' | 'left' | 'right' | 'center') {
     super(name)
@@ -126,12 +128,12 @@ export class UIPlacement extends Entity implements IPlacement {
     this._closeIconTimer.positionX = parseInt(String(this._placement.width)) / 2 + 6
     this._closeIconTimer.positionY = parseInt(String(this._placement.height)) / 2 + 6
     this._closeIconTimer.value = '5'
-    this.closeInterval = setInterval(this.name, () => {
+    this.intervalID = setInterval(() => {
       this._closeIconTimer.value = (parseInt(this._closeIconTimer.value) - 1).toString()
       if (parseInt(this._closeIconTimer.value) === 0) {
         this._closeIconTimer.visible = false
         this._closeIcon.visible = true
-        this.closeInterval.clear(this.name)
+        this.closeInterval.clear(this.intervalID)
       }
     }, 1000)
     this._closeIconTimer.visible = true
@@ -154,7 +156,7 @@ export class UIPlacement extends Entity implements IPlacement {
       this._closeIcon.visible = false
       this._closeIconTimer.visible = false
       this._infoBox.visible = false
-      this.closeInterval.clear(this.name)
+      this.closeInterval.clear(this.intervalID)
     }
   }
 
