@@ -1,30 +1,7 @@
-import {Creative} from './creative'
-import {Ratio} from './enums'
+import { Ratio } from './enums'
+import { IPlacement, TPlacementProps, TRatio } from './types'
+import { Creative } from './creative'
 
-export declare interface IPlacement extends IEntity {
-  name: string
-
-  getProps (): TPlacementProps;
-
-  renderMessage (message: string, icon: string): void;
-
-  renderCreative (creative: Creative): void;
-
-  renderInfoBox (url: string): void;
-
-  reset (): void;
-}
-
-export declare type TPlacementProps = {
-  name: string | null,
-  width: number,
-  height: number,
-  depth: number | null,
-  no: number | null,
-  types: string[] | null,
-  mimes: string[] | null,
-}
-declare type TRatio = '9:16' | '3:4' | '1:1' | '4:3' | '16:9'
 declare type TConstructorParams = {
   position?: Vector3,
   rotation?: Quaternion,

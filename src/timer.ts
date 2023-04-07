@@ -1,9 +1,4 @@
-type ITimerComponent = {
-  id?: string
-  elapsedTime: number
-  targetTime: number
-  onTargetTimeReached: (components: ITimerComponent[], index: number) => void
-}
+import { ITimerComponent } from './types'
 
 export class TimerSystem implements ISystem {
   private static _instance: TimerSystem | null = null

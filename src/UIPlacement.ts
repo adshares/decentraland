@@ -1,4 +1,4 @@
-import { IPlacement, TPlacementProps } from './placement'
+import { IPlacement, TPlacementProps, TUIPlacementPosition } from './types'
 import { Creative } from './creative'
 import { setInterval, TimerSystem } from './timer'
 
@@ -6,7 +6,7 @@ const canvas = new UICanvas()
 
 export class UIPlacement extends Entity implements IPlacement {
   public name: string
-  private readonly _position: 'top' | 'bottom' | 'left' | 'right' | 'center'
+  private readonly _position: TUIPlacementPosition
   private readonly _width: number = 0
   private readonly _height: number = 0
   private _background: UIContainerRect = new UIContainerRect(canvas)
@@ -18,7 +18,7 @@ export class UIPlacement extends Entity implements IPlacement {
   private intervalID: string = ''
 
 
-  constructor (name: string, position: 'top' | 'bottom' | 'left' | 'right' | 'center') {
+  constructor (name: string, position: TUIPlacementPosition) {
     super(name)
     this.name = name
     this._position = position

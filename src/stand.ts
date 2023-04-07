@@ -1,8 +1,5 @@
-import { IPlacement, PlainPlacement } from './placement'
-
-export declare interface IStand extends IEntity {
-  getPlacements (): IPlacement[];
-}
+import { PlainPlacement } from './plainPlacement'
+import { IPlacement, IStand, TRatio } from './types'
 
 export class Totem extends Entity implements IStand {
   private readonly _types: string[] | null
@@ -51,7 +48,7 @@ export class Totem extends Entity implements IStand {
 }
 
 export class Billboard extends Entity implements IStand {
-  private readonly _ratio: '16:9' | '4:3' | '1:1' | '3:4' | '9:16'
+  private readonly _ratio: TRatio
   private readonly _types: string[] | null
   private readonly _mimes: string[] | null
   private readonly _frontPlacement: IPlacement
@@ -60,7 +57,7 @@ export class Billboard extends Entity implements IStand {
   public constructor (
     name: string,
     params?: {
-      ratio?: '16:9' | '4:3' | '1:1' | '3:4' | '9:16'
+      ratio?: TRatio
       types?: string[] | null,
       mimes?: string[] | null,
     }

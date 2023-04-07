@@ -10,3 +10,8 @@ export enum Ratio {
   '4:3' = 1.3333333333333333,
   '16:9' = 1.7777777777777777,
 }
+
+export enum Placement {
+  PLAIN = 'plainPlacement',
+  UI = 'UIPlacement'
+}
