@@ -2,7 +2,7 @@ import { IPlacement } from './placement'
 import { Creative, CustomCommand } from './creative'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
-import { setInterval, setTimeout, TimerSystem } from './timer'
+import { setInterval, setTimeout } from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
 import { UIPlacement } from './UIPlacement'
@@ -48,6 +48,8 @@ export default class SupplyAgent {
   private loadedContexts: IHash = {}
   public readonly version = '2.1.0'
 
+  private allowUiPlacement: boolean = true
+
   public constructor (adserver: string, publisherId: string) {
     while (adserver.slice(-1) === '/') {
       adserver = adserver.slice(0, -1)
@@ -77,7 +79,7 @@ export default class SupplyAgent {
       this.renderError(message)
       throw new Error(message)
     } else {
-      this.checkPlacements(PlacementType.PLAIN)
+      this.preparePlacements (PlacementType.PLAIN)
       return this
     }
   }
@@ -98,7 +100,7 @@ export default class SupplyAgent {
         this.UIPlacements.push(rightUI)
       }
     })
-    this.checkPlacements(PlacementType.UI)
+    this.preparePlacements (PlacementType.UI)
     return this
   }
 
@@ -250,7 +252,7 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async checkPlacements (type: PlacementType): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
+  private async preparePlacements  (type: PlacementType): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
 
@@ -273,6 +275,7 @@ export default class SupplyAgent {
 
           if (isPlayerInScene) {
             this.renderCreative(PlacementType.UI, this.UIPlacements, userAccount)
+            this.allowUiPlacement = false
           }
 
         }, 500)
@@ -285,6 +288,7 @@ export default class SupplyAgent {
 
   private async renderCreative (type: PlacementType, placements: IPlacement[], userAccount: string | null): Promise<any> {
     if (placements.length === 0) return
+    if (type === PlacementType.UI && !this.allowUiPlacement) return
     const placementsToRender = [...placements]
     let creatives: Creative[] = []
     let customCommands = []
