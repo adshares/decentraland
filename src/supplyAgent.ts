@@ -7,11 +7,11 @@ import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
 import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
-import { getPlayerData, getPlayersInScene } from '@decentraland/Players'
+import { getPlayersInScene } from '@decentraland/Players'
 
 enum PlacementType {
-  PLAIN = 'plain',
-  UI = 'ui'
+  PLAIN = 'plainPlacement',
+  UI = 'UIPlacement'
 }
 
 interface IHash {
@@ -41,8 +41,8 @@ async function importFetch (): Promise<any> {
 export default class SupplyAgent {
   private readonly adserver: string
   private readonly publisherId: string
-  private placements: IPlacement[] = []
-  private uiPlacements: IPlacement[] = []
+  private plainPlacements: IPlacement[] = []
+  private UIPlacements: IPlacement[] = []
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
@@ -65,19 +65,19 @@ export default class SupplyAgent {
   public addPlacement (...placements: Array<IPlacement | IStand>): SupplyAgent {
     placements.forEach((item: IPlacement | IStand) => {
       if ('getPlacements' in item) {
-        this.placements.push(...item.getPlacements())
+        this.plainPlacements.push(...item.getPlacements())
       } else {
-        this.placements.push(item)
+        this.plainPlacements.push(item)
       }
     })
-    this.bannerCounter += this.placements.length
+    this.bannerCounter += this.plainPlacements.length
     const maxPlacements = this.getMaxPlacements()
     if (this.bannerCounter > maxPlacements) {
       const message = `To many placements, you can add up to ${maxPlacements} placements.`
       this.renderError(message)
       throw new Error(message)
     } else {
-      this.find(PlacementType.PLAIN)
+      this.checkPlacements(PlacementType.PLAIN)
       return this
     }
   }
@@ -86,19 +86,19 @@ export default class SupplyAgent {
     position.forEach(pos => {
       if (pos === 'center') {
         const centerUI = new UIPlacement('UICenter', 'center')
-        this.uiPlacements.push(centerUI)
+        this.UIPlacements.push(centerUI)
       } else if (pos === 'top') {
         const topUI = new UIPlacement('UITop', 'top')
-        this.uiPlacements.push(topUI)
+        this.UIPlacements.push(topUI)
       } else if (pos === 'left') {
         const leftUI = new UIPlacement('UILeft', 'left')
-        this.uiPlacements.push(leftUI)
+        this.UIPlacements.push(leftUI)
       } else if (pos === 'right') {
         const rightUI = new UIPlacement('UIRight', 'right')
-        this.uiPlacements.push(rightUI)
+        this.UIPlacements.push(rightUI)
       }
     })
-    this.find(PlacementType.UI)
+    this.checkPlacements(PlacementType.UI)
     return this
   }
 
@@ -111,7 +111,7 @@ export default class SupplyAgent {
     if (placement !== null) {
       placement.renderMessage(message, icon)
     } else {
-      this.placements.forEach(item => item.renderMessage(message, icon))
+      this.plainPlacements.forEach(item => item.renderMessage(message, icon))
     }
   }
 
@@ -198,14 +198,14 @@ export default class SupplyAgent {
     const placements: any[] = []
 
     if (type === PlacementType.PLAIN) {
-      this.placements.forEach((placement, index) => {
-        placements.push({ ...placement.getProps(), id: type + index })
+      this.plainPlacements.forEach((placement, index) => {
+        placements.push({ ...placement.getProps(), id: type + '-' + placement.getProps().name })
       })
     }
 
     if (type === PlacementType.UI) {
-      this.uiPlacements.forEach((placement, index) => {
-        placements.push({ ...placement.getProps(), id: type + index })
+      this.UIPlacements.forEach((placement, index) => {
+        placements.push({ ...placement.getProps(), id: type + '-' + placement.getProps().name })
       })
     }
 
@@ -231,6 +231,7 @@ export default class SupplyAgent {
     })
     if (response.custom) {
       customCommands.push(new CustomCommand(response.custom))
+
     }
     return { creatives, customCommands }
   }
@@ -249,25 +250,19 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async find (type: PlacementType) /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
+  private async checkPlacements (type: PlacementType): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
 
     switch (type) {
       case PlacementType.PLAIN:
-        this.renderCreative(type, this.placements, userAccount)
-
-        setInterval(() => {
-          this.renderCreative(type, this.placements, userAccount)
-        }, 5000)
+        this.renderCreative(type, this.plainPlacements, userAccount)
         break
 
       case PlacementType.UI:
-        let uiRefreshTime: number = 0
         let isPlayerInScene = false
-        let timerSystem = TimerSystem.createAndAddToEngine()
-        let timeoutId = ''
 
+        /* check is player on scene */
         setInterval(async () => {
           const playersInScene = await getPlayersInScene()
           const checkResult = userAccount ? playersInScene.map(p => p.userId).indexOf(userAccount) !== -1 : false
@@ -276,47 +271,44 @@ export default class SupplyAgent {
           }
           isPlayerInScene = checkResult
 
-          if (!isPlayerInScene) {
-            timerSystem.clear(timeoutId)
-            this.uiPlacements.forEach(placement => placement.reset())
-          }
-
           if (isPlayerInScene) {
-            timeoutId = setInterval(() => {
-              this.renderCreative(PlacementType.UI, this.uiPlacements, userAccount)
-            }, 5000)
+            this.renderCreative(PlacementType.UI, this.UIPlacements, userAccount)
           }
 
-        }, 1000)
+        }, 500)
         break
 
       default:
         break
     }
-
-    // if (customCommands.length > 0) {
-    //   customCommands.forEach(command => command.executeCustomCommand())
-    // }
-    //
-    // return { creatives, customCommands }
   }
 
-  async renderCreative (type: PlacementType, placements: IPlacement[], userAccount: string | null) {
-    const response = await this.fetchCreatives(type, userAccount)
-    const creatives = response.creatives
-    log('DO SOMETHING')
+  private async renderCreative (type: PlacementType, placements: IPlacement[], userAccount: string | null): Promise<any> {
+    if (placements.length === 0) return
+    const placementsToRender = [...placements]
+    let creatives: Creative[] = []
+    let customCommands = []
+    try {
+      const response = await this.fetchCreatives(type, userAccount)
+      creatives = response.creatives
+      customCommands = response.customCommands
+    } catch (exception) {
+      this.renderError('' + exception)
+      throw exception
+    }
+
     this.registerUser(userAccount)
-    placements.forEach((placement, index) => {
-      const creative: Creative = creatives.filter((item: any) => item.id === type + index)[0]
-      if (type === PlacementType.UI && creative.type === 'video') {
+
+    placementsToRender.forEach((placement, index) => {
+      const creative: Creative = creatives.filter((item: any) => item.id === type + '-' + placement.getProps().name)[0]
+      if (!creative || type === PlacementType.UI && creative?.type === 'video') {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
         return
       }
-      // uiRefreshTime = Math.max(uiRefreshTime, creative.refreshTime)
       placement.reset()
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-        return placement
+        return
       }
       placement.renderCreative(creative)
       if (creative.infoBox) {
@@ -330,9 +322,25 @@ export default class SupplyAgent {
           })
         }
       })
-      return placement
-      // this.renderCreative(placement, creative, userAccount)
+
+      const indexInState = placements.map(p => p.name).indexOf(placement.name)
+      if (indexInState !== -1) {
+        placements.splice(indexInState, 1)
+      }
+
+      setTimeout(() => {
+        if (indexInState === -1) {
+          return
+        }
+        placements.push(placement)
+
+        this.renderCreative(type, placements, userAccount)
+      }, Math.max(creative.refreshTime, 5000))
     })
 
+    if (customCommands.length > 0) {
+      customCommands.forEach(command => command.executeCustomCommand())
+    }
+    return { creatives, customCommands }
   }
 }

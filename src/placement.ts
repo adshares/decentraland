@@ -2,6 +2,8 @@ import {Creative} from './creative'
 import {Ratio} from './enums'
 
 export declare interface IPlacement extends IEntity {
+  name: string
+
   getProps (): TPlacementProps;
 
   renderMessage (message: string, icon: string): void;
@@ -59,12 +61,14 @@ export class PlainPlacement extends Entity implements IPlacement {
   private readonly _mimes: TPlacementProps['mimes']
   private readonly _clickDistance: number = 50
   private _backgroundMaterial?: Material | null
+  public name: string
 
   public constructor (
     name: string,
     params?: TConstructorParams
   ) {
     super(name)
+    this.name = name
     this._width = params?.width || 1
     this._ratio = params?.ratio || '1:1'
     this._no = params?.no || null
