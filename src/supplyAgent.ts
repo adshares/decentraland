@@ -84,7 +84,7 @@ export default class SupplyAgent {
     }
   }
 
-  allowUIPlacements (...position: Array<'top' /*| 'bottom' */ | 'left' | 'right' | 'center'>) {
+  allowUIPlacements (...position: Array<'top' | 'bottom' | 'left' | 'right' | 'center'>) {
     position.forEach(pos => {
       if (pos === 'center') {
         const centerUI = new UIPlacement('UICenter', 'center')
@@ -92,6 +92,9 @@ export default class SupplyAgent {
       } else if (pos === 'top') {
         const topUI = new UIPlacement('UITop', 'top')
         this.UIPlacements.push(topUI)
+      } else if (pos === 'bottom') {
+        const bottomUI = new UIPlacement('UIBottom', 'bottom')
+        this.UIPlacements.push(bottomUI)
       } else if (pos === 'left') {
         const leftUI = new UIPlacement('UILeft', 'left')
         this.UIPlacements.push(leftUI)

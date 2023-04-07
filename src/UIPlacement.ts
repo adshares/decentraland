@@ -18,7 +18,7 @@ export class UIPlacement extends Entity implements IPlacement {
   private intervalID: string = ''
 
 
-  constructor (name: string, position: 'top' | 'left' | 'right' | 'center') {
+  constructor (name: string, position: 'top' | 'bottom' | 'left' | 'right' | 'center') {
     super(name)
     this.name = name
     this._position = position
@@ -46,6 +46,13 @@ export class UIPlacement extends Entity implements IPlacement {
         break
 
       case 'top':
+        this._width = 500
+        this._height = 100
+        this._background.positionX = 0
+        this._background.positionY = '-45%'
+        break
+
+      case 'bottom':
         this._width = 500
         this._height = 100
         this._background.positionX = 0
