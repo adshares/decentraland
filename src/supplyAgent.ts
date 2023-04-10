@@ -9,6 +9,7 @@ import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
 import { getPlayersInScene } from '@decentraland/Players'
 import { Placement } from './enums'
+import { PlainPlacement } from './plainPlacement'
 
 interface IHash {
   [details: string]: boolean;
@@ -39,12 +40,12 @@ export default class SupplyAgent {
   private readonly publisherId: string
   private plainPlacements: IPlacement[] = []
   private UIPlacements: IPlacement[] = []
+  private newPlacements: IPlacement[] = []
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
+  private allowUI: boolean = true
   public readonly version = '2.1.0'
-
-  private allowUiPlacement: boolean = true
 
   public constructor (adserver: string, publisherId: string) {
     while (adserver.slice(-1) === '/') {
@@ -63,11 +64,57 @@ export default class SupplyAgent {
   public addPlacement (...placements: Array<IPlacement | IStand>): SupplyAgent {
     placements.forEach((item: IPlacement | IStand) => {
       if ('getPlacements' in item) {
-        this.plainPlacements.push(...item.getPlacements())
+        this.newPlacements.push(...item.getPlacements())
       } else {
-        this.plainPlacements.push(item)
+        this.newPlacements.push(item)
       }
     })
+    return this
+  }
+
+  allowUIPlacements (...position: Array<TUIPlacementPosition>) {
+    position.forEach(pos => {
+      if (pos === 'center') {
+        const centerUI = new UIPlacement('UICenter', 'center')
+        this.newPlacements.push(centerUI)
+      } else if (pos === 'top') {
+        const topUI = new UIPlacement('UITop', 'top')
+        this.newPlacements.push(topUI)
+      } else if (pos === 'bottom') {
+        const bottomUI = new UIPlacement('UIBottom', 'bottom')
+        this.newPlacements.push(bottomUI)
+      } else if (pos === 'left') {
+        const leftUI = new UIPlacement('UILeft', 'left')
+        this.newPlacements.push(leftUI)
+      } else if (pos === 'right') {
+        const rightUI = new UIPlacement('UIRight', 'right')
+        this.newPlacements.push(rightUI)
+      }
+    })
+    this.preparePlacements(Placement.UI)
+    return this
+  }
+
+  async spawn (): Promise<IPlacement[]> {
+    this.newPlacements.forEach(placement => {
+      if (placement instanceof UIPlacement) {
+        this.UIPlacements.push(placement)
+      } else if (placement instanceof PlainPlacement) {
+        const indexOnState = this.plainPlacements.indexOf(placement)
+        if (indexOnState !== -1) {
+          try {
+            this.newPlacements.splice(indexOnState, 1)
+            throw `ADS Warning! Trying to add the same placements ${placement.name}`
+          } catch (warning) {
+            log(warning)
+          }
+          return
+        }
+        this.plainPlacements.push(placement)
+      }
+    })
+    this.newPlacements = []
+
     this.bannerCounter += this.plainPlacements.length
     const maxPlacements = this.getMaxPlacements()
     if (this.bannerCounter > maxPlacements) {
@@ -75,32 +122,11 @@ export default class SupplyAgent {
       this.renderError(message)
       throw new Error(message)
     } else {
-      this.preparePlacements (Placement.PLAIN)
-      return this
+      await this.preparePlacements(Placement.PLAIN)
+      await this.preparePlacements(Placement.UI)
+      return this.newPlacements
     }
-  }
 
-  allowUIPlacements (...position: Array<TUIPlacementPosition>) {
-    position.forEach(pos => {
-      if (pos === 'center') {
-        const centerUI = new UIPlacement('UICenter', 'center')
-        this.UIPlacements.push(centerUI)
-      } else if (pos === 'top') {
-        const topUI = new UIPlacement('UITop', 'top')
-        this.UIPlacements.push(topUI)
-      } else if (pos === 'bottom') {
-        const bottomUI = new UIPlacement('UIBottom', 'bottom')
-        this.UIPlacements.push(bottomUI)
-      } else if (pos === 'left') {
-        const leftUI = new UIPlacement('UILeft', 'left')
-        this.UIPlacements.push(leftUI)
-      } else if (pos === 'right') {
-        const rightUI = new UIPlacement('UIRight', 'right')
-        this.UIPlacements.push(rightUI)
-      }
-    })
-    this.preparePlacements (Placement.UI)
-    return this
   }
 
   private getMaxPlacements (): number {
@@ -251,7 +277,7 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async preparePlacements  (type: Placement): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
+  private async preparePlacements (type: Placement): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
 
@@ -274,7 +300,7 @@ export default class SupplyAgent {
 
           if (isPlayerInScene) {
             this.renderCreative(Placement.UI, this.UIPlacements, userAccount)
-            this.allowUiPlacement = false
+            this.allowUI = false
           }
 
         }, 500)
@@ -287,8 +313,11 @@ export default class SupplyAgent {
 
   private async renderCreative (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
     if (placements.length === 0) return
-    if (type === Placement.UI && !this.allowUiPlacement) return
+    if (type === Placement.UI && !this.allowUI) return
     const placementsToRender = [...placements]
+
+    if (!placementsToRender.length) return
+
     let creatives: Creative[] = []
     let customCommands = []
     try {
