@@ -344,12 +344,13 @@ export default class SupplyAgent {
       }
 
       setTimeout(() => {
+        log(indexInState)
         if (indexInState === -1) {
           return
         }
         placements.push(placement)
 
-        this.renderCreative(type, placements, userAccount)
+        this.renderCreative(type, [placement], userAccount)
       }, Math.max(creative.refreshTime, 5000))
     })
 
