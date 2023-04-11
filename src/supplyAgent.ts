@@ -1,10 +1,9 @@
-import { IPlacement, TUIPlacementPosition } from './types'
+import { IPlacement, IStand, TUIPlacementPosition } from './types'
 import { Creative, CustomCommand } from './creative'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
 import { setInterval, setTimeout } from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
-import { IStand } from './types'
 import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
 import { getPlayersInScene } from '@decentraland/Players'
@@ -38,9 +37,9 @@ async function importFetch (): Promise<any> {
 export default class SupplyAgent {
   private readonly adserver: string
   private readonly publisherId: string
+  private placements: IPlacement[] = []
   private plainPlacements: IPlacement[] = []
   private UIPlacements: IPlacement[] = []
-  private newPlacements: IPlacement[] = []
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
@@ -64,9 +63,9 @@ export default class SupplyAgent {
   public addPlacement (...placements: Array<IPlacement | IStand>): SupplyAgent {
     placements.forEach((item: IPlacement | IStand) => {
       if ('getPlacements' in item) {
-        this.newPlacements.push(...item.getPlacements())
+        this.placements.push(...item.getPlacements())
       } else {
-        this.newPlacements.push(item)
+        this.placements.push(item)
       }
     })
     return this
@@ -74,46 +73,54 @@ export default class SupplyAgent {
 
   allowUIPlacements (...position: Array<TUIPlacementPosition>) {
     position.forEach(pos => {
-      if (pos === 'center') {
-        const centerUI = new UIPlacement('UICenter', 'center')
-        this.newPlacements.push(centerUI)
-      } else if (pos === 'top') {
-        const topUI = new UIPlacement('UITop', 'top')
-        this.newPlacements.push(topUI)
-      } else if (pos === 'bottom') {
-        const bottomUI = new UIPlacement('UIBottom', 'bottom')
-        this.newPlacements.push(bottomUI)
-      } else if (pos === 'left') {
-        const leftUI = new UIPlacement('UILeft', 'left')
-        this.newPlacements.push(leftUI)
-      } else if (pos === 'right') {
-        const rightUI = new UIPlacement('UIRight', 'right')
-        this.newPlacements.push(rightUI)
+
+      switch (pos) {
+        case 'center':
+          this.placements.push(new UIPlacement('UICenter', 'center'))
+          break
+
+        case 'top':
+          this.placements.push(new UIPlacement('UITop', 'top'))
+          break
+
+        case 'bottom':
+          this.placements.push(new UIPlacement('UIBottom', 'bottom'))
+          break
+
+        case 'left':
+          this.placements.push(new UIPlacement('UILeft', 'left'))
+          break
+
+        case 'right':
+          this.placements.push(new UIPlacement('UIRight', 'right'))
+          break
+
+        default:
+          break
       }
     })
-    this.preparePlacements(Placement.UI)
     return this
   }
 
-  async spawn (): Promise<IPlacement[]> {
-    this.newPlacements.forEach(placement => {
+  async spawn (): Promise<any> {
+    [...this.placements].forEach((placement, index) => {
       if (placement instanceof UIPlacement) {
+        const indexInState = this.UIPlacements.map(p => p.name).indexOf(placement.name)
+        if (indexInState !== -1) {
+          log(`ADS Warning! Trying to allow the same UI placements ${placement.name}`)
+          return
+        }
         this.UIPlacements.push(placement)
       } else if (placement instanceof PlainPlacement) {
-        const indexOnState = this.plainPlacements.indexOf(placement)
-        if (indexOnState !== -1) {
-          try {
-            this.newPlacements.splice(indexOnState, 1)
-            throw `ADS Warning! Trying to add the same placements ${placement.name}`
-          } catch (warning) {
-            log(warning)
-          }
+        const indexInState = this.plainPlacements.map(p => p.name).indexOf(placement.name)
+        if (indexInState !== -1) {
+          log(`ADS Warning! Trying to add the same plane placements ${placement.name}`)
           return
         }
         this.plainPlacements.push(placement)
       }
     })
-    this.newPlacements = []
+    this.placements = []
 
     this.bannerCounter += this.plainPlacements.length
     const maxPlacements = this.getMaxPlacements()
@@ -122,11 +129,8 @@ export default class SupplyAgent {
       this.renderError(message)
       throw new Error(message)
     } else {
-      await this.preparePlacements(Placement.PLAIN)
-      await this.preparePlacements(Placement.UI)
-      return this.newPlacements
+      await this.preparePlacements()
     }
-
   }
 
   private getMaxPlacements (): number {
@@ -220,21 +224,8 @@ export default class SupplyAgent {
     return this.fetch(url, data, isJson, await importFetch())
   }
 
-  private async fetchCreatives (type: Placement.UI | Placement.PLAIN, userAccount: string | null): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+  private async fetchCreatives (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
     const parcel = await getParcel()
-    const placements: any[] = []
-
-    if (type === Placement.PLAIN) {
-      this.plainPlacements.forEach((placement, index) => {
-        placements.push({ ...placement.getProps(), id: type + '-' + placement.getProps().name })
-      })
-    }
-
-    if (type === Placement.UI) {
-      this.UIPlacements.forEach((placement, index) => {
-        placements.push({ ...placement.getProps(), id: type + '-' + placement.getProps().name })
-      })
-    }
 
     const request = {
       context: {
@@ -247,7 +238,7 @@ export default class SupplyAgent {
         metamask: userAccount !== null,
         version: this.version,
       },
-      placements
+      placements: placements.map(placement => ({ ...placement.getProps(), id: type + '-' + placement.getProps().name }))
     }
 
     const creatives: Creative[] = []
@@ -277,38 +268,32 @@ export default class SupplyAgent {
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async preparePlacements (type: Placement): Promise<any> /*: Promise<{ creatives: Creative[], customCommands: CustomCommand[] }>*/ {
+  private async preparePlacements (): Promise<any> {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
 
-    switch (type) {
-      case Placement.PLAIN:
-        this.renderCreative(type, this.plainPlacements, userAccount)
-        break
-
-      case Placement.UI:
-        let isPlayerInScene = false
-
-        /* check is player on scene */
-        setInterval(async () => {
-          const playersInScene = await getPlayersInScene()
-          const checkResult = userAccount ? playersInScene.map(p => p.userId).indexOf(userAccount) !== -1 : false
-          if (checkResult === isPlayerInScene) {
-            return
-          }
-          isPlayerInScene = checkResult
-
-          if (isPlayerInScene) {
-            this.renderCreative(Placement.UI, this.UIPlacements, userAccount)
-            this.allowUI = false
-          }
-
-        }, 500)
-        break
-
-      default:
-        break
+    if (this.plainPlacements.length > 0) {
+      this.renderCreative(Placement.PLAIN, [...this.plainPlacements], userAccount)
+      this.plainPlacements = []
     }
+
+    let isPlayerInScene = false
+    setInterval(async () => {
+      const playersInScene = await getPlayersInScene()
+      const checkResult = userAccount ? playersInScene.map(p => p.userId).indexOf(userAccount) !== -1 : false
+      if (checkResult === isPlayerInScene) {
+        return
+      }
+      isPlayerInScene = checkResult
+
+      if (isPlayerInScene) {
+        if (this.UIPlacements.length > 0) {
+          this.renderCreative(Placement.UI, [...this.UIPlacements], userAccount)
+          this.UIPlacements = []
+          this.allowUI = false
+        }
+      }
+    }, 500)
   }
 
   private async renderCreative (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
@@ -321,7 +306,7 @@ export default class SupplyAgent {
     let creatives: Creative[] = []
     let customCommands = []
     try {
-      const response = await this.fetchCreatives(type, userAccount)
+      const response = await this.fetchCreatives(type, placements, userAccount)
       creatives = response.creatives
       customCommands = response.customCommands
     } catch (exception) {
