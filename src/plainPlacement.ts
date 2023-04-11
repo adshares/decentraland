@@ -100,7 +100,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(new PlaneShape())
     plane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, -0.001),
+        position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
       })
