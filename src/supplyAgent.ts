@@ -1,4 +1,4 @@
-import { IPlacement, IStand, TUIPlacementPosition } from './types'
+import { IPlacement, IStand } from './types'
 import { Creative, CustomCommand } from './creative'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
@@ -70,37 +70,6 @@ export default class SupplyAgent {
     return this
   }
 
-  // allowUIPlacements (...position: Array<TUIPlacementPosition>) {
-  //   position.forEach(pos => {
-  //
-  //     switch (pos) {
-  //       case 'center':
-  //         this.placements.push(new UIPlacement('UICenter', 'center'))
-  //         break
-  //
-  //       case 'top':
-  //         this.placements.push(new UIPlacement('UITop', 'top'))
-  //         break
-  //
-  //       case 'bottom':
-  //         this.placements.push(new UIPlacement('UIBottom', 'bottom'))
-  //         break
-  //
-  //       case 'left':
-  //         this.placements.push(new UIPlacement('UILeft', 'left'))
-  //         break
-  //
-  //       case 'right':
-  //         this.placements.push(new UIPlacement('UIRight', 'right'))
-  //         break
-  //
-  //       default:
-  //         break
-  //     }
-  //   })
-  //   return this
-  // }
-
   async spawn (): Promise<any> {
     const maxPlacements = this.getMaxPlacements()
 
@@ -121,8 +90,8 @@ export default class SupplyAgent {
         this.plainPlacements.push(placement)
       }
     })
-
     this.placements = []
+
     await this.preparePlacements()
   }
 
