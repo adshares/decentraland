@@ -3,6 +3,8 @@ import { Creative } from './creative'
 export declare interface IPlacement extends IEntity {
   name: string
 
+  position?: string
+
   getProps (): TPlacementProps;
 
   renderMessage (message: string, icon: string): void;

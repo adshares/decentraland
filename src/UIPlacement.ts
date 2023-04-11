@@ -6,7 +6,7 @@ const canvas = new UICanvas()
 
 export class UIPlacement extends Entity implements IPlacement {
   public name: string
-  private readonly _position: TUIPlacementPosition
+  public readonly position: TUIPlacementPosition
   private readonly _width: number = 0
   private readonly _height: number = 0
   private _background: UIContainerRect = new UIContainerRect(canvas)
@@ -21,9 +21,9 @@ export class UIPlacement extends Entity implements IPlacement {
   constructor (name: string, position: TUIPlacementPosition) {
     super(name)
     this.name = name
-    this._position = position
+    this.position = position
 
-    switch (this._position) {
+    switch (this.position) {
       case 'center':
         this._width = 500
         this._height = 500
@@ -97,7 +97,7 @@ export class UIPlacement extends Entity implements IPlacement {
       height: this._height,
       depth: 0,
       no: null,
-      types: null,
+      types: ['image'],
       mimes: null
     }
   }

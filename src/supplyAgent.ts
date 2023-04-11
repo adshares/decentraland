@@ -43,7 +43,6 @@ export default class SupplyAgent {
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
-  private allowUI: boolean = true
   public readonly version = '2.1.0'
 
   public constructor (adserver: string, publisherId: string) {
@@ -71,63 +70,59 @@ export default class SupplyAgent {
     return this
   }
 
-  allowUIPlacements (...position: Array<TUIPlacementPosition>) {
-    position.forEach(pos => {
-
-      switch (pos) {
-        case 'center':
-          this.placements.push(new UIPlacement('UICenter', 'center'))
-          break
-
-        case 'top':
-          this.placements.push(new UIPlacement('UITop', 'top'))
-          break
-
-        case 'bottom':
-          this.placements.push(new UIPlacement('UIBottom', 'bottom'))
-          break
-
-        case 'left':
-          this.placements.push(new UIPlacement('UILeft', 'left'))
-          break
-
-        case 'right':
-          this.placements.push(new UIPlacement('UIRight', 'right'))
-          break
-
-        default:
-          break
-      }
-    })
-    return this
-  }
+  // allowUIPlacements (...position: Array<TUIPlacementPosition>) {
+  //   position.forEach(pos => {
+  //
+  //     switch (pos) {
+  //       case 'center':
+  //         this.placements.push(new UIPlacement('UICenter', 'center'))
+  //         break
+  //
+  //       case 'top':
+  //         this.placements.push(new UIPlacement('UITop', 'top'))
+  //         break
+  //
+  //       case 'bottom':
+  //         this.placements.push(new UIPlacement('UIBottom', 'bottom'))
+  //         break
+  //
+  //       case 'left':
+  //         this.placements.push(new UIPlacement('UILeft', 'left'))
+  //         break
+  //
+  //       case 'right':
+  //         this.placements.push(new UIPlacement('UIRight', 'right'))
+  //         break
+  //
+  //       default:
+  //         break
+  //     }
+  //   })
+  //   return this
+  // }
 
   async spawn (): Promise<any> {
     const maxPlacements = this.getMaxPlacements()
+
     this.placements.forEach((placement, index) => {
       if (placement instanceof UIPlacement) {
-        const indexInState = this.UIPlacements.map(p => p.name).indexOf(placement.name)
+        const indexInState = this.UIPlacements.map(p => p.position).indexOf(placement.position)
         if (indexInState !== -1) {
-          throw new Error(`Multiple attempts to allow the same UI placements: ${placement.name}`)
+          throw new Error(`Multiple attempts to add UI placements in the same position: ${placement.name} - ${placement.position}`)
         }
         this.UIPlacements.push(placement)
       } else if (placement instanceof PlainPlacement) {
-        const indexInState = this.plainPlacements.map(p => p.name).indexOf(placement.name)
-        if (indexInState !== -1) {
-          throw new Error(`Trying to add the same plane placements: ${placement.name}`)
-        }
         this.bannerCounter += 1
         if (this.bannerCounter > maxPlacements) {
           const message = `To many placements, you can add up to ${maxPlacements} placements.`
           this.renderError(message)
           throw new Error(message)
         }
-
         this.plainPlacements.push(placement)
       }
     })
-    this.placements = []
 
+    this.placements = []
     await this.preparePlacements()
   }
 
@@ -269,9 +264,8 @@ export default class SupplyAgent {
   private async preparePlacements (): Promise<any> {
     const userData = await getUserData()
     const userAccount: string | null = userData?.userId || null
-
     if (this.plainPlacements.length > 0) {
-      this.renderCreative(Placement.PLAIN, [...this.plainPlacements], userAccount)
+      this.renderCreatives(Placement.PLAIN, [...this.plainPlacements], userAccount)
       this.plainPlacements = []
     }
 
@@ -286,20 +280,16 @@ export default class SupplyAgent {
 
       if (isPlayerInScene) {
         if (this.UIPlacements.length > 0) {
-          this.renderCreative(Placement.UI, [...this.UIPlacements], userAccount)
+          this.renderCreatives(Placement.UI, [...this.UIPlacements], userAccount)
           this.UIPlacements = []
-          this.allowUI = false
         }
       }
     }, 500)
   }
 
-  private async renderCreative (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
-    if (placements.length === 0) return
-    if (type === Placement.UI && !this.allowUI) return
-    const placementsToRender = [...placements]
-
-    if (!placementsToRender.length) return
+  private async renderCreatives (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
+    log('render ', type)
+    if (!placements.length) return
 
     let creatives: Creative[] = []
     let customCommands = []
@@ -313,18 +303,24 @@ export default class SupplyAgent {
     }
 
     this.registerUser(userAccount)
+    let refreshTime = 0
 
-    placementsToRender.forEach((placement, index) => {
+    placements.forEach((placement, index) => {
       const creative: Creative = creatives.filter((item: any) => item.id === type + '-' + placement.getProps().name)[0]
-      if (!creative || type === Placement.UI && creative?.type === 'video') {
-        this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-        return
-      }
+
+      // TODO doprecyzować UI Placement
+      // if (!creative || type === Placement.UI && creative?.type === 'video') {
+      //   this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+      //   return
+      // }
       placement.reset()
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
         return
       }
+
+      refreshTime = Math.max(refreshTime, creative.refreshTime)
+
       placement.renderCreative(creative)
       if (creative.infoBox) {
         placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
@@ -337,26 +333,17 @@ export default class SupplyAgent {
           })
         }
       })
-
-      const indexInState = placements.map(p => p.name).indexOf(placement.name)
-      if (indexInState !== -1) {
-        placements.splice(indexInState, 1)
-      }
-
-      setTimeout(() => {
-        log(indexInState)
-        if (indexInState === -1) {
-          return
-        }
-        placements.push(placement)
-
-        this.renderCreative(type, [placement], userAccount)
-      }, Math.max(creative.refreshTime, 5000))
     })
-
     if (customCommands.length > 0) {
       customCommands.forEach(command => command.executeCustomCommand())
     }
+
+    if (type !== Placement.UI) {
+      setTimeout(() => {
+        this.renderCreatives(type, placements, userAccount)
+      }, Math.max(5000))
+    }
+
     return { creatives, customCommands }
   }
 }
