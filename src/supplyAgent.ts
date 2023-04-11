@@ -103,34 +103,32 @@ export default class SupplyAgent {
   }
 
   async spawn (): Promise<any> {
-    [...this.placements].forEach((placement, index) => {
+    const maxPlacements = this.getMaxPlacements()
+    this.placements.forEach((placement, index) => {
       if (placement instanceof UIPlacement) {
         const indexInState = this.UIPlacements.map(p => p.name).indexOf(placement.name)
         if (indexInState !== -1) {
-          log(`ADS Warning! Trying to allow the same UI placements ${placement.name}`)
-          return
+          throw new Error(`Multiple attempts to allow the same UI placements: ${placement.name}`)
         }
         this.UIPlacements.push(placement)
       } else if (placement instanceof PlainPlacement) {
         const indexInState = this.plainPlacements.map(p => p.name).indexOf(placement.name)
         if (indexInState !== -1) {
-          log(`ADS Warning! Trying to add the same plane placements ${placement.name}`)
-          return
+          throw new Error(`Trying to add the same plane placements: ${placement.name}`)
         }
+        this.bannerCounter += 1
+        if (this.bannerCounter > maxPlacements) {
+          const message = `To many placements, you can add up to ${maxPlacements} placements.`
+          this.renderError(message)
+          throw new Error(message)
+        }
+
         this.plainPlacements.push(placement)
       }
     })
     this.placements = []
 
-    this.bannerCounter += this.plainPlacements.length
-    const maxPlacements = this.getMaxPlacements()
-    if (this.bannerCounter > maxPlacements) {
-      const message = `To many placements, you can add up to ${maxPlacements} placements.`
-      this.renderError(message)
-      throw new Error(message)
-    } else {
-      await this.preparePlacements()
-    }
+    await this.preparePlacements()
   }
 
   private getMaxPlacements (): number {
