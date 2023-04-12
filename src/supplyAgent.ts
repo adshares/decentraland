@@ -43,7 +43,7 @@ export default class SupplyAgent {
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
-  public readonly version = '2.1.0'
+  public readonly version = '2.2.0'
 
   public constructor (adserver: string, publisherId: string) {
     while (adserver.slice(-1) === '/') {
@@ -257,7 +257,6 @@ export default class SupplyAgent {
   }
 
   private async renderCreatives (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
-    log('render ', type)
     if (!placements.length) return
 
     let creatives: Creative[] = []
@@ -275,14 +274,10 @@ export default class SupplyAgent {
     let refreshTime = 0
 
     placements.forEach((placement, index) => {
+      placement.reset()
+
       const creative: Creative = creatives.filter((item: any) => item.id === type + '-' + placement.getProps().name)[0]
 
-      // TODO doprecyzować UI Placement
-      // if (!creative || type === Placement.UI && creative?.type === 'video') {
-      //   this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-      //   return
-      // }
-      placement.reset()
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
         return
@@ -310,7 +305,7 @@ export default class SupplyAgent {
     if (type !== Placement.UI) {
       setTimeout(() => {
         this.renderCreatives(type, placements, userAccount)
-      }, Math.max(5000))
+      }, Math.max(refreshTime, 5000))
     }
 
     return { creatives, customCommands }

@@ -3,6 +3,7 @@ import { Creative } from './creative'
 import { setInterval, TimerSystem } from './timer'
 
 const canvas = new UICanvas()
+const adsDclTheme = new Texture('images/ads_dcl_theme.png')
 
 export class UIPlacement extends Entity implements IPlacement {
   public name: string
@@ -12,11 +13,11 @@ export class UIPlacement extends Entity implements IPlacement {
   private _background: UIContainerRect = new UIContainerRect(canvas)
   private _placement: UIImage = new UIImage(this._background, new Texture(''))
   private _infoBox: UIImage = new UIImage(this._placement, new Texture('https://assets.adshares.net/metaverse/watermark.png'))
-  private _closeIcon: UIImage = new UIImage(this._placement, new Texture('https://decentraland.org/images/ui/dark-atlas-v3.png'))
+  private _closeIcon: UIImage = new UIImage(this._placement, adsDclTheme)
+  private _closeIconTimerBg: UIImage = new UIImage(this._placement, adsDclTheme)
   private _closeIconTimer: UIText = new UIText(this._placement)
   private closeInterval: TimerSystem = TimerSystem.createAndAddToEngine()
   private intervalID: string = ''
-
 
   constructor (name: string, position: TUIPlacementPosition) {
     super(name)
@@ -25,38 +26,38 @@ export class UIPlacement extends Entity implements IPlacement {
 
     switch (this.position) {
       case 'center':
-        this._width = 500
-        this._height = 500
+        this._width = 700
+        this._height = 700
         this._background.positionX = 0
-        this._background.positionY = 0
+        this._background.positionY = 20
         break
 
       case 'left':
-        this._width = 100
+        this._width = 142.85
         this._height = 500
-        this._background.positionX = '-45%'
-        this._background.positionY = 0
+        this._background.positionX = '-44%'
+        this._background.positionY = -59
         break
 
       case 'right':
-        this._width = 100
+        this._width = 142.85
         this._height = 500
-        this._background.positionX = '45%'
-        this._background.positionY = 0
+        this._background.positionX = '44%'
+        this._background.positionY = -59
         break
 
       case 'top':
         this._width = 500
-        this._height = 100
+        this._height = 142.85
         this._background.positionX = 0
-        this._background.positionY = '-45%'
+        this._background.positionY = '50%'
         break
 
       case 'bottom':
         this._width = 500
-        this._height = 100
+        this._height = 142.85
         this._background.positionX = 0
-        this._background.positionY = '50%'
+        this._background.positionY = '-44%'
         break
 
       default:
@@ -76,12 +77,21 @@ export class UIPlacement extends Entity implements IPlacement {
     this._closeIcon.height = 24
     this._closeIcon.sourceWidth = 32
     this._closeIcon.sourceHeight = 32
-    this._closeIcon.sourceLeft = 942
-    this._closeIcon.sourceTop = 306
+    this._closeIcon.sourceLeft = 0
+    this._closeIcon.sourceTop = 0
     this._closeIcon.visible = false
+
+    this._closeIconTimerBg.width = 24
+    this._closeIconTimerBg.height = 24
+    this._closeIconTimerBg.sourceWidth = 32
+    this._closeIconTimerBg.sourceHeight = 32
+    this._closeIconTimerBg.sourceLeft = 32
+    this._closeIconTimerBg.sourceTop = 0
+    this._closeIconTimerBg.visible = false
 
     this._closeIconTimer.fontSize = 12
     this._closeIconTimer.visible = false
+    this._closeIconTimer.color = Color4.FromHexString('#FF414DFF')
 
     this._infoBox.width = 24
     this._infoBox.height = 24
@@ -110,7 +120,6 @@ export class UIPlacement extends Entity implements IPlacement {
     const size = creative.scope.split('x')
     const scale = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
 
-    // this._background = new UIContainerRect(canvas)
     this._background.visible = true
 
     this._placement.source = new Texture(creative.serveUrl)
@@ -123,22 +132,25 @@ export class UIPlacement extends Entity implements IPlacement {
     })
     this._placement.visible = true
 
-    // this._closeIcon = new UIImage(this._placement, new Texture('https://decentraland.org/images/ui/dark-atlas-v3.png'))
-    this._closeIcon.positionX = parseInt(String(this._placement.width)) / 2 - 36
+    this._closeIcon.positionX = parseInt(String(this._placement.width)) / 2 - 12
     this._closeIcon.positionY = parseInt(String(this._placement.height)) / 2 - 12
     this._closeIcon.onClick = new OnClick(() => {
       this.reset()
     })
     this._closeIcon.visible = false
 
-    // this._closeIconTimer = new UIText(this._placement)
-    this._closeIconTimer.positionX = parseInt(String(this._placement.width)) / 2 + 6
-    this._closeIconTimer.positionY = parseInt(String(this._placement.height)) / 2 + 6
+    this._closeIconTimerBg.positionX = parseInt(String(this._placement.width)) / 2 - 12
+    this._closeIconTimerBg.positionY = parseInt(String(this._placement.height)) / 2 - 12
+    this._closeIconTimerBg.visible = true
+
+    this._closeIconTimer.positionX = parseInt(String(this._placement.width)) / 2 + 34
+    this._closeIconTimer.positionY = parseInt(String(this._placement.height)) / 2 + 7
     this._closeIconTimer.value = '5'
     this.intervalID = setInterval(() => {
       this._closeIconTimer.value = (parseInt(this._closeIconTimer.value) - 1).toString()
       if (parseInt(this._closeIconTimer.value) === 0) {
         this._closeIconTimer.visible = false
+        this._closeIconTimerBg.visible = false
         this._closeIcon.visible = true
         this.closeInterval.clear(this.intervalID)
       }
@@ -147,8 +159,7 @@ export class UIPlacement extends Entity implements IPlacement {
   }
 
   public renderInfoBox (url: string) {
-    // this._infoBox = new UIImage(this._placement, new Texture('https://assets.adshares.net/metaverse/watermark.png'))
-    this._infoBox.positionX = parseInt(String(this._placement.width)) / 2 - 12
+    this._infoBox.positionX = parseInt(String(this._placement.width)) / 2 - 36
     this._infoBox.positionY = parseInt(String(this._placement.height)) / 2 - 12
     this._infoBox.onClick = new OnClick(() => {
       openExternalURL(url)
