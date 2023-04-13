@@ -1,6 +1,7 @@
 import { Ratio } from './enums'
 import { IPlacement, TPlacementProps, TRatio } from './types'
 import { Creative } from './creative'
+import { sections, calculateUVParams, theme } from './theme'
 
 declare type TConstructorParams = {
   position?: Vector3,
@@ -24,10 +25,6 @@ const commonMaterials: {
 }
 
 let messageInputText: UIInputText | undefined
-
-const commonTextures = {
-  infobox: new Texture('https://assets.adshares.net/metaverse/watermark.png')
-}
 
 export class PlainPlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
@@ -156,8 +153,10 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
 
     const plane = new Entity()
+    const planeShape = new PlaneShape()
+    planeShape.uvs =  calculateUVParams(sections.logo)
     plane.setParent(this)
-    plane.addComponent(new PlaneShape())
+    plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
         position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.0015),
@@ -170,7 +169,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     material.metallic = 0
     material.roughness = 1
     material.specularIntensity = 0
-    material.albedoTexture = commonTextures.infobox
+    material.albedoTexture = theme
 
     plane.addComponent(material)
     plane.addComponent(

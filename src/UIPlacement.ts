@@ -1,9 +1,9 @@
 import { IPlacement, TPlacementProps, TUIPlacementPosition } from './types'
 import { Creative } from './creative'
 import { setInterval, TimerSystem } from './timer'
+import { sections, setSourceParams, theme } from './theme'
 
 const canvas = new UICanvas()
-const adsDclTheme = new Texture('https://assets.adshares.net/metaverse/theme.png')
 
 export class UIPlacement extends Entity implements IPlacement {
   public name: string
@@ -12,9 +12,9 @@ export class UIPlacement extends Entity implements IPlacement {
   private readonly _height: number = 0
   private _background: UIContainerRect = new UIContainerRect(canvas)
   private _placement: UIImage = new UIImage(this._background, new Texture(''))
-  private _infoBox: UIImage = new UIImage(this._placement, adsDclTheme)
-  private _closeIcon: UIImage = new UIImage(this._placement, adsDclTheme)
-  private _closeIconTimerBg: UIImage = new UIImage(this._placement, adsDclTheme)
+  private _infoBox: UIImage = new UIImage(this._placement, theme)
+  private _closeIcon: UIImage = new UIImage(this._placement, theme)
+  private _closeIconTimerBg: UIImage = new UIImage(this._placement, theme)
   private _closeIconTimer: UIText = new UIText(this._placement)
   private closeInterval: TimerSystem = TimerSystem.createAndAddToEngine()
   private intervalID: string = ''
@@ -75,18 +75,12 @@ export class UIPlacement extends Entity implements IPlacement {
 
     this._closeIcon.width = 24
     this._closeIcon.height = 24
-    this._closeIcon.sourceWidth = 32
-    this._closeIcon.sourceHeight = 32
-    this._closeIcon.sourceLeft = 992
-    this._closeIcon.sourceTop = 512
+    setSourceParams(this._closeIcon, sections.closeIcon)
     this._closeIcon.visible = false
 
     this._closeIconTimerBg.width = 24
     this._closeIconTimerBg.height = 24
-    this._closeIconTimerBg.sourceWidth = 32
-    this._closeIconTimerBg.sourceHeight = 32
-    this._closeIconTimerBg.sourceLeft = 960
-    this._closeIconTimerBg.sourceTop = 512
+    setSourceParams(this._closeIconTimerBg, sections.closeIconBg)
     this._closeIconTimerBg.visible = false
 
     this._closeIconTimer.fontSize = 12
@@ -95,10 +89,7 @@ export class UIPlacement extends Entity implements IPlacement {
 
     this._infoBox.width = 24
     this._infoBox.height = 24
-    this._infoBox.sourceWidth = 128
-    this._infoBox.sourceHeight = 128
-    this._infoBox.sourceLeft = 0
-    this._infoBox.sourceTop = 512
+    setSourceParams(this._infoBox, sections.logo)
     this._infoBox.visible = false
   }
 
