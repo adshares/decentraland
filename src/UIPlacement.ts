@@ -3,7 +3,7 @@ import { Creative } from './creative'
 import { setInterval, TimerSystem } from './timer'
 
 const canvas = new UICanvas()
-const adsDclTheme = new Texture('images/ads_dcl_theme.png')
+const adsDclTheme = new Texture('https://assets.adshares.net/metaverse/theme.png')
 
 export class UIPlacement extends Entity implements IPlacement {
   public name: string
@@ -12,7 +12,7 @@ export class UIPlacement extends Entity implements IPlacement {
   private readonly _height: number = 0
   private _background: UIContainerRect = new UIContainerRect(canvas)
   private _placement: UIImage = new UIImage(this._background, new Texture(''))
-  private _infoBox: UIImage = new UIImage(this._placement, new Texture('https://assets.adshares.net/metaverse/watermark.png'))
+  private _infoBox: UIImage = new UIImage(this._placement, adsDclTheme)
   private _closeIcon: UIImage = new UIImage(this._placement, adsDclTheme)
   private _closeIconTimerBg: UIImage = new UIImage(this._placement, adsDclTheme)
   private _closeIconTimer: UIText = new UIText(this._placement)
@@ -77,16 +77,16 @@ export class UIPlacement extends Entity implements IPlacement {
     this._closeIcon.height = 24
     this._closeIcon.sourceWidth = 32
     this._closeIcon.sourceHeight = 32
-    this._closeIcon.sourceLeft = 0
-    this._closeIcon.sourceTop = 0
+    this._closeIcon.sourceLeft = 992
+    this._closeIcon.sourceTop = 512
     this._closeIcon.visible = false
 
     this._closeIconTimerBg.width = 24
     this._closeIconTimerBg.height = 24
     this._closeIconTimerBg.sourceWidth = 32
     this._closeIconTimerBg.sourceHeight = 32
-    this._closeIconTimerBg.sourceLeft = 32
-    this._closeIconTimerBg.sourceTop = 0
+    this._closeIconTimerBg.sourceLeft = 960
+    this._closeIconTimerBg.sourceTop = 512
     this._closeIconTimerBg.visible = false
 
     this._closeIconTimer.fontSize = 12
@@ -97,6 +97,8 @@ export class UIPlacement extends Entity implements IPlacement {
     this._infoBox.height = 24
     this._infoBox.sourceWidth = 128
     this._infoBox.sourceHeight = 128
+    this._infoBox.sourceLeft = 0
+    this._infoBox.sourceTop = 512
     this._infoBox.visible = false
   }
 
