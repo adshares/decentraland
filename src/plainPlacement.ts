@@ -76,7 +76,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       '\nProps: ' + JSON.stringify(this.getProps(), null, '\t')
     ]
     return this.renderText(
-      `https://assets.adshares.net/metaverse/${icon}.png`,
+      icon,
       data.join('\n')
     )
   }
@@ -154,7 +154,7 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     const plane = new Entity()
     const planeShape = new PlaneShape()
-    planeShape.uvs =  calculateUVParams(sections.logo)
+    planeShape.uvs = calculateUVParams(sections.logo)
     plane.setParent(this)
     plane.addComponent(planeShape)
     plane.addComponent(
@@ -277,8 +277,10 @@ export class PlainPlacement extends Entity implements IPlacement {
     this.addComponentOrReplace(material)
 
     const plane = new Entity()
+    const planeShape = new PlaneShape()
+    planeShape.uvs = icon === 'notfound' && calculateUVParams(sections.notFoundIcon) || icon === 'error' && calculateUVParams(sections.errorIcon)
     plane.setParent(this)
-    plane.addComponent(new PlaneShape())
+    plane.addComponent(planeShape)
 
     const hostScale = this.getCombinedScale()
     const size = Math.sqrt(hostScale.x * hostScale.y) / 2
@@ -300,7 +302,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     iconMaterial.metallic = 0
     iconMaterial.roughness = 1
     iconMaterial.specularIntensity = 0
-    iconMaterial.albedoTexture = new Texture(icon)
+    iconMaterial.albedoTexture = theme
 
     plane.addComponent(iconMaterial)
     plane.addComponent(

@@ -17,17 +17,29 @@ export const sections = {
     sourceLeft: 0,
     sourceTop: 512
   },
-  closeIcon : {
+  closeIcon: {
     sourceWidth: 32,
     sourceHeight: 32,
     sourceLeft: 992,
     sourceTop: 512
   },
-  closeIconBg : {
+  closeIconBg: {
     sourceWidth: 32,
     sourceHeight: 32,
     sourceLeft: 960,
     sourceTop: 512
+  },
+  notFoundIcon: {
+    sourceWidth: 512,
+    sourceHeight: 512,
+    sourceLeft: 0,
+    sourceTop: 0
+  },
+  errorIcon: {
+    sourceWidth: 512,
+    sourceHeight: 512,
+    sourceLeft: 512,
+    sourceTop: 0
   }
 }
 
@@ -38,7 +50,7 @@ export function setSourceParams (image: UIImage, section: TSection) {
   image.sourceTop = section.sourceTop ? section.sourceTop : 0
 }
 
-export function calculateUVParams(section: TSection) {
+export function calculateUVParams (section: TSection) {
 
   const a = (section.sourceLeft + section.sourceWidth) / themeWidth
   const b = section.sourceLeft / themeWidth //b
@@ -46,14 +58,14 @@ export function calculateUVParams(section: TSection) {
   const d = 1 - ((section.sourceTop + section.sourceHeight) / themeHeight)
 
   return [
-    b,c,
-    a,c,
-    a,d,
-    b,d,
+    b, c,
+    a, c,
+    a, d,
+    b, d,
 
-    b,c,
-    a,c,
-    a,d,
-    b,d,
+    b, c,
+    a, c,
+    a, d,
+    b, d,
   ]
 }
