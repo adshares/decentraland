@@ -278,7 +278,7 @@ export class PlainPlacement extends Entity implements IPlacement {
 
     const plane = new Entity()
     const planeShape = new PlaneShape()
-    planeShape.uvs = icon === 'notfound' && calculateUVParams(sections.notFoundIcon) || icon === 'error' && calculateUVParams(sections.errorIcon)
+    planeShape.uvs = icon === 'notfound' && calculateUVParams(sections.notFoundIcon) || icon === 'error' && calculateUVParams(sections.errorIcon) || undefined
     plane.setParent(this)
     plane.addComponent(planeShape)
 

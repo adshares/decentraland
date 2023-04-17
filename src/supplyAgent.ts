@@ -104,7 +104,7 @@ export default class SupplyAgent {
     if (placement !== null) {
       placement.renderMessage(message, icon)
     } else {
-      this.plainPlacements.forEach(item => item.renderMessage(message, icon))
+      this.placements.forEach(item => item.renderMessage(message, icon))
     }
   }
 
