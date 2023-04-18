@@ -256,14 +256,12 @@ export class PlainPlacement extends Entity implements IPlacement {
       messageInputText.vTextAlign = 'top'
     }
     messageInputText.placeholder = message
-    if (messageInputText?.parent !== undefined) {
-      messageInputText.parent.visible = true
-    }
+    messageInputText.visible = true
   }
 
   protected hideMessageCanvas (): void {
-    if (messageInputText?.parent !== undefined) {
-      messageInputText.parent.visible = false
+    if (messageInputText !== undefined) {
+      messageInputText.visible = false
     }
   }
 
