@@ -1,5 +1,5 @@
-import {Creative} from './creative'
-import {Ratio} from './enums'
+import { Creative } from './creative'
+import { Ratio } from './enums'
 
 export declare interface IPlacement extends IEntity {
   getProps (): TPlacementProps;

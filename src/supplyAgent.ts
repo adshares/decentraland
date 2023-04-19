@@ -1,8 +1,8 @@
-import {IPlacement} from './placement'
+import { IPlacement } from './placement'
 import { Creative, CustomCommand } from './creative'
-import {getUserAccount} from '@decentraland/EthereumController'
-import {getParcel, ILand} from '@decentraland/ParcelIdentity'
-import {addUrlParam, parseErrors, uuidv4} from './utils'
+import { getUserAccount } from '@decentraland/EthereumController'
+import { getParcel, ILand } from '@decentraland/ParcelIdentity'
+import { addUrlParam, parseErrors, uuidv4 } from './utils'
 import setTimeout from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
 import { IStand } from './stand'
@@ -168,12 +168,12 @@ export default class SupplyAgent {
     return this.fetch(url, data, isJson, await importFetch())
   }
 
-    private async fetchCreatives(userAccount?: string): Promise<{creatives: Creative[], customCommands: CustomCommand[]}> {
-        const parcel = await getParcel()
-        const placements: any[] = []
-        this.placements.forEach((placement, index) => {
-            placements.push({...placement.getProps(), id: '' + index})
-        })
+  private async fetchCreatives (userAccount?: string): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+    const parcel = await getParcel()
+    const placements: any[] = []
+    this.placements.forEach((placement, index) => {
+      placements.push({ ...placement.getProps(), id: '' + index })
+    })
 
     const request = {
       context: {
@@ -189,17 +189,17 @@ export default class SupplyAgent {
       placements
     }
 
-        const creatives: Creative[] = []
-        const customCommands: CustomCommand[] = []
-        const response = await this.fetch(`${this.adserver}/supply/find`, request)
-        response.data.forEach((item: any) => {
-            creatives.push(new Creative(item))
-        })
-        if(response.custom) {
-            customCommands.push(new CustomCommand(response.custom))
-        }
-        return {creatives, customCommands}
+    const creatives: Creative[] = []
+    const customCommands: CustomCommand[] = []
+    const response = await this.fetch(`${this.adserver}/supply/find`, request)
+    response.data.forEach((item: any) => {
+      creatives.push(new Creative(item))
+    })
+    if (response.custom) {
+      customCommands.push(new CustomCommand(response.custom))
     }
+    return { creatives, customCommands }
+  }
 
   private registerContext (url: string, seedTrackingId?: string): boolean {
     if (!this.loadedContexts[url]) {
@@ -220,16 +220,16 @@ export default class SupplyAgent {
 
     this.registerUser(userAccount)
 
-        let creatives: Creative[] = []
-        let customCommands: CustomCommand[] = []
-        try {
-            const response = await this.fetchCreatives(userAccount)
-            creatives = response.creatives
-            customCommands = response.customCommands
-        } catch (exception) {
-            this.renderError('' + exception)
-            throw exception
-        }
+    let creatives: Creative[] = []
+    let customCommands: CustomCommand[] = []
+    try {
+      const response = await this.fetchCreatives(userAccount)
+      creatives = response.creatives
+      customCommands = response.customCommands
+    } catch (exception) {
+      this.renderError('' + exception)
+      throw exception
+    }
 
     let refreshTime: number = 0
     this.placements.forEach((placement, index) => {
@@ -237,16 +237,16 @@ export default class SupplyAgent {
         placement.reset()
       }
 
-            const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
-            if (!creative) {
-                this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
-                return
-            }
-            refreshTime = Math.max(refreshTime, creative.refreshTime)
-            placement.renderCreative(creative)
-            if (creative.infoBox) {
-                placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
-            }
+      const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
+      if (!creative) {
+        this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
+        return
+      }
+      refreshTime = Math.max(refreshTime, creative.refreshTime)
+      placement.renderCreative(creative)
+      if (creative.infoBox) {
+        placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
+      }
 
       this.signedFetch(creative.viewUrl).then((response: any) => {
         if (response.context) {
@@ -257,13 +257,13 @@ export default class SupplyAgent {
       })
     })
 
-        if (customCommands.length > 0) {
-            customCommands.forEach(command => command.executeCustomCommand())
-        }
+    if (customCommands.length > 0) {
+      customCommands.forEach(command => command.executeCustomCommand())
+    }
 
-        setTimeout(() => {
-            this.find(!isBuilder)
-        }, Math.max(refreshTime, 5000))
+    setTimeout(() => {
+      this.find(!isBuilder)
+    }, Math.max(refreshTime, 5000))
 
     return creatives
   }
