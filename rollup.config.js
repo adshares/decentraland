@@ -3,6 +3,7 @@ import commonjs from '@rollup/plugin-commonjs'
 import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 import packageJson from './package.json'
+import copy from 'rollup-plugin-copy'
 
 const PROD = !!process.env.CI
 
@@ -36,6 +37,12 @@ export default {
     commonjs({
       exclude: 'node_modules',
       ignoreGlobal: true,
+    }),
+    copy({
+      targets: [
+        {src: 'models', dest: 'dist'},
+        {src: 'src', dest: 'dist'},
+      ]
     }),
     true && terser({ format: { comments: false } }),
   ],
