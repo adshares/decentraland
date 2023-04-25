@@ -1,6 +1,6 @@
 {
   "name": "@adshares/decentraland",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "display-name": "Adshares DCL plugin",
   "description": "Adshares Decentraland SDK plugin",
   "author": "Adshares <dev@adshares.net>",
@@ -30,7 +30,9 @@
   },
   "files": [
     "dist",
-    "!dist/types"
+    "!dist/types",
+    "src",
+    "models"
   ],
   "scripts": {
     "build": "rollup -c",
@@ -42,7 +44,7 @@
     "yarn": "please use npm"
   },
   "dependencies": {
-    "decentraland-ecs": "latest"
+    "decentraland-ecs": "^6.11.11"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
