@@ -177,7 +177,7 @@ totem.setParent(myEntity)
 ### 5. Add placement into agent and spawn banner
 
 ```js
-agent.addPlacement(placement: IPlacement | IStand).spawn()
+agent.addPlacement(placement: IPlacement | IStand, uiPlacement: IPlacement).spawn()
 ```
 
 ### Example to add placements
