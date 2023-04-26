@@ -1,5 +1,6 @@
+import { TCustomCommand } from './types'
 import { addUrlParam, uuidv4 } from './utils'
-import setTimeout from './timer'
+import { setTimeout } from './timer'
 
 export class Creative {
   clickUrl: string = ''
@@ -30,13 +31,6 @@ export class Creative {
     }
     this.viewUrl = addUrlParam(this.viewUrl, { cid: this.caseId })
     this.clickUrl = addUrlParam(this.clickUrl, { cid: this.caseId })
-  }
-}
-
-export declare type TCustomCommand = {
-  teleportTo?: {
-    coordinates: string
-    delay?: number
   }
 }
 

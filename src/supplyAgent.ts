@@ -1,11 +1,14 @@
-import { IPlacement } from './placement'
+import { IPlacement, IStand } from './types'
 import { Creative, CustomCommand } from './creative'
-import { getUserAccount } from '@decentraland/EthereumController'
 import { getParcel, ILand } from '@decentraland/ParcelIdentity'
 import { addUrlParam, parseErrors, uuidv4 } from './utils'
-import setTimeout from './timer'
+import { setInterval, setTimeout } from './timer'
 import { FlatFetchInit } from '@decentraland/SignedFetch'
-import { IStand } from './stand'
+import { UIPlacement } from './UIPlacement'
+import { getUserData } from '@decentraland/Identity'
+import { getPlayersInScene } from '@decentraland/Players'
+import { Placement } from './enums'
+import { PlainPlacement } from './plainPlacement'
 
 interface IHash {
   [details: string]: boolean;
@@ -35,6 +38,8 @@ export default class SupplyAgent {
   private readonly adserver: string
   private readonly publisherId: string
   private placements: IPlacement[] = []
+  private plainPlacements: IPlacement[] = []
+  private UIPlacements: IPlacement[] = []
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
@@ -47,6 +52,7 @@ export default class SupplyAgent {
     this.adserver = adserver
     this.publisherId = publisherId
     this.impressionId = uuidv4()
+    this.renderInfo()
   }
 
   public static fromWallet (adserver: string, chain: 'ads' | 'bsc', address: string): SupplyAgent {
@@ -64,17 +70,29 @@ export default class SupplyAgent {
     return this
   }
 
-  public async spawn (): Promise<any> {
-    this.renderInfo()
-    this.bannerCounter += this.placements.length
+  async spawn (): Promise<any> {
     const maxPlacements = this.getMaxPlacements()
-    if (this.bannerCounter > maxPlacements) {
-      const message = `To many placements, you can add up to ${maxPlacements} placements.`
-      this.renderError(message)
-      throw new Error(message)
-    } else {
-      return this.find()
-    }
+
+    this.placements.forEach((placement, index) => {
+      if (placement instanceof UIPlacement) {
+        const indexInState = this.UIPlacements.map(p => p.position).indexOf(placement.position)
+        if (indexInState !== -1) {
+          throw new Error(`Multiple attempts to add UI placements in the same position: ${placement.name} - ${placement.position}`)
+        }
+        this.UIPlacements.push(placement)
+      } else if (placement instanceof PlainPlacement) {
+        this.bannerCounter += 1
+        if (this.bannerCounter > maxPlacements) {
+          const message = `To many placements, you can add up to ${maxPlacements} placements.`
+          this.renderError(message)
+          throw new Error(message)
+        }
+        this.plainPlacements.push(placement)
+      }
+    })
+    this.placements = []
+
+    await this.preparePlacements()
   }
 
   private getMaxPlacements (): number {
@@ -168,12 +186,8 @@ export default class SupplyAgent {
     return this.fetch(url, data, isJson, await importFetch())
   }
 
-  private async fetchCreatives (userAccount?: string): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
+  private async fetchCreatives (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<{ creatives: Creative[], customCommands: CustomCommand[] }> {
     const parcel = await getParcel()
-    const placements: any[] = []
-    this.placements.forEach((placement, index) => {
-      placements.push({ ...placement.getProps(), id: '' + index })
-    })
 
     const request = {
       context: {
@@ -182,11 +196,11 @@ export default class SupplyAgent {
         publisher: this.publisherId,
         medium: 'metaverse',
         vendor: 'decentraland',
-        uid: userAccount || '',
+        uid: userAccount,
         metamask: userAccount !== null,
         version: this.version,
       },
-      placements
+      placements: placements.map(placement => ({ ...placement.getProps(), id: type + '-' + placement.getProps().name }))
     }
 
     const creatives: Creative[] = []
@@ -197,11 +211,12 @@ export default class SupplyAgent {
     })
     if (response.custom) {
       customCommands.push(new CustomCommand(response.custom))
+
     }
     return { creatives, customCommands }
   }
 
-  private registerContext (url: string, seedTrackingId?: string): boolean {
+  private registerContext (url: string, seedTrackingId: string | null): boolean {
     if (!this.loadedContexts[url]) {
       this.signedFetch(seedTrackingId ? addUrlParam(url, { stid: seedTrackingId }) : url, null, false).then()
       this.loadedContexts[url] = true
@@ -210,20 +225,44 @@ export default class SupplyAgent {
     return false
   }
 
-  private registerUser (userAccount?: string): boolean {
+  private registerUser (userAccount: string | null): boolean {
     const registerUrl = this.adserver + '/supply/register?iid=' + this.impressionId
     return this.registerContext(registerUrl, userAccount)
   }
 
-  private async find (cleanup: boolean = false): Promise<Creative[]> {
-    const userAccount = await getUserAccount()
+  private async preparePlacements (): Promise<any> {
+    const userData = await getUserData()
+    const userAccount: string | null = userData?.userId || null
+    if (this.plainPlacements.length > 0) {
+      this.renderCreatives(Placement.PLAIN, [...this.plainPlacements], userAccount)
+      this.plainPlacements = []
+    }
 
-    this.registerUser(userAccount)
+    let isPlayerInScene = false
+    setInterval(async () => {
+      const playersInScene = await getPlayersInScene()
+      const checkResult = userAccount ? playersInScene.map(p => p.userId).indexOf(userAccount) !== -1 : false
+      if (checkResult === isPlayerInScene) {
+        return
+      }
+      isPlayerInScene = checkResult
+
+      if (isPlayerInScene) {
+        if (this.UIPlacements.length > 0) {
+          this.renderCreatives(Placement.UI, [...this.UIPlacements], userAccount)
+          this.UIPlacements = []
+        }
+      }
+    }, 500)
+  }
+
+  private async renderCreatives (type: Placement, placements: IPlacement[], userAccount: string | null): Promise<any> {
+    if (!placements.length) return
 
     let creatives: Creative[] = []
-    let customCommands: CustomCommand[] = []
+    let customCommands = []
     try {
-      const response = await this.fetchCreatives(userAccount)
+      const response = await this.fetchCreatives(type, placements, userAccount)
       creatives = response.creatives
       customCommands = response.customCommands
     } catch (exception) {
@@ -231,18 +270,21 @@ export default class SupplyAgent {
       throw exception
     }
 
-    let refreshTime: number = 0
-    this.placements.forEach((placement, index) => {
-      if (cleanup) {
-        placement.reset()
-      }
+    this.registerUser(userAccount)
+    let refreshTime = 0
 
-      const creative: Creative = creatives.filter((item: any) => item.id === '' + index)[0]
+    placements.forEach((placement, index) => {
+      placement.reset()
+
+      const creative: Creative = creatives.filter((item: any) => item.id === type + '-' + placement.getProps().name)[0]
+
       if (!creative) {
         this.renderMessage(`We can't match any creative.\n\nImpression ID: ${this.impressionId}`, 'notfound', placement)
         return
       }
+
       refreshTime = Math.max(refreshTime, creative.refreshTime)
+
       placement.renderCreative(creative)
       if (creative.infoBox) {
         placement.renderInfoBox(this.getInfoUrl(this.impressionId, creative))
@@ -256,15 +298,16 @@ export default class SupplyAgent {
         }
       })
     })
-
     if (customCommands.length > 0) {
       customCommands.forEach(command => command.executeCustomCommand())
     }
 
-    setTimeout(() => {
-      this.find(!isBuilder)
-    }, Math.max(refreshTime, 5000))
+    if (type !== Placement.UI) {
+      setTimeout(() => {
+        this.renderCreatives(type, placements, userAccount)
+      }, Math.max(refreshTime, 5000))
+    }
 
-    return creatives
+    return { creatives, customCommands }
   }
 }

@@ -80,6 +80,17 @@ Available options:
 }
 ```
 
+#### UI placements
+
+UI placements are elements of interface for displaying creatives, when player is on scene.
+Keep in might that UI placement doesn't need to be added to Decentraland engine. UI placement can be closed after 5 seconds from displaying.
+
+Usage:
+
+```js
+const placement = new Ads.UIPlacement(name: string, position: 'top' | 'bottom' | 'left' | 'right' | 'center')
+```
+
 #### Stands
 
 Stands combine several placements into one object.
@@ -219,7 +230,23 @@ engine.addEntity(billboard)
 agent.addPlacement(totem, billboard).spawn()
 ```
 
-![Placement example](/assets/stands_example.png "Decentraland scene") 
+![Stand example](/assets/stands_example.png "Decentraland scene") 
+
+### Example to add UI placement
+
+```js
+import * as Ads from '@adshares/decentraland'
+
+const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
+
+const uiPlacementRight = new UIPlacement('UI-right', 'right')
+const uiPlacementLeft = new UIPlacement('UI-left', 'left')
+const uiPlacementCenter = new UIPlacement('UI-center', 'center')
+
+agent.addPlacement(uiPlacementRight, uiPlacementLeft, uiPlacementCenter).spawn()
+```
+
+![UI placement example](/assets/ui_placement_example.png "Decentraland scene")
 
 ### Contributing
 

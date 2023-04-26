@@ -1,28 +1,8 @@
-import { Creative } from './creative'
 import { Ratio } from './enums'
+import { IPlacement, TPlacementProps, TRatio } from './types'
+import { Creative } from './creative'
+import { sections, calculateUVParams, theme } from './theme'
 
-export declare interface IPlacement extends IEntity {
-  getProps (): TPlacementProps;
-
-  renderMessage (message: string, icon: string): void;
-
-  renderCreative (creative: Creative): void;
-
-  renderInfoBox (url: string): void;
-
-  reset (): void;
-}
-
-declare type TPlacementProps = {
-  name: string | null,
-  width: number,
-  height: number,
-  depth: number | null,
-  no: number | null,
-  types: string[] | null,
-  mimes: string[] | null,
-}
-declare type TRatio = '9:16' | '3:4' | '1:1' | '4:3' | '16:9'
 declare type TConstructorParams = {
   position?: Vector3,
   rotation?: Quaternion,
@@ -46,10 +26,6 @@ const commonMaterials: {
 
 let messageInputText: UIInputText | undefined
 
-const commonTextures = {
-  infobox: new Texture('https://assets.adshares.net/metaverse/watermark.png')
-}
-
 export class PlainPlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
   private readonly _width: number
@@ -59,12 +35,14 @@ export class PlainPlacement extends Entity implements IPlacement {
   private readonly _mimes: TPlacementProps['mimes']
   private readonly _clickDistance: number = 50
   private _backgroundMaterial?: Material | null
+  public name: string
 
   public constructor (
     name: string,
     params?: TConstructorParams
   ) {
     super(name)
+    this.name = name
     this._width = params?.width || 1
     this._ratio = params?.ratio || '1:1'
     this._no = params?.no || null
@@ -98,7 +76,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       '\nProps: ' + JSON.stringify(this.getProps(), null, '\t')
     ]
     return this.renderText(
-      `https://assets.adshares.net/metaverse/${icon}.png`,
+      icon,
       data.join('\n')
     )
   }
@@ -119,7 +97,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(new PlaneShape())
     plane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, -0.001),
+        position: new Vector3(0, 0, -0.01),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
       })
@@ -175,8 +153,10 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
 
     const plane = new Entity()
+    const planeShape = new PlaneShape()
+    planeShape.uvs = calculateUVParams(sections.logo)
     plane.setParent(this)
-    plane.addComponent(new PlaneShape())
+    plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
         position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.0015),
@@ -189,7 +169,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     material.metallic = 0
     material.roughness = 1
     material.specularIntensity = 0
-    material.albedoTexture = commonTextures.infobox
+    material.albedoTexture = theme
 
     plane.addComponent(material)
     plane.addComponent(
@@ -276,14 +256,12 @@ export class PlainPlacement extends Entity implements IPlacement {
       messageInputText.vTextAlign = 'top'
     }
     messageInputText.placeholder = message
-    if (messageInputText?.parent !== undefined) {
-      messageInputText.parent.visible = true
-    }
+    messageInputText.visible = true
   }
 
   protected hideMessageCanvas (): void {
-    if (messageInputText?.parent !== undefined) {
-      messageInputText.parent.visible = false
+    if (messageInputText !== undefined) {
+      messageInputText.visible = false
     }
   }
 
@@ -297,8 +275,10 @@ export class PlainPlacement extends Entity implements IPlacement {
     this.addComponentOrReplace(material)
 
     const plane = new Entity()
+    const planeShape = new PlaneShape()
+    planeShape.uvs = icon === 'notfound' && calculateUVParams(sections.notFoundIcon) || icon === 'error' && calculateUVParams(sections.errorIcon) || undefined
     plane.setParent(this)
-    plane.addComponent(new PlaneShape())
+    plane.addComponent(planeShape)
 
     const hostScale = this.getCombinedScale()
     const size = Math.sqrt(hostScale.x * hostScale.y) / 2
@@ -320,7 +300,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     iconMaterial.metallic = 0
     iconMaterial.roughness = 1
     iconMaterial.specularIntensity = 0
-    iconMaterial.albedoTexture = new Texture(icon)
+    iconMaterial.albedoTexture = theme
 
     plane.addComponent(iconMaterial)
     plane.addComponent(
