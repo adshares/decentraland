@@ -178,7 +178,6 @@ totem.setParent(myEntity)
 
 ```js
 agent.addPlacement(placement: IPlacement | IStand).spawn()
-agent.addPlacement(uiPlacement: IPlacement).spawn()
 ```
 
 ### Example to add placements
