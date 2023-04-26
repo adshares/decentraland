@@ -88,7 +88,7 @@ Keep in might that UI placement doesn't need to be added to Decentraland engine.
 Usage:
 
 ```js
-const uiPlacement = new Ads.UIPlacement(name: string, position: 'top' | 'bottom' | 'left' | 'right' | 'center')
+const placement = new Ads.UIPlacement(name: string, position: 'top' | 'bottom' | 'left' | 'right' | 'center')
 ```
 
 #### Stands
@@ -177,7 +177,7 @@ totem.setParent(myEntity)
 ### 5. Add placement into agent and spawn banner
 
 ```js
-agent.addPlacement(placement: IPlacement | IStand, uiPlacement: IPlacement).spawn()
+agent.addPlacement(placement: IPlacement | IStand).spawn()
 ```
 
 ### Example to add placements
