@@ -6,12 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.2.0] - 2022-04-26
 ### Added
 - UI placements support
 ### Fixed
 - Creative is too close to background on plain placement
 
-## [2.1.1] - 2022-03-27
+## [2.1.1] - 2022-04-25
 ### Fixed
 - Fix citylight rotation system, when entity has no transform component
 - Fix models & src folders
@@ -81,8 +83,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v2.1.1...HEAD
-[2.1.1]: https://github.com/adshares/decentraland/compare/v2.1.1...2.1.1
+[Unreleased]: https://github.com/adshares/decentraland/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/adshares/decentraland/compare/v2.1.1...2.2.0
+[2.1.1]: https://github.com/adshares/decentraland/compare/v2.1.0...2.1.1
 [2.1.0]: https://github.com/adshares/decentraland/compare/v2.0.2...2.1.0
 [2.0.2]: https://github.com/adshares/decentraland/compare/v2.0.1...2.0.2
 [2.0.1]: https://github.com/adshares/decentraland/compare/v2.0.0...2.0.1

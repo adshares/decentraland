@@ -43,7 +43,7 @@ export default class SupplyAgent {
   private bannerCounter: number = 0
   private readonly impressionId: string
   private loadedContexts: IHash = {}
-  public readonly version = '2.1.1'
+  public readonly version = '2.2.0'
 
   public constructor (adserver: string, publisherId: string) {
     while (adserver.slice(-1) === '/') {
