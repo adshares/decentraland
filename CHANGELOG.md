@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Creative is too close to background on plain placement
 
+## [2.1.1] - 2022-03-27
+### Fixed
+- Fix citylight rotation system, when entity has no transform component
+- Fix models & src folders
+
 ## [2.1.0] - 2022-03-27
 ### Added
 - Stands support
@@ -76,7 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/adshares/decentraland/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/adshares/decentraland/compare/v2.1.1...2.1.1
 [2.1.0]: https://github.com/adshares/decentraland/compare/v2.0.2...2.1.0
 [2.0.2]: https://github.com/adshares/decentraland/compare/v2.0.1...2.0.2
 [2.0.1]: https://github.com/adshares/decentraland/compare/v2.0.0...2.0.1

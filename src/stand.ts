@@ -269,6 +269,7 @@ class AdsRotationSystem implements ISystem {
 
   public update () {
     this._entities.forEach(e => {
+      !e.hasComponent(Transform) && e.addComponent(new Transform())
       let transform = e.getComponent(Transform)
       transform.rotate(Vector3.Up(), 0.5)
     })
