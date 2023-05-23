@@ -44,7 +44,7 @@
     "yarn": "please use npm"
   },
   "dependencies": {
-    "decentraland-ecs": "^6.11.11"
+    "decentraland-ecs": "^6.11.15"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
