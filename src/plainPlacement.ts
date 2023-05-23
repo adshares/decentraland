@@ -97,7 +97,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(new PlaneShape())
     plane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, -0.01),
+        position: new Vector3(0, 0, -0.05),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
       })
@@ -141,6 +141,45 @@ export class PlainPlacement extends Entity implements IPlacement {
         openExternalURL(creative.clickUrl)
       }, { distance: this._clickDistance })
     )
+
+    const frame = new Entity()
+    const bord1 = new Entity()
+    bord1.addComponent(new BoxShape())
+    bord1.addComponent(new Transform({
+      position: new Vector3(0.505,0,-0.05),
+      scale: new Vector3(0.01, 1, 0.1)
+    }))
+    bord1.addComponent(backgroundM)
+    bord1.setParent(frame)
+
+    const bord2 = new Entity()
+    bord2.addComponent(new BoxShape())
+    bord2.addComponent(new Transform({
+      position: new Vector3(-0.505,0,-0.05),
+      scale: new Vector3(0.01, 1, 0.1)
+    }))
+    bord2.addComponent(backgroundM)
+    bord2.setParent(frame)
+
+    const bord3 = new Entity()
+    bord3.addComponent(new BoxShape())
+    bord3.addComponent(new Transform({
+      position: new Vector3(0,0.505,-0.05),
+      scale: new Vector3(1.02, 0.01, 0.1)
+    }))
+    bord3.addComponent(backgroundM)
+    bord3.setParent(frame)
+
+    const bord4 = new Entity()
+    bord4.addComponent(new BoxShape())
+    bord4.addComponent(new Transform({
+      position: new Vector3(0,-0.505,-0.05),
+      scale: new Vector3(1.02, 0.01, 0.1)
+    }))
+    bord4.addComponent(backgroundM)
+    bord4.setParent(frame)
+
+    frame.setParent(this)
   }
 
   public renderInfoBox (url: string): void {
@@ -159,7 +198,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
-        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.0015),
+        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.1    ),
         rotation: Quaternion.Euler(180, 180, 0),
         scale: new Vector3(scale.x, scale.y, 1)
       })
