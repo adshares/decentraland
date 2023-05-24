@@ -83,7 +83,7 @@ export class PlainPlacement extends Entity implements IPlacement {
 
   public renderCreative (creative: Creative): void {
 
-    const backgroundM = this.getBackgroundMaterial()
+    const backgroundM = this.getBackgroundMaterial('default')
     if (backgroundM !== null) {
       this.addComponentOrReplace(new PlaneShape())
       this.addComponentOrReplace(backgroundM)
@@ -142,44 +142,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       }, { distance: this._clickDistance })
     )
 
-    const frame = new Entity()
-    const bord1 = new Entity()
-    bord1.addComponent(new BoxShape())
-    bord1.addComponent(new Transform({
-      position: new Vector3(0.505,0,-0.05),
-      scale: new Vector3(0.01, 1, 0.1)
-    }))
-    bord1.addComponent(backgroundM)
-    bord1.setParent(frame)
-
-    const bord2 = new Entity()
-    bord2.addComponent(new BoxShape())
-    bord2.addComponent(new Transform({
-      position: new Vector3(-0.505,0,-0.05),
-      scale: new Vector3(0.01, 1, 0.1)
-    }))
-    bord2.addComponent(backgroundM)
-    bord2.setParent(frame)
-
-    const bord3 = new Entity()
-    bord3.addComponent(new BoxShape())
-    bord3.addComponent(new Transform({
-      position: new Vector3(0,0.505,-0.05),
-      scale: new Vector3(1.02, 0.01, 0.1)
-    }))
-    bord3.addComponent(backgroundM)
-    bord3.setParent(frame)
-
-    const bord4 = new Entity()
-    bord4.addComponent(new BoxShape())
-    bord4.addComponent(new Transform({
-      position: new Vector3(0,-0.505,-0.05),
-      scale: new Vector3(1.02, 0.01, 0.1)
-    }))
-    bord4.addComponent(backgroundM)
-    bord4.setParent(frame)
-
-    frame.setParent(this)
+    this.renderFrame()
   }
 
   public renderInfoBox (url: string): void {
@@ -227,22 +190,65 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  protected getBackgroundMaterial (): Material | null {
+  public renderFrame (): void {
+    const backgroundM = this.getBackgroundMaterial('default')
+    const frame = new Entity()
+    
+    const rightBoard = new Entity()
+    rightBoard.addComponent(new BoxShape())
+    rightBoard.addComponent(new Transform({
+      position: new Vector3(0.505,0,-0.05),
+      scale: new Vector3(0.01, 1, 0.1)
+    }))
+    rightBoard.addComponent(backgroundM)
+    rightBoard.setParent(frame)
+
+    const leftBoard = new Entity()
+    leftBoard.addComponent(new BoxShape())
+    leftBoard.addComponent(new Transform({
+      position: new Vector3(-0.505,0,-0.05),
+      scale: new Vector3(0.01, 1, 0.1)
+    }))
+    leftBoard.addComponent(backgroundM)
+    leftBoard.setParent(frame)
+
+    const topBoard = new Entity()
+    topBoard.addComponent(new BoxShape())
+    topBoard.addComponent(new Transform({
+      position: new Vector3(0,0.505,-0.05),
+      scale: new Vector3(1.02, 0.01, 0.1)
+    }))
+    topBoard.addComponent(backgroundM)
+    topBoard.setParent(frame)
+
+    const bottomBoard = new Entity()
+    bottomBoard.addComponent(new BoxShape())
+    bottomBoard.addComponent(new Transform({
+      position: new Vector3(0,-0.505,-0.05),
+      scale: new Vector3(1.02, 0.01, 0.1)
+    }))
+    bottomBoard.addComponent(backgroundM)
+    bottomBoard.setParent(frame)
+
+    frame.setParent(this)
+  }
+
+  protected getBackgroundMaterial (material: string): Material | null {
     if (this._backgroundMaterial === undefined) {
-      return this.getDefaultMaterial()
+      return this.getDefaultMaterial(material)
     }
     return this._backgroundMaterial
   }
 
-  protected getDefaultMaterial (): Material {
-    if (commonMaterials.default === undefined) {
-      commonMaterials.default = new Material()
-      commonMaterials.default.specularIntensity = 0
-      commonMaterials.default.metallic = 0
-      commonMaterials.default.roughness = 1
-      commonMaterials.default.albedoColor = Color3.Black()
+  protected getDefaultMaterial (material: string): Material {
+    if (commonMaterials[material] === undefined) {
+      commonMaterials[material] = new Material()
+      commonMaterials[material].specularIntensity = 0
+      commonMaterials[material].metallic = 0
+      commonMaterials[material].roughness = 1
+      commonMaterials[material].albedoColor = Color3.Black()
     }
-    return commonMaterials.default
+    return commonMaterials[material]
   }
 
   protected initDefaultShape () {
@@ -307,11 +313,10 @@ export class PlainPlacement extends Entity implements IPlacement {
   protected renderText (icon: string, message: string): void {
 
     this.reset()
-    const material = this.getDefaultMaterial()
+    const material = this.getDefaultMaterial('text')
     material.albedoColor = Color3.White()
 
     this.addComponentOrReplace(new PlaneShape())
-    this.addComponentOrReplace(material)
 
     const plane = new Entity()
     const planeShape = new PlaneShape()
