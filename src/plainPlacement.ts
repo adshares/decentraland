@@ -43,7 +43,8 @@ export class PlainPlacement extends Entity implements IPlacement {
   ) {
     super(name)
     this.name = name
-    this._width = params?.width - 0.05 || 1 - 0.05
+    this._width = params?.width || 1
+    this._width = this._width - 0.05
     this._ratio = params?.ratio || '1:1'
     this._no = params?.no || null
     this._types = params?.types || null
@@ -87,6 +88,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     if (backgroundM !== null) {
       this.addComponentOrReplace(new PlaneShape())
       this.addComponentOrReplace(backgroundM)
+      this.renderFrame(backgroundM)
     }
 
     const size = creative.scope.split('x')
@@ -141,8 +143,6 @@ export class PlainPlacement extends Entity implements IPlacement {
         openExternalURL(creative.clickUrl)
       }, { distance: this._clickDistance })
     )
-
-    this.renderFrame()
   }
 
   public renderInfoBox (url: string): void {
@@ -190,8 +190,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  public renderFrame (): void {
-    const backgroundM = this.getBackgroundMaterial('default')
+  public renderFrame (material: Material): void {
     const frame = new Entity()
     
     const rightBoard = new Entity()
@@ -200,7 +199,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       position: new Vector3(0.5005,0,-0.05),
       scale: new Vector3(0.001, 1, 0.1)
     }))
-    rightBoard.addComponent(backgroundM)
+    rightBoard.addComponent(material)
     rightBoard.setParent(frame)
 
     const leftBoard = new Entity()
@@ -209,7 +208,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       position: new Vector3(-0.5005,0,-0.05),
       scale: new Vector3(0.001, 1, 0.1)
     }))
-    leftBoard.addComponent(backgroundM)
+    leftBoard.addComponent(material)
     leftBoard.setParent(frame)
 
     const topBoard = new Entity()
@@ -218,7 +217,7 @@ export class PlainPlacement extends Entity implements IPlacement {
       position: new Vector3(0,0.5005,-0.05),
       scale: new Vector3(1.002, 0.001, 0.1)
     }))
-    topBoard.addComponent(backgroundM)
+    topBoard.addComponent(material)
     topBoard.setParent(frame)
 
     const bottomBoard = new Entity()
@@ -227,28 +226,28 @@ export class PlainPlacement extends Entity implements IPlacement {
       position: new Vector3(0,-0.5005,-0.05),
       scale: new Vector3(1.002, 0.001, 0.1)
     }))
-    bottomBoard.addComponent(backgroundM)
+    bottomBoard.addComponent(material)
     bottomBoard.setParent(frame)
 
     frame.setParent(this)
   }
 
-  protected getBackgroundMaterial (material: string): Material | null {
+  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material | null {
     if (this._backgroundMaterial === undefined) {
       return this.getDefaultMaterial(material)
     }
     return this._backgroundMaterial
   }
 
-  protected getDefaultMaterial (material: string): Material {
+  protected getDefaultMaterial (material: keyof typeof commonMaterials): Material {
     if (commonMaterials[material] === undefined) {
       commonMaterials[material] = new Material()
-      commonMaterials[material].specularIntensity = 0
-      commonMaterials[material].metallic = 0
-      commonMaterials[material].roughness = 1
-      commonMaterials[material].albedoColor = Color3.Black()
+      commonMaterials[material]!.specularIntensity = 0
+      commonMaterials[material]!.metallic = 0
+      commonMaterials[material]!.roughness = 1
+      commonMaterials[material]!.albedoColor = Color3.Black()
     }
-    return commonMaterials[material]
+    return commonMaterials[material]!
   }
 
   protected initDefaultShape () {
