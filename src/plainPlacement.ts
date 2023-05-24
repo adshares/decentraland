@@ -43,7 +43,7 @@ export class PlainPlacement extends Entity implements IPlacement {
   ) {
     super(name)
     this.name = name
-    this._width = params?.width || 1
+    this._width = params?.width - 0.05 || 1 - 0.05
     this._ratio = params?.ratio || '1:1'
     this._no = params?.no || null
     this._types = params?.types || null
