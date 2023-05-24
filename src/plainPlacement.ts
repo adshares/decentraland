@@ -197,8 +197,8 @@ export class PlainPlacement extends Entity implements IPlacement {
     const rightBoard = new Entity()
     rightBoard.addComponent(new BoxShape())
     rightBoard.addComponent(new Transform({
-      position: new Vector3(0.505,0,-0.05),
-      scale: new Vector3(0.01, 1, 0.1)
+      position: new Vector3(0.5005,0,-0.05),
+      scale: new Vector3(0.001, 1, 0.1)
     }))
     rightBoard.addComponent(backgroundM)
     rightBoard.setParent(frame)
@@ -206,8 +206,8 @@ export class PlainPlacement extends Entity implements IPlacement {
     const leftBoard = new Entity()
     leftBoard.addComponent(new BoxShape())
     leftBoard.addComponent(new Transform({
-      position: new Vector3(-0.505,0,-0.05),
-      scale: new Vector3(0.01, 1, 0.1)
+      position: new Vector3(-0.5005,0,-0.05),
+      scale: new Vector3(0.001, 1, 0.1)
     }))
     leftBoard.addComponent(backgroundM)
     leftBoard.setParent(frame)
@@ -215,8 +215,8 @@ export class PlainPlacement extends Entity implements IPlacement {
     const topBoard = new Entity()
     topBoard.addComponent(new BoxShape())
     topBoard.addComponent(new Transform({
-      position: new Vector3(0,0.505,-0.05),
-      scale: new Vector3(1.02, 0.01, 0.1)
+      position: new Vector3(0,0.5005,-0.05),
+      scale: new Vector3(1.002, 0.001, 0.1)
     }))
     topBoard.addComponent(backgroundM)
     topBoard.setParent(frame)
@@ -224,8 +224,8 @@ export class PlainPlacement extends Entity implements IPlacement {
     const bottomBoard = new Entity()
     bottomBoard.addComponent(new BoxShape())
     bottomBoard.addComponent(new Transform({
-      position: new Vector3(0,-0.505,-0.05),
-      scale: new Vector3(1.02, 0.01, 0.1)
+      position: new Vector3(0,-0.5005,-0.05),
+      scale: new Vector3(1.002, 0.001, 0.1)
     }))
     bottomBoard.addComponent(backgroundM)
     bottomBoard.setParent(frame)
