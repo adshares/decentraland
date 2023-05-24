@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix blinking banner
+- Fix display placement when banner not found
 
 ## [2.2.0] - 2022-04-26
 ### Added
