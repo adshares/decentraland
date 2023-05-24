@@ -99,16 +99,22 @@ export default class SupplyAgent {
     return 20
   }
 
-  private renderMessage (message: string, icon: string, placement: IPlacement | null = null): void {
+  private renderMessage (message: string, icon: string, placement: IPlacement | IPlacement[] | null = null): void {
+    log(placement)
+    log('render nessage')
     message = message + '\n\nAdserver: ' + this.adserver + '\nPublisher: ' + this.publisherId + '\nVersion: ' + this.version
     if (placement !== null) {
+      if (Array.isArray(placement)){
+        placement.forEach(placement => placement.renderMessage(message, icon))
+        return
+      }
       placement.renderMessage(message, icon)
     } else {
       this.placements.forEach(item => item.renderMessage(message, icon))
     }
   }
 
-  private renderError (message: string, placement: IPlacement | null = null): void {
+  private renderError (message: string, placement: IPlacement | IPlacement[] | null = null): void {
     this.renderMessage(message, 'error', placement)
   }
 
@@ -266,7 +272,8 @@ export default class SupplyAgent {
       creatives = response.creatives
       customCommands = response.customCommands
     } catch (exception) {
-      this.renderError('' + exception)
+      log('render creative')
+      this.renderError('' + exception, placements)
       throw exception
     }
 
