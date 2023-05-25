@@ -1,5 +1,5 @@
 import { Ratio } from './enums'
-import { IPlacement, TPlacementProps, TRatio } from './types'
+import { IPlacement, IStand, TPlacementProps, TRatio } from './types'
 import { Creative } from './creative'
 import { sections, calculateUVParams, theme } from './theme'
 
@@ -26,7 +26,7 @@ const commonMaterials: {
 
 let messageInputText: UIInputText | undefined
 
-export class PlainPlacement extends Entity implements IPlacement {
+export class BasePlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
   private readonly _width: number
   private readonly _ratio: TRatio
@@ -34,7 +34,6 @@ export class PlainPlacement extends Entity implements IPlacement {
   private readonly _types: TPlacementProps['types']
   private readonly _mimes: TPlacementProps['mimes']
   private readonly _clickDistance: number = 50
-  private _backgroundMaterial?: Material | null
   public name: string
 
   public constructor (
@@ -44,18 +43,16 @@ export class PlainPlacement extends Entity implements IPlacement {
     super(name)
     this.name = name
     this._width = params?.width || 1
-    this._width = this._width - 0.05
     this._ratio = params?.ratio || '1:1'
     this._no = params?.no || null
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this._backgroundMaterial = params?.background
     this._transform = new Transform({
       scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
       position: params?.position,
       rotation: params?.rotation
     })
-    this.initDefaultShape()
+    this.addComponent(this._transform)
   }
 
   public getProps (): TPlacementProps {
@@ -83,14 +80,6 @@ export class PlainPlacement extends Entity implements IPlacement {
   }
 
   public renderCreative (creative: Creative): void {
-
-    const backgroundM = this.getBackgroundMaterial('default')
-    if (backgroundM !== null) {
-      this.addComponentOrReplace(new PlaneShape())
-      this.addComponentOrReplace(backgroundM)
-      this.renderFrame(backgroundM)
-    }
-
     const size = creative.scope.split('x')
     const scaleFactor = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
 
@@ -99,7 +88,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(new PlaneShape())
     plane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, -0.05),
+        position: new Vector3(0, 0, 0),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
       })
@@ -161,7 +150,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
-        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.1    ),
+        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.01),
         rotation: Quaternion.Euler(180, 180, 0),
         scale: new Vector3(scale.x, scale.y, 1)
       })
@@ -190,70 +179,6 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  public renderFrame (material: Material): void {
-    const frame = new Entity()
-    
-    const rightBoard = new Entity()
-    rightBoard.addComponent(new BoxShape())
-    rightBoard.addComponent(new Transform({
-      position: new Vector3(0.5005,0,-0.05),
-      scale: new Vector3(0.001, 1, 0.1)
-    }))
-    rightBoard.addComponent(material)
-    rightBoard.setParent(frame)
-
-    const leftBoard = new Entity()
-    leftBoard.addComponent(new BoxShape())
-    leftBoard.addComponent(new Transform({
-      position: new Vector3(-0.5005,0,-0.05),
-      scale: new Vector3(0.001, 1, 0.1)
-    }))
-    leftBoard.addComponent(material)
-    leftBoard.setParent(frame)
-
-    const topBoard = new Entity()
-    topBoard.addComponent(new BoxShape())
-    topBoard.addComponent(new Transform({
-      position: new Vector3(0,0.5005,-0.05),
-      scale: new Vector3(1.002, 0.001, 0.1)
-    }))
-    topBoard.addComponent(material)
-    topBoard.setParent(frame)
-
-    const bottomBoard = new Entity()
-    bottomBoard.addComponent(new BoxShape())
-    bottomBoard.addComponent(new Transform({
-      position: new Vector3(0,-0.5005,-0.05),
-      scale: new Vector3(1.002, 0.001, 0.1)
-    }))
-    bottomBoard.addComponent(material)
-    bottomBoard.setParent(frame)
-
-    frame.setParent(this)
-  }
-
-  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material | null {
-    if (this._backgroundMaterial === undefined) {
-      return this.getDefaultMaterial(material)
-    }
-    return this._backgroundMaterial
-  }
-
-  protected getDefaultMaterial (material: keyof typeof commonMaterials): Material {
-    if (commonMaterials[material] === undefined) {
-      commonMaterials[material] = new Material()
-      commonMaterials[material]!.specularIntensity = 0
-      commonMaterials[material]!.metallic = 0
-      commonMaterials[material]!.roughness = 1
-      commonMaterials[material]!.albedoColor = Color3.Black()
-    }
-    return commonMaterials[material]!
-  }
-
-  protected initDefaultShape () {
-    this.addComponent(this._transform)
-  }
-
   protected calculateScaleFactor (originWidth: number, originHeight: number) {
     const maxScale = this.getComponent(Transform).scale
     const scaleFactor = Math.min((maxScale.x / originWidth), (maxScale.y / originHeight))
@@ -279,7 +204,6 @@ export class PlainPlacement extends Entity implements IPlacement {
       }
       entity = entity.getParent()
     }
-    scale.z = 0.1
     return scale
   }
 
@@ -312,8 +236,6 @@ export class PlainPlacement extends Entity implements IPlacement {
   protected renderText (icon: string, message: string): void {
 
     this.reset()
-    const material = this.getDefaultMaterial('text')
-    material.albedoColor = Color3.White()
 
     this.addComponentOrReplace(new PlaneShape())
 
@@ -356,5 +278,113 @@ export class PlainPlacement extends Entity implements IPlacement {
         this.hideMessageCanvas()
       })
     )
+  }
+}
+
+export class PlainPlacement extends Entity implements IStand {
+  private readonly _width: number
+  private readonly _types: string[] | null
+  private readonly _mimes: string[] | null
+  private readonly _backgroundMaterial: Material | null = undefined
+  private readonly _plainPlacement: IPlacement
+
+  constructor (name: string, params?: TConstructorParams) {
+    super(name)
+    this.addComponent(new Transform({
+      position: params?.position || undefined,
+      rotation: params?.rotation || undefined
+    }))
+    this._width = params?.width || 1
+    this._backgroundMaterial = params?.background
+    this._types = params?.types || null
+    this._mimes = params?.mimes || null
+    this._plainPlacement = new BasePlacement(name, {
+      position: new Vector3(0, 0, -0.01),
+      rotation: Quaternion.Euler(0, 0, 0),
+      width: this._width,
+      ratio: params?.ratio,
+      no: params?.no,
+      types: this._types,
+      mimes: this._mimes
+    })
+    this._plainPlacement.setParent(this)
+    this.renderFrame()
+  }
+
+  public getPlacements (): IPlacement[] {
+    return [
+      this._plainPlacement,
+    ]
+  }
+
+  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material | null {
+    if (this._backgroundMaterial === undefined) {
+      return this.getDefaultMaterial(material)
+    }
+    return this._backgroundMaterial
+  }
+
+  protected getDefaultMaterial (material: keyof typeof commonMaterials): Material {
+    if (commonMaterials[material] === undefined) {
+      commonMaterials[material] = new Material()
+      commonMaterials[material]!.specularIntensity = 0
+      commonMaterials[material]!.metallic = 0
+      commonMaterials[material]!.roughness = 1
+      commonMaterials[material]!.albedoColor = Color3.Black()
+    }
+    return commonMaterials[material]!
+  }
+
+  public renderFrame (): void {
+    const material = this.getBackgroundMaterial('default')
+    const plainDimension = this._plainPlacement.getComponent(Transform).scale
+    const frame = new Entity()
+
+    const bg = new Entity()
+    bg.addComponent(new PlaneShape())
+    bg.addComponent(new Transform({
+      position: new Vector3(0, 0, 0),
+      scale: new Vector3(plainDimension.x, plainDimension.y, plainDimension.z)
+    }))
+    bg.addComponent(material)
+    bg.setParent(frame)
+
+    const rightBoard = new Entity()
+    rightBoard.addComponent(new BoxShape())
+    rightBoard.addComponent(new Transform({
+      position: new Vector3((plainDimension.x / 2), 0, -0.015),
+      scale: new Vector3(0.01, plainDimension.y, 0.03)
+    }))
+    rightBoard.addComponent(material)
+    rightBoard.setParent(frame)
+
+    const leftBoard = new Entity()
+    leftBoard.addComponent(new BoxShape())
+    leftBoard.addComponent(new Transform({
+      position: new Vector3(-(plainDimension.x / 2), 0, -0.015),
+      scale: new Vector3(0.01, plainDimension.y, 0.03)
+    }))
+    leftBoard.addComponent(material)
+    leftBoard.setParent(frame)
+
+    const topBoard = new Entity()
+    topBoard.addComponent(new BoxShape())
+    topBoard.addComponent(new Transform({
+      position: new Vector3(0, (plainDimension.y / 2), -0.015),
+      scale: new Vector3(plainDimension.x + 0.002, 0.01, 0.03)
+    }))
+    topBoard.addComponent(material)
+    topBoard.setParent(frame)
+
+    const bottomBoard = new Entity()
+    bottomBoard.addComponent(new BoxShape())
+    bottomBoard.addComponent(new Transform({
+      position: new Vector3(0, -(plainDimension.y / 2), -0.015),
+      scale: new Vector3(plainDimension.x + 0.002, 0.01, 0.03)
+    }))
+    bottomBoard.addComponent(material)
+    bottomBoard.setParent(frame)
+
+    frame.setParent(this)
   }
 }

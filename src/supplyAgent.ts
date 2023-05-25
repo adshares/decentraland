@@ -8,7 +8,7 @@ import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
 import { getPlayersInScene } from '@decentraland/Players'
 import { Placement } from './enums'
-import { PlainPlacement } from './plainPlacement'
+import { BasePlacement } from './plainPlacement'
 
 interface IHash {
   [details: string]: boolean;
@@ -80,7 +80,7 @@ export default class SupplyAgent {
           throw new Error(`Multiple attempts to add UI placements in the same position: ${placement.name} - ${placement.position}`)
         }
         this.UIPlacements.push(placement)
-      } else if (placement instanceof PlainPlacement) {
+      } else if (placement instanceof BasePlacement) {
         this.bannerCounter += 1
         if (this.bannerCounter > maxPlacements) {
           const message = `To many placements, you can add up to ${maxPlacements} placements.`
@@ -100,8 +100,6 @@ export default class SupplyAgent {
   }
 
   private renderMessage (message: string, icon: string, placement: IPlacement | IPlacement[] | null = null): void {
-    log(placement)
-    log('render nessage')
     message = message + '\n\nAdserver: ' + this.adserver + '\nPublisher: ' + this.publisherId + '\nVersion: ' + this.version
     if (placement !== null) {
       if (Array.isArray(placement)){
@@ -272,7 +270,6 @@ export default class SupplyAgent {
       creatives = response.creatives
       customCommands = response.customCommands
     } catch (exception) {
-      log('render creative')
       this.renderError('' + exception, placements)
       throw exception
     }
