@@ -11,7 +11,7 @@ declare type TConstructorParams = {
   no?: number,
   types?: TPlacementProps['types'],
   mimes?: TPlacementProps['mimes'],
-  background?: Material | null,
+  background?: Material,
 }
 
 const commonMaterials: {
@@ -285,7 +285,7 @@ export class PlainPlacement extends Entity implements IStand {
   private readonly _width: number
   private readonly _types: string[] | null
   private readonly _mimes: string[] | null
-  private readonly _backgroundMaterial: Material | null = undefined
+  private readonly _backgroundMaterial?: Material
   private readonly _plainPlacement: IPlacement
 
   constructor (name: string, params?: TConstructorParams) {
@@ -317,7 +317,7 @@ export class PlainPlacement extends Entity implements IStand {
     ]
   }
 
-  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material | null {
+  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material {
     if (this._backgroundMaterial === undefined) {
       return this.getDefaultMaterial(material)
     }
