@@ -18,7 +18,7 @@ export class Totem extends Entity implements IStand {
     this._types = params?.types || null
     this._mimes = params?.mimes || null
     this._frontPlacement = new BasePlacement(`${this.name} front`, {
-      position: new Vector3(0, 2.355, -0.288546),
+      position: new Vector3(0, 2.355, -0.277),
       width: 1.65,
       ratio: '9:16',
       no: 1,
@@ -26,7 +26,7 @@ export class Totem extends Entity implements IStand {
       mimes: this._mimes
     })
     this._backPlacement = new BasePlacement(`${this.name} back`, {
-      position: new Vector3(0, 2.355, 0.27),
+      position: new Vector3(0, 2.355, 0.277),
       rotation: Quaternion.Euler(0, 180, 0),
       width: 1.65,
       ratio: '9:16',
@@ -70,7 +70,7 @@ export class Billboard extends Entity implements IStand {
       case '3:4':
         this.addComponent(new GLTFShape('models/@adshares/ads_billboard_3_4.glb'))
         this._frontPlacement = new BasePlacement(`${this.name} front`, {
-          position: new Vector3(0, 6.19396, -0.27),
+          position: new Vector3(0, 6.19396, -0.2715),
           width: 6,
           ratio: this._ratio,
           no: 1,
@@ -78,7 +78,7 @@ export class Billboard extends Entity implements IStand {
           mimes: this._mimes
         })
         this._backPlacement = new BasePlacement(`${this.name} back`, {
-          position: new Vector3(0, 6.19396, 0.27),
+          position: new Vector3(0, 6.19396, 0.2715),
           rotation: Quaternion.Euler(0, 180, 0),
           width: 6,
           ratio: this._ratio,
@@ -91,7 +91,7 @@ export class Billboard extends Entity implements IStand {
       case '4:3':
         this.addComponent(new GLTFShape('models/@adshares/ads_billboard_4_3.glb'))
         this._frontPlacement = new BasePlacement(`${this.name} front`, {
-          position: new Vector3(0, 4.65903, -0.27),
+          position: new Vector3(0, 4.65903, -0.267),
           width: 6.8,
           ratio: this._ratio,
           no: 1,
@@ -99,7 +99,7 @@ export class Billboard extends Entity implements IStand {
           mimes: this._mimes
         })
         this._backPlacement = new BasePlacement(`${this.name} back`, {
-          position: new Vector3(0, 4.65903, 0.27),
+          position: new Vector3(0, 4.65903, 0.267),
           rotation: Quaternion.Euler(0, 180, 0),
           width: 6.8,
           ratio: this._ratio,
@@ -112,7 +112,7 @@ export class Billboard extends Entity implements IStand {
       case '9:16':
         this.addComponent(new GLTFShape('models/@adshares/ads_billboard_9_16.glb'))
         this._frontPlacement = new BasePlacement(`${this.name} front`, {
-          position: new Vector3(0, 6.55398, -0.27),
+          position: new Vector3(0, 6.55398, -0.267),
           width: 4.53,
           ratio: this._ratio,
           no: 1,
@@ -120,7 +120,7 @@ export class Billboard extends Entity implements IStand {
           mimes: this._mimes
         })
         this._backPlacement = new BasePlacement(`${this.name} back`, {
-          position: new Vector3(0, 6.55398, 0.27),
+          position: new Vector3(0, 6.55398, 0.267),
           rotation: Quaternion.Euler(0, 180, 0),
           width: 4.53,
           ratio: this._ratio,
@@ -133,7 +133,7 @@ export class Billboard extends Entity implements IStand {
       case '16:9':
         this.addComponent(new GLTFShape('models/@adshares/ads_billboard_16_9.glb'))
         this._frontPlacement = new BasePlacement(`${this.name} front`, {
-          position: new Vector3(0, 4.54934, -0.29),
+          position: new Vector3(0, 4.54934, -0.2975),
           width: 8.65,
           ratio: this._ratio,
           no: 1,
@@ -141,7 +141,7 @@ export class Billboard extends Entity implements IStand {
           mimes: this._mimes
         })
         this._backPlacement = new BasePlacement(`${this.name} back`, {
-          position: new Vector3(0, 4.54934, 0.29),
+          position: new Vector3(0, 4.54934, 0.2975),
           rotation: Quaternion.Euler(0, 180, 0),
           width: 8.65,
           ratio: this._ratio,
@@ -155,7 +155,7 @@ export class Billboard extends Entity implements IStand {
       default:
         this.addComponent(new GLTFShape('models/@adshares/ads_billboard_1_1.glb'))
         this._frontPlacement = new BasePlacement(`${this.name} front`, {
-          position: new Vector3(0, 5.43059, -0.259),
+          position: new Vector3(0, 5.43059, -0.267),
           width: 6.15,
           ratio: this._ratio,
           no: 1,
@@ -163,7 +163,7 @@ export class Billboard extends Entity implements IStand {
           mimes: this._mimes
         })
         this._backPlacement = new BasePlacement(`${this.name} back`, {
-          position: new Vector3(0, 5.43059, 0.259),
+          position: new Vector3(0, 5.43059, 0.267),
           rotation: Quaternion.Euler(0, 180, 0),
           width: 6.15,
           ratio: this._ratio,
