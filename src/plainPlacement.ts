@@ -1,5 +1,5 @@
 import { Ratio } from './enums'
-import { IPlacement, IStand, TPlacementProps, TRatio } from './types'
+import { IPlacement, TPlacementProps, TRatio } from './types'
 import { Creative } from './creative'
 import { sections, calculateUVParams, theme } from './theme'
 
