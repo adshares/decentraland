@@ -207,17 +207,17 @@ export class Citylight extends Entity implements IStand {
     this._mimes = params?.mimes || null
     this.addComponent(new GLTFShape('models/@adshares/ads_citylight_9_16.glb'))
     this._placement_1 = new BasePlacement(`${this.name} 1`, {
-      position: new Vector3(0, 1.46, -0.66737),
-      width: 1.11,
+      position: new Vector3(0, 1.46, -0.662),
+      width: 1.1,
       ratio: '9:16',
       no: 1,
       types: this._types,
       mimes: this._mimes
     })
     this._placement_3 = new BasePlacement(`${this.name} 3`, {
-      position: new Vector3(0, 1.46, 0.66737),
+      position: new Vector3(0, 1.46, 0.662),
       rotation: Quaternion.Euler(0, 180, 0),
-      width: 1.11,
+      width: 1.1,
       ratio: '9:16',
       no: 2,
       types: this._types,
@@ -225,18 +225,18 @@ export class Citylight extends Entity implements IStand {
     })
 
     this._placement_2 = new BasePlacement(`${this.name} 2`, {
-      position: new Vector3(-0.66737, 1.46, 0),
+      position: new Vector3(-0.662, 1.46, 0),
       rotation: Quaternion.Euler(0, 90, 0),
-      width: 1.11,
+      width: 1.1,
       ratio: '9:16',
       no: 3,
       types: this._types,
       mimes: this._mimes
     })
     this._placement_4 = new BasePlacement(`${this.name} 4`, {
-      position: new Vector3(0.66737, 1.46, 0),
+      position: new Vector3(0.662, 1.46, 0),
       rotation: Quaternion.Euler(0, -90, 0),
-      width: 1.11,
+      width: 1.1,
       ratio: '9:16',
       no: 4,
       types: this._types,
