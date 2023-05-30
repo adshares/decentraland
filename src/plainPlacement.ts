@@ -48,7 +48,7 @@ export class BasePlacement extends Entity implements IPlacement {
     this._types = params?.types || null
     this._mimes = params?.mimes || null
     this._transform = new Transform({
-      scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
+      scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 0.1),
       position: params?.position,
       rotation: params?.rotation
     })
@@ -150,7 +150,7 @@ export class BasePlacement extends Entity implements IPlacement {
     plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
-        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.01),
+        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.05),
         rotation: Quaternion.Euler(180, 180, 0),
         scale: new Vector3(scale.x, scale.y, 1)
       })
@@ -294,7 +294,7 @@ export class PlainPlacement extends Entity implements IStand {
       position: params?.position || undefined,
       rotation: params?.rotation || undefined
     }))
-    this._width = params?.width || 1
+    this._width = (params?.width || 1) - 0.02
     this._backgroundMaterial = params?.background
     this._types = params?.types || null
     this._mimes = params?.mimes || null
@@ -352,8 +352,8 @@ export class PlainPlacement extends Entity implements IStand {
     const rightBoard = new Entity()
     rightBoard.addComponent(new BoxShape())
     rightBoard.addComponent(new Transform({
-      position: new Vector3((plainDimension.x / 2), 0, -0.015),
-      scale: new Vector3(0.01, plainDimension.y, 0.03)
+      position: new Vector3((plainDimension.x / 2), 0, -0.009),
+      scale: new Vector3(0.01, plainDimension.y, 0.018)
     }))
     rightBoard.addComponent(material)
     rightBoard.setParent(frame)
@@ -361,8 +361,8 @@ export class PlainPlacement extends Entity implements IStand {
     const leftBoard = new Entity()
     leftBoard.addComponent(new BoxShape())
     leftBoard.addComponent(new Transform({
-      position: new Vector3(-(plainDimension.x / 2), 0, -0.015),
-      scale: new Vector3(0.01, plainDimension.y, 0.03)
+      position: new Vector3(-(plainDimension.x / 2), 0, -0.009),
+      scale: new Vector3(0.01, plainDimension.y, 0.018)
     }))
     leftBoard.addComponent(material)
     leftBoard.setParent(frame)
@@ -370,8 +370,8 @@ export class PlainPlacement extends Entity implements IStand {
     const topBoard = new Entity()
     topBoard.addComponent(new BoxShape())
     topBoard.addComponent(new Transform({
-      position: new Vector3(0, (plainDimension.y / 2), -0.015),
-      scale: new Vector3(plainDimension.x + 0.002, 0.01, 0.03)
+      position: new Vector3(0, (plainDimension.y / 2), -0.009),
+      scale: new Vector3(plainDimension.x + 0.01, 0.01, 0.018)
     }))
     topBoard.addComponent(material)
     topBoard.setParent(frame)
@@ -379,8 +379,8 @@ export class PlainPlacement extends Entity implements IStand {
     const bottomBoard = new Entity()
     bottomBoard.addComponent(new BoxShape())
     bottomBoard.addComponent(new Transform({
-      position: new Vector3(0, -(plainDimension.y / 2), -0.015),
-      scale: new Vector3(plainDimension.x + 0.002, 0.01, 0.03)
+      position: new Vector3(0, -(plainDimension.y / 2), -0.009),
+      scale: new Vector3(plainDimension.x + 0.01, 0.01, 0.018)
     }))
     bottomBoard.addComponent(material)
     bottomBoard.setParent(frame)
