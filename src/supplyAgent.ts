@@ -8,7 +8,7 @@ import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
 import { getPlayersInScene } from '@decentraland/Players'
 import { Placement } from './enums'
-import { BasePlacement } from './plainPlacement'
+import { BasePlacement } from './basePlacement'
 
 interface IHash {
   [details: string]: boolean;

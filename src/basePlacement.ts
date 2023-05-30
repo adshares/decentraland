@@ -11,15 +11,12 @@ declare type TConstructorParams = {
   no?: number,
   types?: TPlacementProps['types'],
   mimes?: TPlacementProps['mimes'],
-  background?: Material,
 }
 
 const commonMaterials: {
-  default?: Material,
   infobox: Material,
   text: Material,
 } = {
-  default: undefined,
   infobox: new Material(),
   text: new Material()
 }
@@ -278,113 +275,5 @@ export class BasePlacement extends Entity implements IPlacement {
         this.hideMessageCanvas()
       })
     )
-  }
-}
-
-export class PlainPlacement extends Entity implements IStand {
-  private readonly _width: number
-  private readonly _types: string[] | null
-  private readonly _mimes: string[] | null
-  private readonly _backgroundMaterial?: Material
-  private readonly _plainPlacement: IPlacement
-
-  constructor (name: string, params?: TConstructorParams) {
-    super(name)
-    this.addComponent(new Transform({
-      position: params?.position || undefined,
-      rotation: params?.rotation || undefined
-    }))
-    this._width = (params?.width || 1) - 0.02
-    this._backgroundMaterial = params?.background
-    this._types = params?.types || null
-    this._mimes = params?.mimes || null
-    this._plainPlacement = new BasePlacement(name, {
-      position: new Vector3(0, 0, -0.01),
-      rotation: Quaternion.Euler(0, 0, 0),
-      width: this._width,
-      ratio: params?.ratio,
-      no: params?.no,
-      types: this._types,
-      mimes: this._mimes
-    })
-    this._plainPlacement.setParent(this)
-    this.renderFrame()
-  }
-
-  public getPlacements (): IPlacement[] {
-    return [
-      this._plainPlacement,
-    ]
-  }
-
-  protected getBackgroundMaterial (material: keyof typeof commonMaterials): Material {
-    if (this._backgroundMaterial === undefined) {
-      return this.getDefaultMaterial(material)
-    }
-    return this._backgroundMaterial
-  }
-
-  protected getDefaultMaterial (material: keyof typeof commonMaterials): Material {
-    if (commonMaterials[material] === undefined) {
-      commonMaterials[material] = new Material()
-      commonMaterials[material]!.specularIntensity = 0
-      commonMaterials[material]!.metallic = 0
-      commonMaterials[material]!.roughness = 1
-      commonMaterials[material]!.albedoColor = Color3.Black()
-    }
-    return commonMaterials[material]!
-  }
-
-  public renderFrame (): void {
-    const material = this.getBackgroundMaterial('default')
-    const plainDimension = this._plainPlacement.getComponent(Transform).scale
-    const frame = new Entity()
-
-    const bg = new Entity()
-    bg.addComponent(new PlaneShape())
-    bg.addComponent(new Transform({
-      position: new Vector3(0, 0, 0),
-      scale: new Vector3(plainDimension.x, plainDimension.y, plainDimension.z)
-    }))
-    bg.addComponent(material)
-    bg.setParent(frame)
-
-    const rightBoard = new Entity()
-    rightBoard.addComponent(new BoxShape())
-    rightBoard.addComponent(new Transform({
-      position: new Vector3((plainDimension.x / 2), 0, -0.009),
-      scale: new Vector3(0.01, plainDimension.y, 0.018)
-    }))
-    rightBoard.addComponent(material)
-    rightBoard.setParent(frame)
-
-    const leftBoard = new Entity()
-    leftBoard.addComponent(new BoxShape())
-    leftBoard.addComponent(new Transform({
-      position: new Vector3(-(plainDimension.x / 2), 0, -0.009),
-      scale: new Vector3(0.01, plainDimension.y, 0.018)
-    }))
-    leftBoard.addComponent(material)
-    leftBoard.setParent(frame)
-
-    const topBoard = new Entity()
-    topBoard.addComponent(new BoxShape())
-    topBoard.addComponent(new Transform({
-      position: new Vector3(0, (plainDimension.y / 2), -0.009),
-      scale: new Vector3(plainDimension.x + 0.01, 0.01, 0.018)
-    }))
-    topBoard.addComponent(material)
-    topBoard.setParent(frame)
-
-    const bottomBoard = new Entity()
-    bottomBoard.addComponent(new BoxShape())
-    bottomBoard.addComponent(new Transform({
-      position: new Vector3(0, -(plainDimension.y / 2), -0.009),
-      scale: new Vector3(plainDimension.x + 0.01, 0.01, 0.018)
-    }))
-    bottomBoard.addComponent(material)
-    bottomBoard.setParent(frame)
-
-    frame.setParent(this)
   }
 }

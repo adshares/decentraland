@@ -1,9 +1,9 @@
 import { Creative } from './creative'
 import { Chain } from './enums'
-import { BasePlacement, PlainPlacement } from './plainPlacement'
+import { BasePlacement } from './basePlacement'
 import { UIPlacement } from './UIPlacement'
 import { IPlacement, IStand } from './types'
-import { Billboard, Citylight, Totem } from './stand'
+import { Billboard, Citylight, Totem, PlainStand } from './stand'
 import SupplyAgent from './supplyAgent'
 
 export {
@@ -11,7 +11,7 @@ export {
   SupplyAgent,
   IPlacement,
   BasePlacement,
-  PlainPlacement,
+  PlainStand,
   IStand,
   Creative,
   Totem,

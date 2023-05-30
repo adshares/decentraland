@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Base placement without any side effect
-- Plain placement with frame and include base placement
+- Plain stand with frame and include base placement
 ### Fixed
-- Fix blinking banner
-- Fix display placement when banner not found
+- Blinking banner
+- Display placement when banner not found
 
 ## [2.2.0] - 2022-04-26
 ### Added
