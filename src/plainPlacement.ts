@@ -11,15 +11,12 @@ declare type TConstructorParams = {
   no?: number,
   types?: TPlacementProps['types'],
   mimes?: TPlacementProps['mimes'],
-  background?: Material | null,
 }
 
 const commonMaterials: {
-  default?: Material,
   infobox: Material,
   text: Material,
 } = {
-  default: undefined,
   infobox: new Material(),
   text: new Material()
 }
@@ -34,7 +31,6 @@ export class PlainPlacement extends Entity implements IPlacement {
   private readonly _types: TPlacementProps['types']
   private readonly _mimes: TPlacementProps['mimes']
   private readonly _clickDistance: number = 50
-  private _backgroundMaterial?: Material | null
   public name: string
 
   public constructor (
@@ -48,13 +44,12 @@ export class PlainPlacement extends Entity implements IPlacement {
     this._no = params?.no || null
     this._types = params?.types || null
     this._mimes = params?.mimes || null
-    this._backgroundMaterial = params?.background
     this._transform = new Transform({
-      scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 1),
+      scale: new Vector3(this._width, (this._width / Ratio[this._ratio]), 0.1),
       position: params?.position,
       rotation: params?.rotation
     })
-    this.initDefaultShape()
+    this.addComponent(this._transform)
   }
 
   public getProps (): TPlacementProps {
@@ -82,13 +77,6 @@ export class PlainPlacement extends Entity implements IPlacement {
   }
 
   public renderCreative (creative: Creative): void {
-
-    const backgroundM = this.getBackgroundMaterial()
-    if (backgroundM !== null) {
-      this.addComponentOrReplace(new PlaneShape())
-      this.addComponentOrReplace(backgroundM)
-    }
-
     const size = creative.scope.split('x')
     const scaleFactor = this.calculateScaleFactor(parseInt(size[0]), parseInt(size[1]))
 
@@ -97,7 +85,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(new PlaneShape())
     plane.addComponent(
       new Transform({
-        position: new Vector3(0, 0, -0.01),
+        position: new Vector3(0, 0, 0),
         rotation: Quaternion.Euler(creative.type === 'image' ? 180 : 0, 180, 0),
         scale: new Vector3(scaleFactor.scaleX, scaleFactor.scaleY, 1)
       })
@@ -159,7 +147,7 @@ export class PlainPlacement extends Entity implements IPlacement {
     plane.addComponent(planeShape)
     plane.addComponent(
       new Transform({
-        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.0015),
+        position: new Vector3(0.5 - scale.x / 2, (1 - scale.y) / 2, -0.05),
         rotation: Quaternion.Euler(180, 180, 0),
         scale: new Vector3(scale.x, scale.y, 1)
       })
@@ -188,28 +176,6 @@ export class PlainPlacement extends Entity implements IPlacement {
     }
   }
 
-  protected getBackgroundMaterial (): Material | null {
-    if (this._backgroundMaterial === undefined) {
-      return this.getDefaultMaterial()
-    }
-    return this._backgroundMaterial
-  }
-
-  protected getDefaultMaterial (): Material {
-    if (commonMaterials.default === undefined) {
-      commonMaterials.default = new Material()
-      commonMaterials.default.specularIntensity = 0
-      commonMaterials.default.metallic = 0
-      commonMaterials.default.roughness = 1
-      commonMaterials.default.albedoColor = Color3.Black()
-    }
-    return commonMaterials.default
-  }
-
-  protected initDefaultShape () {
-    this.addComponent(this._transform)
-  }
-
   protected calculateScaleFactor (originWidth: number, originHeight: number) {
     const maxScale = this.getComponent(Transform).scale
     const scaleFactor = Math.min((maxScale.x / originWidth), (maxScale.y / originHeight))
@@ -235,7 +201,6 @@ export class PlainPlacement extends Entity implements IPlacement {
       }
       entity = entity.getParent()
     }
-    scale.z = 0.1
     return scale
   }
 
@@ -268,11 +233,8 @@ export class PlainPlacement extends Entity implements IPlacement {
   protected renderText (icon: string, message: string): void {
 
     this.reset()
-    const material = this.getDefaultMaterial()
-    material.albedoColor = Color3.White()
 
     this.addComponentOrReplace(new PlaneShape())
-    this.addComponentOrReplace(material)
 
     const plane = new Entity()
     const planeShape = new PlaneShape()

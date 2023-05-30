@@ -76,7 +76,6 @@ Available options:
   no?: number | null,
   types?: string[] | null,
   mimes?: string[] | null,
-  background?: Material | null,
 }
 ```
 
@@ -95,6 +94,26 @@ const placement = new Ads.UIPlacement(name: string, position: 'top' | 'bottom' |
 
 Stands combine several placements into one object.
 Every stand implements IEntity and has access to IEntity methods.
+
+The simplest stand is the PlainStand, which repeats the PlainPlacement and adds a frame and a background that covers the gaps between the layers. You can define own Material for frame.
+
+```js
+const plain = new Ads.PlainStand(name: string, options?: {})
+```
+Available options:
+
+```js
+{
+  position?: Vector3, // @decentraland-ecs
+  rotation?: Quaternion, // @decentraland-ecs
+  width?: number,
+  ratio?: '9:16' | '3:4' | '1:1' | '4:3' | '16:9',
+  no?: number | null,
+  types?: string[] | null,
+  mimes?: string[] | null,
+  frameMaterial?: Material,
+}
+```
 
 Available stands:
 
