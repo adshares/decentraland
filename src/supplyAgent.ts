@@ -8,7 +8,7 @@ import { UIPlacement } from './UIPlacement'
 import { getUserData } from '@decentraland/Identity'
 import { getPlayersInScene } from '@decentraland/Players'
 import { Placement } from './enums'
-import { BasePlacement } from './basePlacement'
+import { PlainPlacement } from './plainPlacement'
 
 interface IHash {
   [details: string]: boolean;
@@ -80,7 +80,7 @@ export default class SupplyAgent {
           throw new Error(`Multiple attempts to add UI placements in the same position: ${placement.name} - ${placement.position}`)
         }
         this.UIPlacements.push(placement)
-      } else if (placement instanceof BasePlacement) {
+      } else if (placement instanceof PlainPlacement) {
         this.bannerCounter += 1
         if (this.bannerCounter > maxPlacements) {
           const message = `To many placements, you can add up to ${maxPlacements} placements.`

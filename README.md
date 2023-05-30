@@ -62,7 +62,7 @@ Every placement implements IEntity and has access to IEntity methods.
 Usage:
 
 ```js
-const placement = new Ads.BasePlacement(name: string, options?: {})
+const placement = new Ads.PlainPlacement(name: string, options?: {})
 ```
 
 Available options:
@@ -95,7 +95,7 @@ const placement = new Ads.UIPlacement(name: string, position: 'top' | 'bottom' |
 Stands combine several placements into one object.
 Every stand implements IEntity and has access to IEntity methods.
 
-The simplest stand is the PlainStand, which repeats the BasePlacement and adds a frame and a background that covers the gaps between the layers. You can define own Material for frame.
+The simplest stand is the PlainStand, which repeats the PlainPlacement and adds a frame and a background that covers the gaps between the layers. You can define own Material for frame.
 
 ```js
 const plain = new Ads.PlainStand(name: string, options?: {})
@@ -206,7 +206,7 @@ import * as Ads from '@adshares/decentraland'
 
 const agent = Ads.SupplyAgent.fromWallet('https://app.web3ads.net', 'ads', '0001-00000000-9B6F')
 
-const placement1 = new Ads.BasePlacement('unit1', {
+const placement1 = new Ads.PlainPlacement('unit1', {
   position: new Vector3(8, 2, 8),
   rotation: new Quaternion(0, 0, 0, 1),
   width: 5,
@@ -214,7 +214,7 @@ const placement1 = new Ads.BasePlacement('unit1', {
 })
 engine.addEntity(placement1)
 
-const placement2 = new Ads.BasePlacement('unit2', {
+const placement2 = new Ads.PlainPlacement('unit2', {
   position: new Vector3(11, 2, 6),
   rotation: new Quaternion(0, 1, 0, 1),
   width: 3,

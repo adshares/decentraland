@@ -23,7 +23,7 @@ const commonMaterials: {
 
 let messageInputText: UIInputText | undefined
 
-export class BasePlacement extends Entity implements IPlacement {
+export class PlainPlacement extends Entity implements IPlacement {
   private readonly _transform: Transform
   private readonly _width: number
   private readonly _ratio: TRatio

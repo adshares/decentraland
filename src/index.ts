@@ -1,6 +1,6 @@
 import { Creative } from './creative'
 import { Chain } from './enums'
-import { BasePlacement } from './basePlacement'
+import { PlainPlacement } from './plainPlacement'
 import { UIPlacement } from './UIPlacement'
 import { IPlacement, IStand } from './types'
 import { Billboard, Citylight, Totem, PlainStand } from './stand'
@@ -10,7 +10,7 @@ export {
   Chain,
   SupplyAgent,
   IPlacement,
-  BasePlacement,
+  PlainPlacement,
   PlainStand,
   IStand,
   Creative,
