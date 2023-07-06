@@ -1,6 +1,6 @@
 {
   "name": "@adshares/decentraland",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "display-name": "Adshares DCL plugin",
   "description": "Adshares Decentraland SDK plugin",
   "author": "Adshares <dev@adshares.net>",

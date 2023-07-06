@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2022-07-06
+### Fixed
+- npm build
+
 ## [2.3.0] - 2022-05-30
 ### Added
 - Base placement without any side effect
@@ -91,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Video ads support
 
-[Unreleased]: https://github.com/adshares/decentraland/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/adshares/decentraland/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/adshares/decentraland/compare/v2.3.0...2.3.1
 [2.3.0]: https://github.com/adshares/decentraland/compare/v2.2.0...2.3.0
 [2.2.0]: https://github.com/adshares/decentraland/compare/v2.1.1...2.2.0
 [2.1.1]: https://github.com/adshares/decentraland/compare/v2.1.0...2.1.1
